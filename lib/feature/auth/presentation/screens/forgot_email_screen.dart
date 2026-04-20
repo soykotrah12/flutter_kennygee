@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller/auth_controller.dart';
+import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/theme/app_buttoms.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../controller/auth_flow_controller.dart';
+import 'Otp_verify_screen.dart';
 
 class EmailVerifyScreen extends StatefulWidget {
   const EmailVerifyScreen({super.key});
@@ -12,12 +17,13 @@ class EmailVerifyScreen extends StatefulWidget {
 
 class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
   final TextEditingController _emailController = TextEditingController();
-  late AuthController _authController;
+
+  late final AuthFlowController _flowController;
 
   @override
   void initState() {
     super.initState();
-    _authController = Get.find<AuthController>();
+    _flowController = ensureAuthFlowController();
   }
 
   @override
@@ -26,158 +32,91 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
     super.dispose();
   }
 
-  void _sendOtp() {
+  void _continue() {
     final email = _emailController.text.trim();
-    if (email.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please enter your email address',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
+    _flowController.submitForgotPasswordEmail(email);
+    if (email.isNotEmpty) {
+      Get.to(() => OtpVerificationScreen(email: email));
     }
-
-    // Call forgotPassword API through AuthController
-    _authController.forgotPassword(email);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-
-              // Title
-              const Text(
-                'Forgot Password?',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Subtitle
-              const Text(
-                'Please Type in your Email Address',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF999999),
-                ),
-              ),
-              const SizedBox(height: 60),
-
-              // Email Input Field
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2D2D2D),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: TextField(
-                  controller: _emailController,
-                  style: const TextStyle(color: Colors.white),
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    hintText: 'Email Address',
-                    hintStyle: TextStyle(
-                      color: Color(0xFF666666),
-                      fontSize: 14,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.email_outlined,
-                      color: Color(0xFF999999),
-                      size: 20,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Reset Password Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: Obx(
-                  () => ElevatedButton(
-                    onPressed: _authController.isLoading.value
-                        ? null
-                        : _sendOtp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFA855F7),
-                      disabledBackgroundColor: const Color(0xFF555555),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _authController.isLoading.value
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
-                          )
-                        : const Text(
-                            'Reset Password',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
-
-              const Spacer(),
-
-              // Remember Password Link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Remember Password? ',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Get.back();
-                    },
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFA855F7),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-            ],
+    return AppScaffold(
+      useSafeArea: true,
+      isScrollable: true,
+      backgroundColor: AppColors.appBackground,
+      body: Column(
+        children: [
+          const SizedBox(height: 54),
+          Image.asset(
+            AppImages.appLogo,
+            width: 100,
+            height: 145,
+            fit: BoxFit.contain,
           ),
-        ),
+          const SizedBox(height: 18),
+          const Text(
+            'Reset password',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textBlack,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Enter your email to receive the OTP',
+            style: TextStyle(
+              color: AppColors.textGrey,
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 34),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Your Email',
+              style: TextStyle(
+                color: AppColors.textBlack,
+                fontSize: 22,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            style: const TextStyle(
+              color: AppColors.textBlack,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: const InputDecoration(
+              hintText: 'Enter your Email',
+              prefixIcon: Icon(
+                Icons.mail_outline_rounded,
+                color: AppColors.textFieldLightGrey,
+                size: 31,
+              ),
+            ),
+          ),
+          const SizedBox(height: 34),
+          PrimaryButton(
+            onPressed: _continue,
+            child: const Text(
+              'Send OTP',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 40),
+        ],
       ),
     );
   }

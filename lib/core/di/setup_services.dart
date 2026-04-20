@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
-import '../services/get_user_profile_service.dart';
+import '../network/services/onboarding_store_service.dart';
 
 void setupServices() {
-  // Get.lazyPut<GetUserProfileService>(() => GetUserProfileService(Get.find()));
+  Get.lazyPut<OnboardingStoreService>(() => OnboardingStoreService(), fenix: true);
 }

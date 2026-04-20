@@ -1,5 +1,4 @@
-import 'package:flutx_core/flutx_core.dart';
-import '../common/constants/stripe_key.dart';
+
 // import 'package:flutter_stripe/flutter_stripe.dart';
 
 class StripeInitializer {

@@ -1,53 +1,159 @@
 import 'package:flutter/material.dart';
 
-import '../common/constants/app_colors.dart';
+import 'app_colors.dart';
 
 class AppTheme {
+  AppTheme._();
 
-  static TextTheme get _textTheme {
-    final base = ThemeData(fontFamily: 'Nunito').textTheme;
-    TextStyle w6(TextStyle? s) => (s ?? const TextStyle()).copyWith(
-          fontFamily: 'Nunito',
+  static ThemeData get light {
+    const inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(16)),
+      borderSide: BorderSide(color: AppColors.inputBorder, width: 1.3),
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: AppColors.appBackground,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primaryGreen,
+        secondary: AppColors.primaryOrange,
+        surface: AppColors.appBackground,
+      ),
+      fontFamily: 'Montserrat',
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
-        );
-    return base.copyWith(
-      displayLarge: w6(base.displayLarge),
-      displayMedium: w6(base.displayMedium),
-      displaySmall: w6(base.displaySmall),
-      headlineLarge: w6(base.headlineLarge),
-      headlineMedium: w6(base.headlineMedium),
-      headlineSmall: w6(base.headlineSmall),
-      titleLarge: w6(base.titleLarge),
-      titleMedium: w6(base.titleMedium),
-      titleSmall: w6(base.titleSmall),
-      bodyLarge: w6(base.bodyLarge),
-      bodyMedium: w6(base.bodyMedium),
-      bodySmall: w6(base.bodySmall),
-      labelLarge: w6(base.labelLarge),
-      labelMedium: w6(base.labelMedium),
-      labelSmall: w6(base.labelSmall),
+          fontSize: 57,
+          height: 1.12,
+        ),
+        displayMedium: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w700,
+          fontSize: 45,
+          height: 1.15,
+        ),
+        displaySmall: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w700,
+          fontSize: 36,
+          height: 1.2,
+        ),
+        headlineLarge: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w700,
+          fontSize: 42,
+          height: 1.12,
+        ),
+        headlineMedium: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w700,
+          fontSize: 34,
+          height: 1.15,
+        ),
+        headlineSmall: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w700,
+          fontSize: 24,
+          height: 1.2,
+        ),
+        titleLarge: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w700,
+          fontSize: 30,
+          height: 1.2,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w600,
+          fontSize: 24,
+          height: 1.2,
+        ),
+        titleSmall: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w600,
+          fontSize: 20,
+          height: 1.25,
+        ),
+        bodyLarge: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w500,
+          fontSize: 18,
+          height: 1.3,
+        ),
+        bodyMedium: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+          height: 1.35,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textGrey,
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          height: 1.35,
+        ),
+        labelLarge: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+          height: 1.2,
+        ),
+        labelMedium: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          height: 1.25,
+        ),
+        labelSmall: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+          height: 1.3,
+        ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.inputBackground,
+        enabledBorder: inputBorder,
+        focusedBorder: inputBorder,
+        errorBorder: inputBorder,
+        focusedErrorBorder: inputBorder,
+        hintStyle: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.subTextGrey,
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+        ),
+        labelStyle: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        foregroundColor: AppColors.textBlack,
+      ),
     );
   }
-
-  static ThemeData get light => ThemeData(
-    scaffoldBackgroundColor: const Color(0xFF1A1A1A), // Dark Background
-    primaryColor: TColors.authPurple,
-    colorScheme: ColorScheme.dark(
-      primary: TColors.authPurple,
-      surface: const Color(0xFF2D2D2D),
-    ),
-    fontFamily: 'Nunito',
-    textTheme: _textTheme,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF1A1A1A),
-      iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: TextStyle(
-        fontFamily: 'Nunito',
-        color: Colors.white,
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  );
 }

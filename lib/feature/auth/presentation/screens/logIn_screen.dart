@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
-import '../../../../core/common/constants/texts.dart';
-import '../controller/auth_controller.dart';
+import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/theme/app_buttoms.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../controller/auth_flow_controller.dart';
+import 'create_account_screen.dart';
 import 'forgot_email_screen.dart';
 import 'role_selection_screen.dart';
 
@@ -15,15 +18,16 @@ class LoginRoleScreen extends StatefulWidget {
 }
 
 class _LoginRoleScreenState extends State<LoginRoleScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  late AuthController _authController;
+
+  late final AuthFlowController _flowController;
 
   @override
   void initState() {
     super.initState();
-    _authController = Get.find<AuthController>();
+    _flowController = ensureAuthFlowController();
   }
 
   @override
@@ -33,310 +37,186 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    // Basic validation
-    if (_emailController.text.trim().isEmpty) {
-      Get.snackbar(
-        appTexts.error.tr,
-        appTexts.pleaseEnterEmail.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    if (_passwordController.text.trim().isEmpty) {
-      Get.snackbar(
-        appTexts.error.tr,
-        appTexts.pleaseEnterPassword.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    // Call API through AuthController
-    _authController.login(
-      _emailController.text.trim(),
-      _passwordController.text,
+  @override
+  Widget build(BuildContext context) {
+    return AppScaffold(
+      useSafeArea: true,
+      isScrollable: true,
+      backgroundColor: AppColors.appBackground,
+      body: Column(
+        children: [
+          const SizedBox(height: 18),
+          Align(
+            alignment: Alignment.center,
+            child: Image.asset(
+              AppImages.appLogo,
+              width: 120,
+              height: 170,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(height: 28),
+          const _InputLabel('User Email'),
+          const SizedBox(height: 12),
+          _AuthInput(
+            controller: _emailController,
+            hintText: 'Enter your Email',
+            prefixIcon: Icons.mail_outline_rounded,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 24),
+          const _InputLabel('Password'),
+          const SizedBox(height: 12),
+          _AuthInput(
+            controller: _passwordController,
+            hintText: 'Enter your Password',
+            prefixIcon: Icons.lock_outline_rounded,
+            obscureText: _obscurePassword,
+            suffixIcon: IconButton(
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+              icon: Icon(
+                _obscurePassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: AppColors.textFieldLightGrey,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () => Get.to(() => const EmailVerifyScreen()),
+              child: const Text(
+                'Forgot password?',
+                style: TextStyle(
+                  color: AppColors.primaryGreen,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+          Obx(
+            () => PrimaryButton(
+              isLoading: _flowController.isSubmitting.value,
+              onPressed: () => _flowController.signIn(
+                email: _emailController.text,
+                password: _passwordController.text,
+              ),
+              child: const Text(
+                'Sign in',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Don’t have an account? ',
+                style: TextStyle(
+                  color: AppColors.textBlack,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  final role = _flowController.selectedRole.value;
+                  if (role == null) {
+                    Get.to(() => const RoleSelectionScreen());
+                    return;
+                  }
+                  Get.to(() => CreateAccountScreen(selectedRole: role));
+                },
+                child: const Text(
+                  'Sign Up Here',
+                  style: TextStyle(
+                    color: AppColors.primaryGreen,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+        ],
+      ),
     );
   }
+}
+
+class _InputLabel extends StatelessWidget {
+  const _InputLabel(this.text);
+
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 60),
-
-              // App Logo (Beard Icon)
-              Image.asset(
-                AppImages.appLogo,
-                width: 80,
-                height: 80,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 40),
-
-              // Welcome Back Title
-              Text(
-                appTexts.welcomeBack.tr,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Subtitle
-               Text(
-                appTexts.pleaseLogin.tr,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF999999),
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Email Field
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2D2D2D),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: appTexts.emailAddress.tr,
-                    hintStyle: const TextStyle(
-                      color: Color(0xFF666666),
-                      fontSize: 14,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.email_outlined,
-                      color: Color(0xFF999999),
-                      size: 20,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Password Field
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2D2D2D),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: appTexts.password.tr,
-                    hintStyle: const TextStyle(
-                      color: Color(0xFF666666),
-                      fontSize: 14,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.lock_outline,
-                      color: Color(0xFF999999),
-                      size: 20,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: const Color(0xFF999999),
-                        size: 20,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Forgot Password
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    Get.to(() => const EmailVerifyScreen());
-                  },
-                  child: Text(
-                    appTexts.forgotPassword.tr,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF999999),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Login Button
-              Obx(
-                () => SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _authController.isLoading.value
-                        ? null
-                        : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB24BF3),
-                      disabledBackgroundColor: const Color(0xFF555555),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _authController.isLoading.value
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            appTexts.login.tr,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Or Continue With
-               Text(
-                appTexts.orContinueWith.tr,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF999999),
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Social Media Icons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // _buildSocialIcon(
-                  //   'assets/images/insta.png',
-                  //   onTap: () {
-                  //     // Instagram login
-                  //   },
-                  // ),
-                  // const SizedBox(width: 24),
-                  // _buildSocialIcon(
-                  //   'assets/images/facebook.png',
-                  //   onTap: () {
-                  //     // Facebook login
-                  //   },
-                  // ),
-                  // const SizedBox(width: 24),
-                  _buildSocialIcon(
-                    'assets/images/google.png',
-                    onTap: () {
-                      // Google login
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-
-              // Sign Up Link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                   Text(
-                    appTexts.dontHaveAccount.tr,
-                    style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Get.to(
-                        () => const RoleSelectionScreen(),
-                        transition: Transition.rightToLeft,
-                      );
-                    },
-                    child: Text(
-                      appTexts.createOne.tr,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFB24BF3),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-            ],
-          ),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.textBlack,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
+}
 
-  //social icon builder widget
- Widget _buildSocialIcon(String assetPath, {required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.transparent,
+class _AuthInput extends StatelessWidget {
+  const _AuthInput({
+    required this.controller,
+    required this.hintText,
+    required this.prefixIcon,
+    this.suffixIcon,
+    this.keyboardType,
+    this.obscureText = false,
+  });
+
+  final TextEditingController controller;
+  final String hintText;
+  final IconData prefixIcon;
+  final Widget? suffixIcon;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      style: const TextStyle(
+        color: AppColors.textBlack,
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+      ),
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: Icon(
+          prefixIcon,
+          color: AppColors.textFieldLightGrey,
+          size: 33,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Image.asset(
-            assetPath,
-            width: 40,
-            height: 40,
-            fit: BoxFit.cover,
-          ),
-        ),
+        suffixIcon: suffixIcon,
       ),
     );
   }

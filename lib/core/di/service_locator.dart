@@ -14,9 +14,9 @@ void setupServiceLocator() {
   // Use Cases
   setupUsecases();
 
-  // Controllers
-  setupController();
-
   // Services
   setupServices();
+
+  // Controllers
+  setupController();
 }

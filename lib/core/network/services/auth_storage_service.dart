@@ -43,6 +43,10 @@ class AuthStorageService {
     await _secureStorage.write(key: KeyConstants.userId, value: userId);
   }
 
+  Future<void> storeRole(String role) async {
+    await _secureStorage.write(key: KeyConstants.role, value: role);
+  }
+
   // Get access token
   Future<String?> getAccessToken() async {
     final accessToken = await _secureStorage.read(
@@ -68,12 +72,17 @@ class AuthStorageService {
     return await _secureStorage.read(key: KeyConstants.userId);
   }
 
+  Future<String?> getRole() async {
+    return await _secureStorage.read(key: KeyConstants.role);
+  }
+
   // Get all auth data at once
   Future<Map<String, String?>> getAllAuthData() async {
     return {
       'accessToken': await getAccessToken(),
       'refreshToken': await getRefreshToken(),
       'userId': await getUserId(),
+      'role': await getRole(),
     };
   }
 
@@ -83,6 +92,7 @@ class AuthStorageService {
       _secureStorage.delete(key: KeyConstants.accessToken),
       _secureStorage.delete(key: KeyConstants.refreshToken),
       _secureStorage.delete(key: KeyConstants.userId),
+      _secureStorage.delete(key: KeyConstants.role),
     ]);
     _isAuthenticated = false;
   }

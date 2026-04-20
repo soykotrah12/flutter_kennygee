@@ -22,6 +22,7 @@ class AppScaffold extends StatelessWidget {
   final Color? backgroundColor;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
+  final EdgeInsetsGeometry bodyPadding;
 
   const AppScaffold({
     this.toolbarHeight = 100,
@@ -40,12 +41,13 @@ class AppScaffold extends StatelessWidget {
     this.floatingActionButton,
     this.bottomNavigationBar,
     this.titlespacing,
+    this.bodyPadding = const EdgeInsets.symmetric(horizontal: 16),
   });
 
   @override
   Widget build(BuildContext context) {
     Widget content = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: bodyPadding,
       child: body,
     );
 

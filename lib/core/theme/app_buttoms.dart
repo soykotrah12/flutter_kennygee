@@ -12,6 +12,7 @@ class PrimaryButton extends StatelessWidget {
   final bool isBorder;
   final Color backgroundColor;
   final double borderRadius;
+  final EdgeInsetsGeometry? padding;
 
   const PrimaryButton({
     super.key,
@@ -20,10 +21,11 @@ class PrimaryButton extends StatelessWidget {
     this.width,
     this.height,
     this.isLoading = false,
-    this.isGradient = true,
+    this.isGradient = false,
     this.isBorder = false,
-    this.backgroundColor = AppColors.primaryWhite,
-    this.borderRadius = 50,
+    this.backgroundColor = AppColors.primaryGreen,
+    this.borderRadius = 40,
+    this.padding,
   });
 
   @override
@@ -32,31 +34,38 @@ class PrimaryButton extends StatelessWidget {
       onTap: isLoading ? null : onPressed,
       child: AbsorbPointer(
         absorbing: isLoading,
-        child: Opacity(
-          opacity: isLoading ? 0.6 : 1.0,
+        child: AnimatedOpacity(
+          opacity: isLoading ? 0.65 : 1,
+          duration: const Duration(milliseconds: 150),
           child: Container(
             width: width ?? double.infinity,
-            height: height ?? 48,
+            height: height ?? 64,
+            padding: padding,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              gradient: isGradient? const LinearGradient(
-                colors: [
-                  Color(0xFF23AF56),
-                  Color(0xFF5048E7),
-                  Color(0xFF23AF56),
-                ],
-              ) : null,
+              gradient: isGradient
+                  ? const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.primaryOrange,
+                        AppColors.primaryGreen,
+                      ],
+                    )
+                  : null,
               color: isGradient ? null : backgroundColor,
               borderRadius: BorderRadius.circular(borderRadius),
-              border: isBorder ? Border.all(color: AppColors.textFieldLightLavender) : null,
+              border: isBorder
+                  ? Border.all(color: AppColors.primaryGreen, width: 1.4)
+                  : null,
             ),
             child: isLoading
                 ? const SizedBox(
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                      strokeWidth: 2.2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
                 : child,
@@ -83,12 +92,12 @@ class SecondaryButton extends StatelessWidget {
     required this.onPressed,
     required this.text,
     this.backgroundColor = AppColors.primaryWhite,
-    this.textColor = AppColors.textBlack,
-    this.borderColor = AppColors.textGreen,
+    this.textColor = AppColors.primaryGreen,
+    this.borderColor = AppColors.primaryGreen,
     this.width,
     this.height,
     this.isLoading = false,
-    this.borderRadius = 8.0,
+    this.borderRadius = 16,
   });
 
   @override
@@ -97,11 +106,12 @@ class SecondaryButton extends StatelessWidget {
       onTap: isLoading ? null : onPressed,
       child: AbsorbPointer(
         absorbing: isLoading,
-        child: Opacity(
-          opacity: isLoading ? 0.6 : 1.0,
+        child: AnimatedOpacity(
+          opacity: isLoading ? 0.65 : 1,
+          duration: const Duration(milliseconds: 150),
           child: Container(
             width: width ?? double.infinity,
-            height: height ?? 48,
+            height: height ?? 60,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: backgroundColor,
@@ -121,7 +131,7 @@ class SecondaryButton extends StatelessWidget {
                     text,
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
