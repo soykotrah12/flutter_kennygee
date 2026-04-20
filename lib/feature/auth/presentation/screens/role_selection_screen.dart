@@ -40,8 +40,8 @@ class RoleSelectionScreen extends StatelessWidget {
               children: [
                 Image.asset(
                   AppImages.appLogo,
-                  width: 92,
-                  height: 122,
+                  width: 40,
+                  height: 58,
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 34),
@@ -53,7 +53,7 @@ class RoleSelectionScreen extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: titleSize,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: -0.45,
                           color: AppColors.textBlack,
                           height: 1.2,
@@ -78,7 +78,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   'We tailor the experience based on who you are.',
                   style: TextStyle(
                     fontFamily: 'Montserrat',
-                    fontSize: 18,
+                    fontSize: 12,
                     height: 1.25,
                     color: AppColors.textBlack,
                     fontWeight: FontWeight.w500,
@@ -118,7 +118,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 ),
                 const Spacer(),
                 PrimaryButton(
-                  height: 72,
+                  height: 51,
                   borderRadius: 40,
                   onPressed: flowController.continueFromRoleSelection,
                   child: const Row(
@@ -129,12 +129,12 @@ class RoleSelectionScreen extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(width: 14),
-                      Icon(Icons.arrow_forward, color: Colors.white, size: 30),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward, color: Colors.white, size: 18),
                     ],
                   ),
                 ),
@@ -179,24 +179,24 @@ class _RoleCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(4),
               child: AspectRatio(
-                aspectRatio: 0.9,
+                aspectRatio: 1.2,
                 child: Image.asset(image, fit: BoxFit.cover),
               ),
             ),
             const SizedBox(height: 10),
             SizedBox(
-              height: 52,
+              height: 20,
               child: Center(
                 child: Text(
                   label,
                   textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.visible,
+                  softWrap: true,
                   style: TextStyle(
                     fontFamily: 'Montserrat',
-                    fontSize: 17,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: isSelected
                         ? AppColors.primaryGreen

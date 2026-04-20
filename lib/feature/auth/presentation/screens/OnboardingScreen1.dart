@@ -168,9 +168,8 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                           slide.titleTop,
                           style: const TextStyle(
                             fontFamily: 'Montserrat',
-                            fontSize: 28,
+                            fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            letterSpacing: -0.35,
                             height: 1.08,
                             color: AppColors.textBlack,
                           ),
@@ -191,7 +190,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                           text: slide.titleHighlight,
                           style: const TextStyle(
                             fontFamily: 'Montserrat',
-                            fontSize: 34,
+                            fontSize: 32,
                             fontWeight: FontWeight.w700,
                             letterSpacing: -0.5,
                             color: AppColors.primaryGreen,
@@ -202,7 +201,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                           text: ' ${slide.titleBottomRest}',
                           style: const TextStyle(
                             fontFamily: 'Montserrat',
-                            fontSize: 28,
+                            fontSize: 20,
                             fontWeight: FontWeight.w700,
                             letterSpacing: -0.3,
                             color: AppColors.textBlack,
@@ -218,29 +217,19 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                     style: const TextStyle(
                       fontFamily: 'Montserrat',
                       color: AppColors.textGrey,
-                      fontSize: 16,
-                      height: 1.42,
+                      fontSize: 14,
+                      height: 1.4,
                       fontWeight: FontWeight.w500,
                     ),
+                    overflow: TextOverflow.visible,
+                    softWrap: true,
                   ),
                   const Spacer(),
                   if (_isLastPage) ...[
-                    if (_hasPreviousPage)
-                      GestureDetector(
-                        onTap: _previous,
-                        child: const Text(
-                          'Previous',
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            color: AppColors.primaryGreen,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                    
                     if (_hasPreviousPage) const SizedBox(height: 12),
                     PrimaryButton(
-                      height: 72,
+                      height: 51,
                       onPressed: _next,
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -250,15 +239,15 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(width: 12),
+                          SizedBox(width: 8),
                           Icon(
                             Icons.arrow_forward,
                             color: Colors.white,
-                            size: 28,
+                            size: 20,
                           ),
                         ],
                       ),
@@ -279,19 +268,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                             ),
                           ),
                         ),
-                        if (_hasPreviousPage)
-                          GestureDetector(
-                            onTap: _previous,
-                            child: const Text(
-                              'Previous',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                color: AppColors.primaryGreen,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
+                        
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -300,7 +277,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                       children: [
                         Expanded(
                           child: SizedBox(
-                            height: 150,
+                            height: 210,
                             child: Align(
                               alignment: Alignment.bottomLeft,
                               child: slide.footerArtwork == null
@@ -316,8 +293,8 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                         GestureDetector(
                           onTap: _next,
                           child: Container(
-                            width: 84,
-                            height: 84,
+                            width: 56,
+                            height: 56,
                             decoration: const BoxDecoration(
                               color: AppColors.primaryGreen,
                               shape: BoxShape.circle,
@@ -325,7 +302,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                             child: const Icon(
                               Icons.arrow_forward,
                               color: Colors.white,
-                              size: 34,
+                              size: 28,
                             ),
                           ),
                         ),
@@ -353,17 +330,22 @@ class _DotsIndicator extends StatelessWidget {
     return Row(
       children: List.generate(
         length,
-        (index) => Container(
-          width: 12,
-          height: 12,
-          margin: EdgeInsets.only(left: index == 0 ? 0 : 10),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: index <= current
-                ? AppColors.primaryGreen
-                : const Color(0xFFD6D6D6),
-          ),
-        ),
+        (index) {
+          final isSelected = index == current;
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            width: isSelected ? 12 : 8,
+            height: isSelected ? 12 : 8,
+            margin: EdgeInsets.only(left: index == 0 ? 0 : 10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isSelected
+                  ? AppColors.primaryGreen
+                  : const Color(0xFFD6D6D6),
+            ),
+          );
+        },
       ),
     );
   }

@@ -5,14 +5,14 @@ class AppColors {
 
   // Brand Colors
   static const Color primary = Color(0xFF0D4E3C);
-  static const Color primaryGreen = Color(0xFF0D4E3C);
+  static const Color primaryGreen = Color(0xFF0F3D2E);
   static const Color primaryOrange = Color(0xFFF27C10);
   static const Color primaryWhite = Color(0xFFFFFFFF);
 
   // App Neutrals
   static const Color appBackground = Color(0xFFE7E7E7);
   static const Color textBlack = Color(0xFF202124);
-  static const Color textGrey = Color(0xFFB0BEC5);
+  static const Color textGrey = Color(0xFF7D7D7D);
   static const Color subTextGrey = Color(0xFF707070);
   static const Color inputBackground = Color(0xFFE7E7E7);
   static const Color inputBorder = Color(0xFFBCBCBC);

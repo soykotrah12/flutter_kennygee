@@ -41,119 +41,140 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
   Widget build(BuildContext context) {
     return AppScaffold(
       useSafeArea: true,
-      isScrollable: true,
+      isScrollable: false,
       backgroundColor: AppColors.appBackground,
-      body: Column(
-        children: [
-          const SizedBox(height: 18),
-          Align(
-            alignment: Alignment.center,
-            child: Image.asset(
-              AppImages.appLogo,
-              width: 120,
-              height: 170,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(height: 28),
-          const _InputLabel('User Email'),
-          const SizedBox(height: 12),
-          _AuthInput(
-            controller: _emailController,
-            hintText: 'Enter your Email',
-            prefixIcon: Icons.mail_outline_rounded,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 24),
-          const _InputLabel('Password'),
-          const SizedBox(height: 12),
-          _AuthInput(
-            controller: _passwordController,
-            hintText: 'Enter your Password',
-            prefixIcon: Icons.lock_outline_rounded,
-            obscureText: _obscurePassword,
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-              icon: Icon(
-                _obscurePassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-                color: AppColors.textFieldLightGrey,
-              ),
-            ),
-          ),
-          const SizedBox(height: 18),
-          Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () => Get.to(() => const EmailVerifyScreen()),
-              child: const Text(
-                'Forgot password?',
-                style: TextStyle(
-                  color: AppColors.primaryGreen,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 30),
-          Obx(
-            () => PrimaryButton(
-              isLoading: _flowController.isSubmitting.value,
-              onPressed: () => _flowController.signIn(
-                email: _emailController.text,
-                password: _passwordController.text,
-              ),
-              child: const Text(
-                'Sign in',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Don’t have an account? ',
-                style: TextStyle(
-                  color: AppColors.textBlack,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  final role = _flowController.selectedRole.value;
-                  if (role == null) {
-                    Get.to(() => const RoleSelectionScreen());
-                    return;
-                  }
-                  Get.to(() => CreateAccountScreen(selectedRole: role));
-                },
-                child: const Text(
-                  'Sign Up Here',
-                  style: TextStyle(
-                    color: AppColors.primaryGreen,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 18),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Image.asset(
+                          AppImages.appLogo,
+                          width: 60,
+                          height: 95,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      const _InputLabel('User Email'),
+                      const SizedBox(height: 12),
+                      _AuthInput(
+                        controller: _emailController,
+                        hintText: 'Enter your Email',
+                        prefixIcon: Icons.mail_outline_rounded,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 24),
+                      const _InputLabel('Password'),
+                      const SizedBox(height: 12),
+                      _AuthInput(
+                        controller: _passwordController,
+                        hintText: 'Enter your Password',
+                        prefixIcon: Icons.lock_outline_rounded,
+                        obscureText: _obscurePassword,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: AppColors.textFieldLightGrey,
+                          ),
+                          iconSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () => Get.to(() => const EmailVerifyScreen()),
+                          child: const Text(
+                            'Forgot password?',
+                            style: TextStyle(
+                              color: AppColors.primaryGreen,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      Obx(
+                        () => PrimaryButton(
+                          height: 51,
+                          isLoading: _flowController.isSubmitting.value,
+                          onPressed: () => _flowController.signIn(
+                            email: _emailController.text,
+                            password: _passwordController.text,
+                          ),
+                          child: const Text(
+                            'Sign in',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Don’t have an account? ',
+                            style: TextStyle(
+                              color: AppColors.textBlack,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              final role = _flowController.selectedRole.value;
+                              if (role == null) {
+                                Get.to(() => const RoleSelectionScreen());
+                                return;
+                              }
+                              Get.to(
+                                () => CreateAccountScreen(selectedRole: role),
+                              );
+                            },
+                            child: const Text(
+                              'Sign Up Here',
+                              style: TextStyle(
+                                color: AppColors.primaryGreen,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 28),
-        ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -173,8 +194,8 @@ class _InputLabel extends StatelessWidget {
         style: const TextStyle(
           fontFamily: 'Montserrat',
           color: AppColors.textBlack,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -206,15 +227,15 @@ class _AuthInput extends StatelessWidget {
       obscureText: obscureText,
       style: const TextStyle(
         color: AppColors.textBlack,
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: Icon(
           prefixIcon,
           color: AppColors.textFieldLightGrey,
-          size: 33,
+          size: 20,
         ),
         suffixIcon: suffixIcon,
       ),

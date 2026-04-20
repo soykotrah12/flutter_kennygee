@@ -10,7 +10,16 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final cardWidth = (width - 46) / 2;
+    final isCompact = width < 380;
+    final heroTitleSize = isCompact ? 30.0 : 40.0;
+    final sectionTitleSize = isCompact ? 24.0 : 34.0;
+    final sectionSubtitleSize = isCompact ? 12.0 : 14.0;
+    final sectionCtaSize = isCompact ? 16.0 : 20.0;
+    final eventTextSize = isCompact ? 16.0 : 18.0;
+    final availableCardSpace = width - 32 - 12;
+    final cardWidth = availableCardSpace > 0
+        ? availableCardSpace / 2
+        : width * 0.44;
 
     return AppScaffold(
       useSafeArea: true,
@@ -20,6 +29,7 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 24),
           Row(
             children: [
               Image.asset(
@@ -46,23 +56,20 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(width: 10),
               Container(
                 height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: isCompact ? 12 : 16),
                 decoration: BoxDecoration(
                   color: AppColors.primaryGreen,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(
-                      Icons.celebration_outlined,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 8),
+                    const Icon(Icons.celebration_outlined, color: Colors.white),
+                    SizedBox(width: isCompact ? 6 : 8),
                     Text(
                       'Events',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: eventTextSize,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -72,11 +79,11 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Hungry? Discover What’s\nnearby.',
             style: TextStyle(
               color: AppColors.textBlack,
-              fontSize: 40,
+              fontSize: heroTitleSize,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.7,
               height: 1.05,
@@ -129,37 +136,56 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-          const _SectionHeader(title: 'Nearby Restaurants', subtitle: '(within 10km)'),
+          _SectionHeader(
+            title: 'Nearby\nRestaurants',
+            subtitle: '(within 10km)',
+            titleSize: sectionTitleSize,
+            subtitleSize: sectionSubtitleSize,
+            ctaSize: sectionCtaSize,
+          ),
           const SizedBox(height: 10),
           SizedBox(
             height: 260,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _NearbyCard(
-                  width: cardWidth,
-                  image: AppImages.homeRestaurant1,
-                ),
+                _NearbyCard(width: cardWidth, image: AppImages.homeRestaurant1),
                 const SizedBox(width: 12),
-                _NearbyCard(
-                  width: cardWidth,
-                  image: AppImages.homeRestaurant2,
-                ),
+                _NearbyCard(width: cardWidth, image: AppImages.homeRestaurant2),
               ],
             ),
           ),
           const SizedBox(height: 18),
-          const _OnlyTitleHeader(title: 'Recommended for you'),
+          _OnlyTitleHeader(
+            title: 'Recommended for you',
+            titleSize: sectionTitleSize,
+            ctaSize: sectionCtaSize,
+          ),
           const SizedBox(height: 10),
-          const _RecommendedItem(image: AppImages.homeRestaurant3, rating: '5.0'),
+          const _RecommendedItem(
+            image: AppImages.homeRestaurant3,
+            rating: '5.0',
+          ),
           const SizedBox(height: 10),
-          const _RecommendedItem(image: AppImages.homeRestaurant1, rating: '5.0'),
+          const _RecommendedItem(
+            image: AppImages.homeRestaurant1,
+            rating: '5.0',
+          ),
           const SizedBox(height: 10),
-          const _RecommendedItem(image: AppImages.homeRestaurant2, rating: '5.0'),
+          const _RecommendedItem(
+            image: AppImages.homeRestaurant2,
+            rating: '5.0',
+          ),
           const SizedBox(height: 10),
-          const _RecommendedItem(image: AppImages.homeRestaurant3, rating: '5.0'),
+          const _RecommendedItem(
+            image: AppImages.homeRestaurant3,
+            rating: '5.0',
+          ),
           const SizedBox(height: 10),
-          const _RecommendedItem(image: AppImages.homeRestaurant1, rating: '4.8'),
+          const _RecommendedItem(
+            image: AppImages.homeRestaurant1,
+            rating: '4.8',
+          ),
         ],
       ),
     );
@@ -197,10 +223,19 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.subtitle});
+  const _SectionHeader({
+    required this.title,
+    required this.subtitle,
+    required this.titleSize,
+    required this.subtitleSize,
+    required this.ctaSize,
+  });
 
   final String title;
   final String subtitle;
+  final double titleSize;
+  final double subtitleSize;
+  final double ctaSize;
 
   @override
   Widget build(BuildContext context) {
@@ -212,28 +247,29 @@ class _SectionHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textBlack,
-                  fontSize: 34,
+                  fontSize: titleSize,
                   fontWeight: FontWeight.w700,
+                  height: 1.1,
                 ),
               ),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textGrey,
-                  fontSize: 14,
+                  fontSize: subtitleSize,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
         ),
-        const Text(
+        Text(
           'See all',
           style: TextStyle(
             color: AppColors.primaryGreen,
-            fontSize: 20,
+            fontSize: ctaSize,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -243,9 +279,15 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _OnlyTitleHeader extends StatelessWidget {
-  const _OnlyTitleHeader({required this.title});
+  const _OnlyTitleHeader({
+    required this.title,
+    required this.titleSize,
+    required this.ctaSize,
+  });
 
   final String title;
+  final double titleSize;
+  final double ctaSize;
 
   @override
   Widget build(BuildContext context) {
@@ -254,18 +296,19 @@ class _OnlyTitleHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textBlack,
-              fontSize: 34,
+              fontSize: titleSize,
               fontWeight: FontWeight.w700,
+              height: 1.1,
             ),
           ),
         ),
-        const Text(
+        Text(
           'See all',
           style: TextStyle(
             color: AppColors.primaryGreen,
-            fontSize: 20,
+            fontSize: ctaSize,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -336,36 +379,51 @@ class _NearbyCard extends StatelessWidget {
               ],
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
               children: [
-                Icon(Icons.location_on, size: 15, color: AppColors.primaryOrange),
-                SizedBox(width: 4),
-                Text(
-                  '1.2 miles away',
-                  style: TextStyle(
-                    color: AppColors.textBlack,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                const Icon(
+                  Icons.location_on,
+                  size: 15,
+                  color: AppColors.primaryOrange,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    '1.2 miles away',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textBlack,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               children: [
-                Icon(Icons.access_time_filled,
-                    size: 15, color: Color(0xFF2AB45D)),
-                SizedBox(width: 4),
-                Text(
-                  '11:00 AM - 10:00 PM',
-                  style: TextStyle(
-                    color: AppColors.textBlack,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                const Icon(
+                  Icons.access_time_filled,
+                  size: 15,
+                  color: Color(0xFF2AB45D),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    '11:00 AM - 10:00 PM',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textBlack,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -389,12 +447,7 @@ class _RecommendedItem extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: Image.asset(
-            image,
-            width: 90,
-            height: 90,
-            fit: BoxFit.cover,
-          ),
+          child: Image.asset(image, width: 90, height: 90, fit: BoxFit.cover),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -414,20 +467,36 @@ class _RecommendedItem extends StatelessWidget {
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const Icon(Icons.location_on,
-                      size: 15, color: AppColors.primaryOrange),
-                  const SizedBox(width: 4),
-                  const Text(
-                    '1.2 miles away',
-                    style: TextStyle(
-                      color: AppColors.textBlack,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          size: 15,
+                          color: AppColors.primaryOrange,
+                        ),
+                        const SizedBox(width: 4),
+                        const Expanded(
+                          child: Text(
+                            '1.2 miles away',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AppColors.textBlack,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const Spacer(),
-                  const Icon(Icons.star,
-                      size: 16, color: AppColors.primaryOrange),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.star,
+                    size: 16,
+                    color: AppColors.primaryOrange,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     rating,
@@ -442,15 +511,22 @@ class _RecommendedItem extends StatelessWidget {
               const SizedBox(height: 6),
               const Row(
                 children: [
-                  Icon(Icons.access_time_filled,
-                      size: 15, color: Color(0xFF2AB45D)),
+                  Icon(
+                    Icons.access_time_filled,
+                    size: 15,
+                    color: Color(0xFF2AB45D),
+                  ),
                   SizedBox(width: 4),
-                  Text(
-                    '11:00 AM - 10:00 PM',
-                    style: TextStyle(
-                      color: AppColors.textBlack,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: Text(
+                      '11:00 AM - 10:00 PM',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],

@@ -16,8 +16,8 @@ class AppImages {
   static const String onboarding9image = 'assets/images/onboard3.png';
 
   // Auth + role assets
-  static const String roleUser = onboarding7image;
-  static const String roleOwner = onboarding8image;
+  static const String roleUser = 'assets/images/user.png';
+  static const String roleOwner = 'assets/images/owner.png';
 
   // Onboarding slides
   static const String userOnboarding1 = onboarding7image;

@@ -10,11 +10,17 @@ class OwnerHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isCompact = width < 380;
+    final heroSize = isCompact ? 36.0 : 52.0;
+    final actionTextSize = isCompact ? 16.0 : 18.0;
+    final ctaTextSize = isCompact ? 16.0 : 20.0;
+
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
       backgroundColor: AppColors.appBackground,
-      bodyPadding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+      bodyPadding: const EdgeInsets.fromLTRB(16, 32, 16, 20),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,11 +48,11 @@ class OwnerHomeScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Welcome back,\nThe Culinary Architect',
             style: TextStyle(
               color: AppColors.textBlack,
-              fontSize: 52,
+              fontSize: heroSize,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.9,
               height: 0.95,
@@ -68,11 +74,11 @@ class OwnerHomeScreen extends StatelessWidget {
                   onPressed: () {},
                   height: 60,
                   borderRadius: 12,
-                  child: const Text(
+                  child: Text(
                     'Add Event',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: actionTextSize,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -115,8 +121,11 @@ class OwnerHomeScreen extends StatelessWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.workspace_premium,
-                        color: Color(0xFFFFCF57), size: 20),
+                    Icon(
+                      Icons.workspace_premium,
+                      color: Color(0xFFFFCF57),
+                      size: 20,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'Active Plan',
@@ -129,22 +138,26 @@ class OwnerHomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Row(
+                Row(
                   children: [
-                    Text(
-                      'Basic Promotion',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Text(
+                        'Basic Promotion',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isCompact ? 16 : 18,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                    Spacer(),
+                    const SizedBox(width: 8),
                     Text(
                       '\$129/month',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: isCompact ? 14 : 16,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -163,9 +176,9 @@ class OwnerHomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          const Row(
+          Row(
             children: [
-              Text(
+              const Text(
                 'Recent Reviews',
                 style: TextStyle(
                   color: AppColors.textBlack,
@@ -179,7 +192,7 @@ class OwnerHomeScreen extends StatelessWidget {
                 style: TextStyle(
                   decoration: TextDecoration.underline,
                   color: AppColors.primaryGreen,
-                  fontSize: 20,
+                  fontSize: ctaTextSize,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -225,6 +238,8 @@ class _StatsCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: AppColors.textGrey,
               fontSize: 18,
@@ -234,6 +249,8 @@ class _StatsCard extends StatelessWidget {
           const Spacer(),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: AppColors.textBlack,
               fontSize: 22,
@@ -303,6 +320,8 @@ class _ReviewCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               'Rikan Bhart',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: AppColors.textBlack,
                                 fontSize: 20,
@@ -310,12 +329,16 @@ class _ReviewCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Text(
-                            '7 minute ago',
-                            style: TextStyle(
-                              color: AppColors.subTextGrey,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                          Flexible(
+                            child: Text(
+                              '7 minute ago',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: AppColors.subTextGrey,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ],
@@ -323,11 +346,31 @@ class _ReviewCard extends StatelessWidget {
                       SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.star, size: 18, color: AppColors.primaryOrange),
-                          Icon(Icons.star, size: 18, color: AppColors.primaryOrange),
-                          Icon(Icons.star, size: 18, color: AppColors.primaryOrange),
-                          Icon(Icons.star, size: 18, color: AppColors.primaryOrange),
-                          Icon(Icons.star, size: 18, color: AppColors.primaryOrange),
+                          Icon(
+                            Icons.star,
+                            size: 18,
+                            color: AppColors.primaryOrange,
+                          ),
+                          Icon(
+                            Icons.star,
+                            size: 18,
+                            color: AppColors.primaryOrange,
+                          ),
+                          Icon(
+                            Icons.star,
+                            size: 18,
+                            color: AppColors.primaryOrange,
+                          ),
+                          Icon(
+                            Icons.star,
+                            size: 18,
+                            color: AppColors.primaryOrange,
+                          ),
+                          Icon(
+                            Icons.star,
+                            size: 18,
+                            color: AppColors.primaryOrange,
+                          ),
                         ],
                       ),
                       SizedBox(height: 6),

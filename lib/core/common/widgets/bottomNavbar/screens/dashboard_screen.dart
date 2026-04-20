@@ -72,9 +72,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: List.generate(_controller.tabs.length, (index) {
                   final tab = _controller.tabs[index];
                   final isActive = _controller.currentIndex.value == index;
+                  final tabFlex = isActive ? 2 : 1;
                   return Expanded(
+                    flex: tabFlex,
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOut,
                       margin: const EdgeInsets.symmetric(horizontal: 3),
                       height: 54,
                       decoration: BoxDecoration(
@@ -86,41 +89,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(27),
                         onTap: () => _controller.changeIndex(index),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: isActive ? 34 : 42,
-                              height: isActive ? 34 : 42,
-                              decoration: BoxDecoration(
-                                color: isActive
-                                    ? const Color(0xFFF2ECE5)
-                                    : AppColors.primaryGreen,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                isActive ? tab.activeIcon : tab.icon,
-                                size: isActive ? 20 : 24,
-                                color: isActive
-                                    ? AppColors.primaryGreen
-                                    : Colors.white,
-                              ),
-                            ),
-                            if (isActive) ...[
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  tab.label,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: isActive ? 34 : 42,
+                                height: isActive ? 34 : 42,
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? const Color(0xFFF2ECE5)
+                                      : AppColors.primaryGreen,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isActive ? tab.activeIcon : tab.icon,
+                                  size: isActive ? 20 : 24,
+                                  color: isActive
+                                      ? AppColors.primaryGreen
+                                      : Colors.white,
                                 ),
                               ),
+                              if (isActive) ...[
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      tab.label,
+                                      maxLines: 1,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ),
