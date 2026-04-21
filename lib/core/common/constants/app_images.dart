@@ -32,4 +32,9 @@ class AppImages {
   static const String homeRestaurant1 = onboarding7image;
   static const String homeRestaurant2 = onboarding8image;
   static const String homeRestaurant3 = onboarding9image;
+
+  // user home icons
+  static const String ai = 'assets/icons/ai.png';
+  static const String event = 'assets/icons/event.png';
+  static const String search = 'assets/icons/search.png';
 }

@@ -52,6 +52,7 @@ class AuthEndpoints {
   final String setNewPass = '$_base/reset-password';
 
   final String changePass = '$_base/change-password';
+  final String logout = '$_base/logout';
 }
 
 class GetProfile {

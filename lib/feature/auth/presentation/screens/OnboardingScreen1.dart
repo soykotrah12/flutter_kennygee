@@ -113,14 +113,6 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
     _authFlowController.finishOnboarding();
   }
 
-  void _previous() {
-    if (!_hasPreviousPage) return;
-    _pageController.previousPage(
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOut,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final slide = _slides[_currentPage];
@@ -226,7 +218,6 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                   ),
                   const Spacer(),
                   if (_isLastPage) ...[
-                    
                     if (_hasPreviousPage) const SizedBox(height: 12),
                     PrimaryButton(
                       height: 51,
@@ -268,7 +259,6 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
                             ),
                           ),
                         ),
-                        
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -328,25 +318,22 @@ class _DotsIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: List.generate(
-        length,
-        (index) {
-          final isSelected = index == current;
+      children: List.generate(length, (index) {
+        final isSelected = index == current;
 
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            width: isSelected ? 12 : 8,
-            height: isSelected ? 12 : 8,
-            margin: EdgeInsets.only(left: index == 0 ? 0 : 10),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isSelected
-                  ? AppColors.primaryGreen
-                  : const Color(0xFFD6D6D6),
-            ),
-          );
-        },
-      ),
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: isSelected ? 12 : 8,
+          height: isSelected ? 12 : 8,
+          margin: EdgeInsets.only(left: index == 0 ? 0 : 10),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isSelected
+                ? AppColors.primaryGreen
+                : const Color(0xFFD6D6D6),
+          ),
+        );
+      }),
     );
   }
 }

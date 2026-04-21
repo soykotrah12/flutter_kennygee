@@ -20,8 +20,9 @@ import '/core/network/models/network_success.dart';
 
 class ApiClient {
   late final Dio _dio;
-  late final CustomCacheInterceptor _cacheInterceptor;
+  CustomCacheInterceptor? _cacheInterceptor;
   late final ConnectivityService _connectivityService;
+  Future<void>? _initializationFuture;
 
   bool _isRefreshing = false;
   final List<Completer<void>> _pendingRequests = [];
@@ -32,7 +33,7 @@ class ApiClient {
 
   factory ApiClient() {
     _instance ??= ApiClient._internal();
-    _instance!._initialize();
+    _instance!._initializationFuture ??= _instance!._initialize();
     return _instance!;
   }
 
@@ -149,17 +150,19 @@ class ApiClient {
     ProgressCallback? onReceiveProgress,
     bool isFormData = false,
   }) async {
+    await _ensureInitialized();
+
     final connectivityCheck = await _checkConnectivity();
     if (connectivityCheck.isLeft()) {
-      if (method.toUpperCase() == 'GET') {
-        final cacheKey = _cacheInterceptor.generateCacheKey(
+      if (method.toUpperCase() == 'GET' && _cacheInterceptor != null) {
+        final cacheKey = _cacheInterceptor!.generateCacheKey(
           RequestOptions(
             path: endpoint,
             queryParameters: queryParameters,
             headers: options?.headers ?? {},
           ),
         );
-        final cachedData = _cacheInterceptor.getCachedData(cacheKey);
+        final cachedData = _cacheInterceptor!.getCachedData(cacheKey);
         if (cachedData != null) {
           if (kDebugMode) {
             DPrint.info(
@@ -171,7 +174,7 @@ class ApiClient {
               data: fromJsonT(cachedData['data']),
               message: 'Served from cache due to no internet connection',
               statusCode:
-                  _cacheInterceptor.getCachedStatusCode(cacheKey) ?? 200,
+                  _cacheInterceptor!.getCachedStatusCode(cacheKey) ?? 200,
             ),
           );
         }
@@ -283,6 +286,11 @@ class ApiClient {
         UnknownFailure(message: "An unexpected error occurred"),
       );
     }
+  }
+
+  Future<void> _ensureInitialized() async {
+    _initializationFuture ??= _initialize();
+    await _initializationFuture;
   }
 
   /// HTTP Methods using Either

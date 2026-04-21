@@ -105,7 +105,7 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
                           onTap: () => Get.to(() => const EmailVerifyScreen()),
                           child: const Text(
                             'Forgot password?',
-                            style: TextStyle(
+                            style: TextStyle(                              
                               color: AppColors.primaryGreen,
                               fontSize: 14,
                               fontWeight: FontWeight.w400,

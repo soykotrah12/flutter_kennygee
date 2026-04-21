@@ -8,7 +8,10 @@ import '../network/services/onboarding_store_service.dart';
 
 void setupController() {
   Get.lazyPut<AuthController>(
-    () => AuthController(Get.find<AuthRepository>(), Get.find<AuthStorageService>()),
+    () => AuthController(
+      Get.find<AuthRepository>(),
+      Get.find<AuthStorageService>(),
+    ),
     fenix: true,
   );
 
@@ -16,6 +19,7 @@ void setupController() {
     () => AuthFlowController(
       Get.find<AuthStorageService>(),
       Get.find<OnboardingStoreService>(),
+      Get.find<AuthRepository>(),
     ),
     fenix: true,
   );

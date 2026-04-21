@@ -9,23 +9,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isCompact = width < 380;
-    final heroTitleSize = isCompact ? 30.0 : 40.0;
-    final sectionTitleSize = isCompact ? 24.0 : 34.0;
-    final sectionSubtitleSize = isCompact ? 12.0 : 14.0;
-    final sectionCtaSize = isCompact ? 16.0 : 20.0;
-    final eventTextSize = isCompact ? 16.0 : 18.0;
-    final availableCardSpace = width - 32 - 12;
-    final cardWidth = availableCardSpace > 0
-        ? availableCardSpace / 2
-        : width * 0.44;
-
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
       backgroundColor: AppColors.appBackground,
-      bodyPadding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,43 +22,42 @@ class HomeScreen extends StatelessWidget {
             children: [
               Image.asset(
                 AppImages.appLogo,
-                width: 34,
-                height: 50,
+                width: 32,
+                height: 51,
                 fit: BoxFit.contain,
               ),
               const Spacer(),
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryWhite,
-                  borderRadius: BorderRadius.circular(21),
-                  border: Border.all(color: AppColors.primaryGreen, width: 1.2),
-                ),
-                child: const Icon(
-                  Icons.translate,
-                  color: AppColors.primaryGreen,
-                  size: 21,
-                ),
+              Image.asset(
+                AppImages.ai,
+                width: 30,
+                height: 30,
+                fit: BoxFit.contain,
               ),
               const SizedBox(width: 10),
               Container(
                 height: 44,
-                padding: EdgeInsets.symmetric(horizontal: isCompact ? 12 : 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: AppColors.primaryGreen,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.celebration_outlined, color: Colors.white),
-                    SizedBox(width: isCompact ? 6 : 8),
-                    Text(
+                    Image.asset(
+                      AppImages.event,
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
                       'Events',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: eventTextSize,
+                        fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
                       ),
                     ),
                   ],
@@ -78,20 +65,9 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            'Hungry? Discover What’s\nnearby.',
-            style: TextStyle(
-              color: AppColors.textBlack,
-              fontSize: heroTitleSize,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.7,
-              height: 1.05,
-            ),
-          ),
           const SizedBox(height: 14),
           Container(
-            height: 52,
+            height: 44,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppColors.primaryGreen, width: 1.2),
@@ -105,8 +81,9 @@ class HomeScreen extends StatelessWidget {
                       'Search Restaurant, dishes...',
                       style: TextStyle(
                         color: AppColors.textGrey,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300,
+                        fontFamily: 'Montserrat',
                       ),
                     ),
                   ),
@@ -120,46 +97,55 @@ class HomeScreen extends StatelessWidget {
                       right: Radius.circular(9),
                     ),
                   ),
-                  child: const Icon(Icons.search, color: Colors.white),
+                  child: Center(
+                    child: Image.asset(
+                      AppImages.search,
+                      width: 24,
+                      height: 24,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          const Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          const Row(
             children: [
-              _FilterChip(label: 'All', active: true),
-              _FilterChip(label: 'Restaurant List'),
-              _FilterChip(label: 'Food List'),
+              _FilterChip(
+                label: 'All',
+                active: true,
+                icon: Icons.verified_user,
+              ),
+              SizedBox(width: 8),
+              _FilterChip(
+                label: 'Restaurant List',
+                icon: Icons.restaurant,
+              ),
+              SizedBox(width: 8),
+              _FilterChip(label: 'Food List', icon: Icons.lunch_dining),
             ],
           ),
           const SizedBox(height: 18),
-          _SectionHeader(
-            title: 'Nearby\nRestaurants',
+          const _SectionHeader(
+            title: 'Nearby Restaurants',
             subtitle: '(within 10km)',
-            titleSize: sectionTitleSize,
-            subtitleSize: sectionSubtitleSize,
-            ctaSize: sectionCtaSize,
           ),
           const SizedBox(height: 10),
           SizedBox(
             height: 260,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              children: [
-                _NearbyCard(width: cardWidth, image: AppImages.homeRestaurant1),
-                const SizedBox(width: 12),
-                _NearbyCard(width: cardWidth, image: AppImages.homeRestaurant2),
+              children: const [
+                _NearbyCard(image: AppImages.homeRestaurant1),
+                SizedBox(width: 12),
+                _NearbyCard(image: AppImages.homeRestaurant2),
               ],
             ),
           ),
           const SizedBox(height: 18),
-          _OnlyTitleHeader(
+          const _OnlyTitleHeader(
             title: 'Recommended for you',
-            titleSize: sectionTitleSize,
-            ctaSize: sectionCtaSize,
           ),
           const SizedBox(height: 10),
           const _RecommendedItem(
@@ -193,9 +179,14 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _FilterChip extends StatelessWidget {
-  const _FilterChip({required this.label, this.active = false});
+  const _FilterChip({
+    required this.label,
+    required this.icon,
+    this.active = false,
+  });
 
   final String label;
+  final IconData icon;
   final bool active;
 
   @override
@@ -208,15 +199,34 @@ class _FilterChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.primaryGreen),
       ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextStyle(
-            color: active ? Colors.white : AppColors.textBlack,
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: active ? AppColors.primaryWhite : AppColors.appBackground,
+              border: Border.all(color: AppColors.primaryGreen),
+            ),
+            child: Icon(
+              icon,
+              size: 12,
+              color: AppColors.primaryGreen,
+            ),
           ),
-        ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: active ? Colors.white : AppColors.textBlack,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -226,16 +236,10 @@ class _SectionHeader extends StatelessWidget {
   const _SectionHeader({
     required this.title,
     required this.subtitle,
-    required this.titleSize,
-    required this.subtitleSize,
-    required this.ctaSize,
   });
 
   final String title;
   final String subtitle;
-  final double titleSize;
-  final double subtitleSize;
-  final double ctaSize;
 
   @override
   Widget build(BuildContext context) {
@@ -245,32 +249,35 @@ class _SectionHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
+              const Text(
+                'Nearby Restaurants',
                 style: TextStyle(
                   color: AppColors.textBlack,
-                  fontSize: titleSize,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
                   height: 1.1,
+                  fontFamily: 'Montserrat',
                 ),
               ),
               Text(
                 subtitle,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.textGrey,
-                  fontSize: subtitleSize,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
                 ),
               ),
             ],
           ),
         ),
-        Text(
+        const Text(
           'See all',
           style: TextStyle(
             color: AppColors.primaryGreen,
-            fontSize: ctaSize,
-            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Montserrat',
           ),
         ),
       ],
@@ -279,15 +286,9 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _OnlyTitleHeader extends StatelessWidget {
-  const _OnlyTitleHeader({
-    required this.title,
-    required this.titleSize,
-    required this.ctaSize,
-  });
+  const _OnlyTitleHeader({required this.title});
 
   final String title;
-  final double titleSize;
-  final double ctaSize;
 
   @override
   Widget build(BuildContext context) {
@@ -296,20 +297,22 @@ class _OnlyTitleHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.textBlack,
-              fontSize: titleSize,
-              fontWeight: FontWeight.w700,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
               height: 1.1,
+              fontFamily: 'Montserrat',
             ),
           ),
         ),
-        Text(
+        const Text(
           'See all',
           style: TextStyle(
             color: AppColors.primaryGreen,
-            fontSize: ctaSize,
+            fontSize: 18,
             fontWeight: FontWeight.w600,
+            fontFamily: 'Montserrat',
           ),
         ),
       ],
@@ -318,118 +321,146 @@ class _OnlyTitleHeader extends StatelessWidget {
 }
 
 class _NearbyCard extends StatelessWidget {
-  const _NearbyCard({required this.width, required this.image});
+  const _NearbyCard({required this.image});
 
-  final double width;
   final String image;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      decoration: BoxDecoration(
-        color: AppColors.primaryWhite,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: Image.asset(
-              image,
-              height: 136,
-              width: double.infinity,
-              fit: BoxFit.cover,
+    return SizedBox(
+      width: 160,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.primaryWhite,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Side view club',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
+              child: Stack(
+                children: [
+                  Image.asset(
+                    image,
+                    height: 136,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryWhite,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.favorite_border,
+                        size: 15,
+                        color: AppColors.primaryOrange,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Side view club',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.star, size: 15, color: AppColors.primaryOrange),
+                  SizedBox(width: 4),
+                  Text(
+                    '5.0',
                     style: TextStyle(
-                      color: AppColors.textBlack,
+                      color: AppColors.primaryGreen,
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Icon(Icons.star, size: 15, color: AppColors.primaryOrange),
-                SizedBox(width: 4),
-                Text(
-                  '5.0',
-                  style: TextStyle(
-                    color: AppColors.primaryGreen,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.location_on,
-                  size: 15,
-                  color: AppColors.primaryOrange,
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    '1.2 miles away',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.textBlack,
-                      fontSize: 15,
                       fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.access_time_filled,
-                  size: 15,
-                  color: Color(0xFF2AB45D),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    '11:00 AM - 10:00 PM',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.textBlack,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.location_on,
+                    size: 15,
+                    color: AppColors.primaryOrange,
+                  ),
+                  SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      '1.2 miles away',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat',
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.access_time_filled,
+                    size: 15,
+                    color: Color(0xFF2AB45D),
+                  ),
+                  SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      '11:00 AM - 10:00 PM',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -462,6 +493,7 @@ class _RecommendedItem extends StatelessWidget {
                   color: AppColors.textBlack,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
+                  fontFamily: 'Montserrat',
                 ),
               ),
               const SizedBox(height: 6),
@@ -485,6 +517,7 @@ class _RecommendedItem extends StatelessWidget {
                               color: AppColors.textBlack,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
+                              fontFamily: 'Montserrat',
                             ),
                           ),
                         ),
@@ -504,6 +537,7 @@ class _RecommendedItem extends StatelessWidget {
                       color: AppColors.primaryGreen,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
                 ],
@@ -526,6 +560,7 @@ class _RecommendedItem extends StatelessWidget {
                         color: AppColors.textBlack,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat',
                       ),
                     ),
                   ),

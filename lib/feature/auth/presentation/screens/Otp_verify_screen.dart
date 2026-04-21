@@ -77,94 +77,134 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Widget build(BuildContext context) {
     return AppScaffold(
       useSafeArea: true,
-      isScrollable: true,
+      isScrollable: false,
       backgroundColor: AppColors.appBackground,
-      body: Column(
-        children: [
-          const SizedBox(height: 58),
-          Image.asset(
-            AppImages.appLogo,
-            width: 100,
-            height: 145,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(height: 26),
-          const Text(
-            'Enter OTP',
-            style: TextStyle(
-              color: AppColors.textBlack,
-              fontSize: 48,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 28),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              6,
-              (index) => _OtpDigitBox(
-                controller: _controllers[index],
-                focusNode: _focusNodes[index],
-                onChanged: (value) {
-                  if (value.isNotEmpty && index < _focusNodes.length - 1) {
-                    _focusNodes[index + 1].requestFocus();
-                  } else if (value.isEmpty && index > 0) {
-                    _focusNodes[index - 1].requestFocus();
-                  }
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 28),
-          Text(
-            'Resend code in ${_seconds}s',
-            style: const TextStyle(
-              color: AppColors.textGrey,
-              fontSize: 17,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Didn’t Receive OTP? ',
-                style: TextStyle(
-                  color: AppColors.textBlack,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              GestureDetector(
-                onTap: _seconds == 0 ? _startTimer : null,
-                child: Text(
-                  'RESEND OTP',
-                  style: TextStyle(
-                    color: _seconds == 0
-                        ? AppColors.primaryGreen
-                        : AppColors.primaryGreen.withValues(alpha: 0.6),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: SizedBox(
+                  width: constraints.maxWidth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Image.asset(
+                          AppImages.appLogo,
+                          width: 59,
+                          height: 95,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: 26),
+                      const Center(
+                        child: Text(
+                          'Enter OTP',
+                          style: TextStyle(
+                            color: AppColors.textBlack,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      LayoutBuilder(
+                        builder: (context, rowConstraints) {
+                          const spacing = 8.0;
+                          final boxWidth = ((rowConstraints.maxWidth -
+                                      (spacing * 5)) /
+                                  6)
+                              .clamp(40.0, 78.0)
+                              .toDouble();
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: List.generate(
+                              6,
+                              (index) => SizedBox(
+                                width: boxWidth,
+                                child: _OtpDigitBox(
+                                  controller: _controllers[index],
+                                  focusNode: _focusNodes[index],
+                                  onChanged: (value) {
+                                    if (value.isNotEmpty &&
+                                        index < _focusNodes.length - 1) {
+                                      _focusNodes[index + 1].requestFocus();
+                                    } else if (value.isEmpty && index > 0) {
+                                      _focusNodes[index - 1].requestFocus();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 28),
+                      Center(
+                        child: Text(
+                          'Resend code in ${_seconds}s',
+                          style: const TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Didn’t Receive OTP? ',
+                              style: TextStyle(
+                                color: AppColors.textBlack,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: _seconds == 0 ? _startTimer : null,
+                              child: Text(
+                                'RESEND OTP',
+                                style: TextStyle(
+                                  color: _seconds == 0
+                                      ? AppColors.primaryGreen
+                                      : AppColors.primaryGreen
+                                          .withValues(alpha: 0.6),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 26),
+                      PrimaryButton(
+                        height: 51,
+                        onPressed: _verify,
+                        child: const Text(
+                          'Verify Now',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 26),
-          PrimaryButton(
-            onPressed: _verify,
-            child: const Text(
-              'Verify Now',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-              ),
             ),
-          ),
-          const SizedBox(height: 24),
-        ],
+          );
+        },
       ),
     );
   }
@@ -183,9 +223,7 @@ class _OtpDigitBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 48,
-      child: TextField(
+    return TextField(
         controller: controller,
         focusNode: focusNode,
         onChanged: onChanged,
@@ -209,7 +247,6 @@ class _OtpDigitBox extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
         ),
-      ),
     );
   }
 }

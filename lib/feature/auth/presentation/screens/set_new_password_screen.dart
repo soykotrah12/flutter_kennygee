@@ -54,76 +54,97 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
   Widget build(BuildContext context) {
     return AppScaffold(
       useSafeArea: true,
-      isScrollable: true,
+      isScrollable: false,
       backgroundColor: AppColors.appBackground,
-      body: Column(
-        children: [
-          const SizedBox(height: 54),
-          Image.asset(
-            AppImages.appLogo,
-            width: 100,
-            height: 145,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(height: 18),
-          const Text(
-            'Reset New password',
-            style: TextStyle(
-              color: AppColors.textBlack,
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Enter your new password and confirm password',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.subTextGrey,
-              fontSize: 17,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 34),
-          const _Label('New Password'),
-          const SizedBox(height: 12),
-          _PasswordInput(
-            controller: _passwordController,
-            hintText: 'Enter your Password',
-            obscureText: _obscurePassword,
-            onToggle: () {
-              setState(() {
-                _obscurePassword = !_obscurePassword;
-              });
-            },
-          ),
-          const SizedBox(height: 24),
-          const _Label('Confirm Password'),
-          const SizedBox(height: 12),
-          _PasswordInput(
-            controller: _confirmController,
-            hintText: 'Enter Confirm Password',
-            obscureText: _obscureConfirm,
-            onToggle: () {
-              setState(() {
-                _obscureConfirm = !_obscureConfirm;
-              });
-            },
-          ),
-          const SizedBox(height: 30),
-          PrimaryButton(
-            onPressed: _submit,
-            child: const Text(
-              'Continue',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: SizedBox(
+                  width: constraints.maxWidth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Image.asset(
+                          AppImages.appLogo,
+                          width: 59,
+                          height: 95,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      const Center(
+                        child: Text(
+                          'Reset New password',
+                          style: TextStyle(
+                            color: AppColors.textBlack,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Enter your new password and confirm password',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.subTextGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const SizedBox(height: 34),
+                      const _Label('New Password'),
+                      const SizedBox(height: 12),
+                      _PasswordInput(
+                        controller: _passwordController,
+                        hintText: 'Enter your Password',
+                        obscureText: _obscurePassword,
+                        onToggle: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      const _Label('Confirm Password'),
+                      const SizedBox(height: 12),
+                      _PasswordInput(
+                        controller: _confirmController,
+                        hintText: 'Enter Confirm Password',
+                        obscureText: _obscureConfirm,
+                        onToggle: () {
+                          setState(() {
+                            _obscureConfirm = !_obscureConfirm;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 30),
+                      PrimaryButton(
+                        height: 51,
+                        onPressed: _submit,
+                        child: const Text(
+                          'Continue',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-        ],
+          );
+        },
       ),
     );
   }
@@ -142,7 +163,7 @@ class _Label extends StatelessWidget {
         text,
         style: const TextStyle(
           color: AppColors.textBlack,
-          fontSize: 22,
+          fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -183,6 +204,7 @@ class _PasswordInput extends StatelessWidget {
         suffixIcon: IconButton(
           onPressed: onToggle,
           icon: Icon(
+            size: 22,
             obscureText ? Icons.visibility_off_outlined : Icons.visibility,
             color: AppColors.textFieldLightGrey,
           ),

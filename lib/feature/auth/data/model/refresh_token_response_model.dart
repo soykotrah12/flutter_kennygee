@@ -9,8 +9,8 @@ class RefreshTokenResponseModel {
 
   factory RefreshTokenResponseModel.fromJson(Map<String, dynamic> json) {
     return RefreshTokenResponseModel(
-      accessToken: json['accessToken'] ?? '',
-      refreshToken: json['refreshToken'] ?? '',
+      accessToken: (json['accessToken'] ?? json['access_token'] ?? json['token'] ?? '').toString(),
+      refreshToken: (json['refreshToken'] ?? json['refresh_token'] ?? '').toString(),
     );
   }
 

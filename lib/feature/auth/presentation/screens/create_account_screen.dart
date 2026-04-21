@@ -53,157 +53,163 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       useSafeArea: true,
       isScrollable: true,
       backgroundColor: AppColors.appBackground,
-      body: Column(
-        children: [
-          const SizedBox(height: 6),
-          Image.asset(
-            AppImages.appLogo,
-            width: 130,
-            height: 165,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Let’s Get Started!',
-            style: TextStyle(
-              fontFamily: 'Montserrat',
-              color: AppColors.textBlack,
-              fontSize: 46,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.7,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 50),
+        child: Column(
+          children: [
+            // const SizedBox(height: ),
+            Image.asset(
+              AppImages.appLogo,
+              width: 59,
+              height: 95,
+              fit: BoxFit.contain,
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Create an account as ${widget.selectedRole.title}',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: 'Montserrat',
-              color: AppColors.textGrey,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 22),
-          const _FormLabel('User  Name'),
-          const SizedBox(height: 10),
-          _AuthInput(
-            controller: _nameController,
-            hintText: 'Enter your First Name',
-            prefixIcon: Icons.person_outline,
-          ),
-          const SizedBox(height: 16),
-          const _FormLabel('Your Email'),
-          const SizedBox(height: 10),
-          _AuthInput(
-            controller: _emailController,
-            hintText: 'Enter your Email',
-            prefixIcon: Icons.mail_outline_rounded,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 16),
-          const _FormLabel('Phone Number'),
-          const SizedBox(height: 10),
-          _AuthInput(
-            controller: _phoneController,
-            hintText: 'Enter your phone number',
-            prefixIcon: Icons.call_outlined,
-            keyboardType: TextInputType.phone,
-          ),
-          const SizedBox(height: 16),
-          const _FormLabel('Password'),
-          const SizedBox(height: 10),
-          _AuthInput(
-            controller: _passwordController,
-            hintText: 'Enter your Password',
-            prefixIcon: Icons.lock_outline_rounded,
-            obscureText: _obscurePassword,
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-              icon: Icon(
-                _obscurePassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-                color: AppColors.textFieldLightGrey,
+            const SizedBox(height: 4),
+            const Text(
+              'Let’s Get Started!',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                color: AppColors.textBlack,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.7,
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          const _FormLabel('Confirm Password'),
-          const SizedBox(height: 10),
-          _AuthInput(
-            controller: _confirmPasswordController,
-            hintText: 'Enter Confirm Password',
-            prefixIcon: Icons.lock_outline_rounded,
-            obscureText: _obscureConfirm,
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  _obscureConfirm = !_obscureConfirm;
-                });
-              },
-              icon: Icon(
-                _obscureConfirm
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-                color: AppColors.textFieldLightGrey,
+            const SizedBox(height: 4),
+            Text(
+              'Create an account as ${widget.selectedRole.title}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Montserrat',
+                color: AppColors.textBlack,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
               ),
             ),
-          ),
-          const SizedBox(height: 26),
-          Obx(
-            () => PrimaryButton(
-              isLoading: _flowController.isSubmitting.value,
-              onPressed: () => _flowController.createAccount(
-                fullName: _nameController.text,
-                email: _emailController.text,
-                phone: _phoneController.text,
-                password: _passwordController.text,
-                confirmPassword: _confirmPasswordController.text,
-                role: widget.selectedRole,
-              ),
-              child: const Text(
-                'Sign up',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
+            const SizedBox(height: 22),
+            const _FormLabel('User  Name'),
+            const SizedBox(height: 10),
+            _AuthInput(
+              controller: _nameController,
+              hintText: 'Enter your First Name',
+              prefixIcon: Icons.person_outline,
+            ),
+            const SizedBox(height: 16),
+            const _FormLabel('Your Email'),
+            const SizedBox(height: 10),
+            _AuthInput(
+              controller: _emailController,
+              hintText: 'Enter your Email',
+              prefixIcon: Icons.mail_outline_rounded,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16),
+            const _FormLabel('Phone Number'),
+            const SizedBox(height: 10),
+            _AuthInput(
+              controller: _phoneController,
+              hintText: 'Enter your phone number',
+              prefixIcon: Icons.call_outlined,
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 16),
+            const _FormLabel('Password'),
+            const SizedBox(height: 10),
+            _AuthInput(
+              controller: _passwordController,
+              hintText: 'Enter your Password',
+              prefixIcon: Icons.lock_outline_rounded,
+              obscureText: _obscurePassword,
+              suffixIcon: IconButton(
+                iconSize: 22,
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: AppColors.textFieldLightGrey,
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Already have an account? ',
-                style: TextStyle(
-                  color: AppColors.textBlack,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+            const SizedBox(height: 16),
+            const _FormLabel('Confirm Password'),
+            const SizedBox(height: 10),
+            _AuthInput(
+              controller: _confirmPasswordController,
+              hintText: 'Enter Confirm Password',
+              prefixIcon: Icons.lock_outline_rounded,
+              obscureText: _obscureConfirm,
+              suffixIcon: IconButton(
+                iconSize: 22,
+                onPressed: () {
+                  setState(() {
+                    _obscureConfirm = !_obscureConfirm;
+                  });
+                },
+                icon: Icon(
+                  _obscureConfirm
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: AppColors.textFieldLightGrey,
                 ),
               ),
-              GestureDetector(
-                onTap: () => Get.off(() => const LoginRoleScreen()),
+            ),
+            const SizedBox(height: 26),
+            Obx(
+              () => PrimaryButton(
+                height: 51,
+                isLoading: _flowController.isSubmitting.value,
+                onPressed: () => _flowController.signUp(
+                  fullName: _nameController.text,
+                  email: _emailController.text,
+                  phone: _phoneController.text,
+                  password: _passwordController.text,
+                  confirmPassword: _confirmPasswordController.text,
+                  role: widget.selectedRole,
+                ),
                 child: const Text(
-                  'Sign In Here',
+                  'Sign up',
                   style: TextStyle(
-                    color: AppColors.primaryGreen,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Montserrat',
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
-        ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Already have an account? ',
+                  style: TextStyle(
+                    color: AppColors.textBlack,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Get.off(() => const LoginRoleScreen()),
+                  child: const Text(
+                    'Sign In Here',
+                    style: TextStyle(
+                      color: AppColors.primaryGreen,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
@@ -223,8 +229,8 @@ class _FormLabel extends StatelessWidget {
         style: const TextStyle(
           fontFamily: 'Montserrat',
           color: AppColors.textBlack,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -256,15 +262,15 @@ class _AuthInput extends StatelessWidget {
       obscureText: obscureText,
       style: const TextStyle(
         color: AppColors.textBlack,
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: Icon(
           prefixIcon,
           color: AppColors.textFieldLightGrey,
-          size: 31,
+          size: 22,
         ),
         suffixIcon: suffixIcon,
       ),

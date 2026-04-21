@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../../feature/auth/presentation/controller/auth_flow_controller.dart';
 import '../../../../../feature/home/presentation/screens/home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_home_screen.dart';
+import '../../../../../feature/profile/presentation/screens/profile_screen.dart';
 import '../../../../theme/app_colors.dart';
 
 class BottomNavController extends GetxController {
@@ -83,11 +84,7 @@ class BottomNavController extends GetxController {
             label: 'Profile',
             icon: Icons.person_outline,
             activeIcon: Icons.person,
-            screen: DashboardPlaceholderView(
-              title: 'Profile',
-              subtitle: 'Manage account and preferences.',
-              icon: Icons.manage_accounts_outlined,
-            ),
+            screen: ProfileScreen(),
           ),
         ];
 

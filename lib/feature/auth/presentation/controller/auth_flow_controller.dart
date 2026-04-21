@@ -2,8 +2,14 @@ import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/widgets/bottomNavbar/screens/dashboard_screen.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../../core/network/services/onboarding_store_service.dart';
+import '../../data/repo/auth_repo_impl.dart';
+import '../../domain/repo/auth_repo.dart';
+import '../../data/model/auth_response_model.dart';
+import '../../data/model/login_request_model.dart';
+import '../../data/model/register_request_model.dart';
 import '../screens/logIn_screen.dart';
 import '../screens/role_selection_screen.dart';
 
@@ -18,13 +24,25 @@ extension AppUserRoleX on AppUserRole {
 }
 
 AppUserRole roleFromStorage(String? raw) {
-  if (raw == AppUserRole.restaurantOwner.storageValue || raw == 'owner') {
+  final value = raw?.trim().toLowerCase() ?? '';
+  if (value == AppUserRole.restaurantOwner.storageValue ||
+      value == 'owner' ||
+      value == 'restaurant-owner') {
     return AppUserRole.restaurantOwner;
   }
   return AppUserRole.user;
 }
 
 AuthFlowController ensureAuthFlowController() {
+  if (!Get.isRegistered<ApiClient>()) {
+    Get.lazyPut<ApiClient>(() => ApiClient(), fenix: true);
+  }
+  if (!Get.isRegistered<AuthRepository>()) {
+    Get.lazyPut<AuthRepository>(
+      () => AuthRepositoryImpl(apiClient: Get.find<ApiClient>()),
+      fenix: true,
+    );
+  }
   if (!Get.isRegistered<AuthStorageService>()) {
     Get.lazyPut<AuthStorageService>(() => AuthStorageService(), fenix: true);
   }
@@ -39,6 +57,7 @@ AuthFlowController ensureAuthFlowController() {
       () => AuthFlowController(
         Get.find<AuthStorageService>(),
         Get.find<OnboardingStoreService>(),
+        Get.find<AuthRepository>(),
       ),
       fenix: true,
     );
@@ -47,10 +66,15 @@ AuthFlowController ensureAuthFlowController() {
 }
 
 class AuthFlowController extends GetxController {
-  AuthFlowController(this._authStorageService, this._onboardingStoreService);
+  AuthFlowController(
+    this._authStorageService,
+    this._onboardingStoreService,
+    this._authRepository,
+  );
 
   final AuthStorageService _authStorageService;
   final OnboardingStoreService _onboardingStoreService;
+  final AuthRepository _authRepository;
 
   final selectedRole = Rxn<AppUserRole>();
   final isSubmitting = false.obs;
@@ -98,6 +122,8 @@ class AuthFlowController extends GetxController {
   }
 
   Future<void> signIn({required String email, required String password}) async {
+    if (isSubmitting.value) return;
+
     if (email.trim().isEmpty || password.trim().isEmpty) {
       Get.snackbar(
         'Missing Fields',
@@ -109,28 +135,30 @@ class AuthFlowController extends GetxController {
     }
 
     isSubmitting.value = true;
-
-    var role = selectedRole.value ?? _inferRoleFromEmail(email);
     try {
-      final persistedRole = await _authStorageService.getRole();
-      if (persistedRole != null && persistedRole.isNotEmpty) {
-        role = roleFromStorage(persistedRole);
-      }
-    } catch (_) {}
+      final request = LoginRequestModel(
+        email: email.trim(),
+        password: password.trim(),
+      );
+      final result = await _authRepository.login(request);
 
-    await Future.delayed(const Duration(milliseconds: 350));
-    try {
-      await _authStorageService.storeRole(role.storageValue);
-      await _authStorageService.storeAccessToken('local_access_token');
-      await _authStorageService.storeRefreshToken('local_refresh_token');
-      await _authStorageService.storeUserId('local_user');
-    } catch (_) {}
-
-    isSubmitting.value = false;
-    Get.offAll(() => DashboardScreen(role: role));
+      await result.fold<Future<void>>(
+        (failure) async {
+          _showError('Login Failed', failure.message);
+        },
+        (success) async {
+          final role = await _persistAuthSessionAndResolveRole(success.data);
+          Get.offAll(() => DashboardScreen(role: role));
+        },
+      );
+    } catch (_) {
+      _showError('Login Failed', 'Something went wrong. Please try again.');
+    } finally {
+      isSubmitting.value = false;
+    }
   }
 
-  Future<void> createAccount({
+  Future<void> signUp({
     required String fullName,
     required String email,
     required String phone,
@@ -138,6 +166,8 @@ class AuthFlowController extends GetxController {
     required String confirmPassword,
     required AppUserRole role,
   }) async {
+    if (isSubmitting.value) return;
+
     if (fullName.trim().isEmpty ||
         email.trim().isEmpty ||
         phone.trim().isEmpty ||
@@ -163,17 +193,52 @@ class AuthFlowController extends GetxController {
     }
 
     isSubmitting.value = true;
-
-    await Future.delayed(const Duration(milliseconds: 350));
     try {
-      await _authStorageService.storeRole(role.storageValue);
-      await _authStorageService.storeAccessToken('local_access_token');
-      await _authStorageService.storeRefreshToken('local_refresh_token');
-      await _authStorageService.storeUserId('local_user');
-    } catch (_) {}
+      final request = RegisterRequestModel(
+        name: fullName.trim(),
+        email: email.trim(),
+        phoneNumber: phone.trim(),
+        password: password.trim(),
+        confirmPassword: confirmPassword.trim(),
+        role: role.storageValue,
+      );
+      final result = await _authRepository.register(request);
 
-    isSubmitting.value = false;
-    Get.offAll(() => DashboardScreen(role: role));
+      await result.fold<Future<void>>(
+        (failure) async {
+          _showError('Sign Up Failed', failure.message);
+        },
+        (success) async {
+          final resolvedRole = await _persistAuthSessionAndResolveRole(
+            success.data,
+            fallbackRole: role,
+          );
+          Get.offAll(() => DashboardScreen(role: resolvedRole));
+        },
+      );
+    } catch (_) {
+      _showError('Sign Up Failed', 'Something went wrong. Please try again.');
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  Future<void> createAccount({
+    required String fullName,
+    required String email,
+    required String phone,
+    required String password,
+    required String confirmPassword,
+    required AppUserRole role,
+  }) {
+    return signUp(
+      fullName: fullName,
+      email: email,
+      phone: phone,
+      password: password,
+      confirmPassword: confirmPassword,
+      role: role,
+    );
   }
 
   Future<void> submitForgotPasswordEmail(String email) async {
@@ -221,11 +286,69 @@ class AuthFlowController extends GetxController {
     Get.offAll(() => const LoginRoleScreen());
   }
 
-  AppUserRole _inferRoleFromEmail(String email) {
-    final value = email.toLowerCase();
-    if (value.contains('owner') || value.contains('restaurant')) {
-      return AppUserRole.restaurantOwner;
+  Future<void> logoutFromApi() async {
+    if (isSubmitting.value) return;
+
+    isSubmitting.value = true;
+    try {
+      final result = await _authRepository.logout();
+      await result.fold<Future<void>>(
+        (_) async {
+          await _authStorageService.clearAuthData();
+          Get.offAll(() => const LoginRoleScreen());
+        },
+        (_) async {
+          await _authStorageService.clearAuthData();
+          Get.offAll(() => const LoginRoleScreen());
+        },
+      );
+    } catch (_) {
+      await _authStorageService.clearAuthData();
+      Get.offAll(() => const LoginRoleScreen());
+    } finally {
+      isSubmitting.value = false;
     }
-    return AppUserRole.user;
+  }
+
+  Future<AppUserRole> _persistAuthSessionAndResolveRole(
+    AuthResponseModel response, {
+    AppUserRole? fallbackRole,
+  }) async {
+    final resolvedRole = _resolveRole(
+      response.role.isNotEmpty ? response.role : response.user.role,
+      fallbackRole: fallbackRole,
+    );
+    selectedRole.value = resolvedRole;
+
+    await _authStorageService.clearAuthData();
+    if (response.accessToken.isNotEmpty) {
+      await _authStorageService.storeAccessToken(response.accessToken);
+    }
+    if (response.refreshToken.isNotEmpty) {
+      await _authStorageService.storeRefreshToken(response.refreshToken);
+    }
+    await _authStorageService.storeUserId(response.id);
+    await _authStorageService.storeRole(resolvedRole.storageValue);
+
+    return resolvedRole;
+  }
+
+  AppUserRole _resolveRole(String rawRole, {AppUserRole? fallbackRole}) {
+    if (rawRole.trim().isNotEmpty) {
+      return roleFromStorage(rawRole);
+    }
+    if (fallbackRole != null) {
+      return fallbackRole;
+    }
+    return selectedRole.value ?? AppUserRole.user;
+  }
+
+  void _showError(String title, String message) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: TColors.white,
+    );
   }
 }

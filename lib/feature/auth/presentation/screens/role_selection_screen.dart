@@ -169,7 +169,7 @@ class _RoleCard extends StatelessWidget {
         duration: const Duration(milliseconds: 170),
         curve: Curves.easeOut,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? AppColors.primaryGreen : Colors.transparent,
             width: 2,

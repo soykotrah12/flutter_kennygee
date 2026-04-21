@@ -8,7 +8,6 @@ import '../model/login_request_model.dart';
 import '../model/refresh_token_request_model.dart';
 import '../model/refresh_token_response_model.dart';
 import '../model/register_request_model.dart';
-import '../model/register_response_model.dart';
 import '../model/set_password_request_model.dart';
 import '../model/verify_otp_request-model.dart';
 
@@ -28,11 +27,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  NetworkResult<RegisterResponseModel> register(RegisterRequestModel request) {
-    return _apiClient.post<RegisterResponseModel>(
+  NetworkResult<AuthResponseModel> register(RegisterRequestModel request) {
+    return _apiClient.post<AuthResponseModel>(
       ApiConstants.auth.register,
       data: request.toJson(),
-      fromJsonT: (json) => RegisterResponseModel.fromJson(json),
+      fromJsonT: (json) => AuthResponseModel.fromJson(json),
     );
   }
 
@@ -41,7 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
     return _apiClient.post(
       ApiConstants.auth.forgotPass,
       data: request.toJson(),
-      fromJsonT: (_) => null,
+      fromJsonT: (_) {},
     );
   }
 
@@ -50,7 +49,7 @@ class AuthRepositoryImpl implements AuthRepository {
     return _apiClient.post(
       ApiConstants.auth.verifyMailOtp,
       data: request.toJson(),
-      fromJsonT: (_) => null,
+      fromJsonT: (_) {},
     );
   }
 
@@ -59,7 +58,16 @@ class AuthRepositoryImpl implements AuthRepository {
     return _apiClient.post(
       ApiConstants.auth.setNewPass,
       data: request.toJson(),
-      fromJsonT: (_) => null,
+      fromJsonT: (_) {},
+    );
+  }
+
+  @override
+  NetworkResult<void> logout() {
+    return _apiClient.post(
+      ApiConstants.auth.logout,
+      data: const {},
+      fromJsonT: (_) {},
     );
   }
 
