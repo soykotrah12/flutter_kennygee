@@ -13,11 +13,10 @@ class HomeScreen extends StatelessWidget {
       useSafeArea: true,
       isScrollable: true,
       backgroundColor: AppColors.appBackground,
-      bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      bodyPadding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 24),
           Row(
             children: [
               Image.asset(

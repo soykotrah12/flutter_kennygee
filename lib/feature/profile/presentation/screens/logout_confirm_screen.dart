@@ -16,50 +16,26 @@ class LogoutConfirmScreen extends StatelessWidget {
       useSafeArea: true,
       isScrollable: false,
       backgroundColor: AppColors.appBackground,
-      bodyPadding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
+      bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      appBarTitle: 'Log out',
+      
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: Get.back,
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 30,
-                  color: AppColors.textBlack,
-                ),
-              ),
-              const Expanded(
-                child: Text(
-                  'Log out',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.textBlack,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Montserrat',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 42),
-            ],
-          ),
-          const SizedBox(height: 38),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(16, 28, 16, 22),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 22),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.primaryGreen, width: 1.8),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.primaryGreen, width: 1.5),
             ),
             child: Column(
               children: [
                 const Text(
                   'Are you sure to log out?',
                   style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 22,
+                    color: AppColors.textBlack ,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Montserrat',
                   ),
@@ -74,9 +50,9 @@ class LogoutConfirmScreen extends StatelessWidget {
                               ? null
                               : Get.back,
                           child: Container(
-                            height: 68,
+                            height: 51,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: const Color(0xFFFF173D),
                                 width: 2,
@@ -87,7 +63,7 @@ class LogoutConfirmScreen extends StatelessWidget {
                                 'Cancel',
                                 style: TextStyle(
                                   color: Color(0xFFFF173D),
-                                  fontSize: 22,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   fontFamily: 'Montserrat',
                                 ),
@@ -103,10 +79,10 @@ class LogoutConfirmScreen extends StatelessWidget {
                               ? null
                               : flowController.logoutFromApi,
                           child: Container(
-                            height: 68,
+                            height: 51,
                             decoration: BoxDecoration(
                               color: const Color(0xFFFF123D),
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(8),
                               boxShadow: const [
                                 BoxShadow(
                                   color: Color(0x33000000),
@@ -129,7 +105,7 @@ class LogoutConfirmScreen extends StatelessWidget {
                                       'Log out',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 22,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                         fontFamily: 'Montserrat',
                                       ),

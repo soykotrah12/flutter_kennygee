@@ -69,73 +69,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             child: Obx(
               () => Row(
-                children: List.generate(_controller.tabs.length, (index) {
-                  final tab = _controller.tabs[index];
-                  final isActive = _controller.currentIndex.value == index;
-                  final tabFlex = isActive ? 2 : 1;
-                  return Expanded(
-                    flex: tabFlex,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOut,
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      height: 54,
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? AppColors.primaryGreen
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(27),
-                      ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(27),
-                        onTap: () => _controller.changeIndex(index),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: isActive ? 34 : 42,
-                                height: isActive ? 34 : 42,
-                                decoration: BoxDecoration(
-                                  color: isActive
-                                      ? const Color(0xFFF2ECE5)
-                                      : AppColors.primaryGreen,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  isActive ? tab.activeIcon : tab.icon,
-                                  size: isActive ? 20 : 24,
-                                  color: isActive
-                                      ? AppColors.primaryGreen
-                                      : Colors.white,
-                                ),
-                              ),
-                              if (isActive) ...[
-                                const SizedBox(width: 8),
-                                Flexible(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      tab.label,
-                                      maxLines: 1,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: List.generate(_controller.tabs.length, (index) {
+    final tab = _controller.tabs[index];
+    final isActive = _controller.currentIndex.value == index;
+
+    return GestureDetector(
+      onTap: () => _controller.changeIndex(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: isActive ? 12 : 0,
+        ),
+        height: 51,
+        decoration: BoxDecoration(
+          color: isActive
+              ? AppColors.primaryGreen
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(27),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min, 
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: isActive ? 34 : 42,
+              height: isActive ? 34 : 42,
+              decoration: BoxDecoration(
+                color: isActive
+                    ? const Color(0xFFF2ECE5)
+                    : AppColors.primaryGreen,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isActive ? tab.activeIcon : tab.icon,
+                size: isActive ? 20 : 24,
+                color: isActive
+                    ? AppColors.primaryGreen
+                    : Colors.white,
+              ),
+            ),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SizeTransition(
+                    sizeFactor: animation,
+                    axis: Axis.horizontal,
+                    child: child,
+                  ),
+                );
+              },
+              child: isActive
+                  ? Padding(
+                      key: const ValueKey('label'),
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Center(
+                        child: Text(
+                          tab.label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }),
-              ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }),
+)
             ),
           ),
         ),

@@ -86,7 +86,8 @@ class AppScaffold extends StatelessWidget {
       scrolledUnderElevation: 0,
       backgroundColor: Colors.transparent,
       toolbarHeight: toolbarHeight,
-      titleSpacing: titlespacing ?? 4,
+      titleSpacing: titlespacing ?? 00,
+      centerTitle: true,
 
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,6 +102,7 @@ class AppScaffold extends StatelessWidget {
               height: 1.0,
               
             ),
+            textAlign: TextAlign.center,
             softWrap: true,
             overflow: TextOverflow.visible,
             // maxLines: 2,

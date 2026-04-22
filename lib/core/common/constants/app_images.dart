@@ -5,6 +5,7 @@ class AppImages {
   static const String onboarding7logo = 'assets/icons/onboard7.png';
   static const String onboarding8logo = 'assets/icons/onboard8.png';
   static const String rolebackground = 'assets/images/background.png';
+  static const String defaultProfileImage = 'assets/images/defaultprofile.png';
 
   // Onboarding footer artworks
   static const String onboardingFooterUser1 = onboarding7logo;
@@ -37,4 +38,14 @@ class AppImages {
   static const String ai = 'assets/icons/ai.png';
   static const String event = 'assets/icons/event.png';
   static const String search = 'assets/icons/search.png';
+
+  // profile iconsicons
+  static const String wishlist = 'assets/icons/wishlist.png';
+  static const String bookmark = 'assets/icons/bookmark.png';
+  static const String editprofile = 'assets/icons/editprofile.png';
+  static const String changepassword = 'assets/icons/changepassword.png';
+  static const String privacypolicy = 'assets/icons/privacy.png';
+  static const String terms = 'assets/icons/terms.png';
+  static const String helpsupport = 'assets/icons/help.png';
+  static const String logout = 'assets/icons/logout.png';
 }
