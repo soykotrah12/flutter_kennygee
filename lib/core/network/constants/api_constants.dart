@@ -3,7 +3,6 @@ class ApiConstants {
   // static const String baseDomain = 'http://207.180.200.209:5006';
   static const String baseUrl = '$baseDomain/api/v1';
 
-
   static Map<String, String> get defaultHeaders => {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -25,7 +24,6 @@ class ApiConstants {
   static UserEndpoints get user => UserEndpoints();
   static NotificationEndpoints get notification => NotificationEndpoints();
 
-
   static GetProfile get getProfile => GetProfile();
 
   static PlanEndpoints get plan => PlanEndpoints();
@@ -33,7 +31,6 @@ class ApiConstants {
   static SubscriptionEndpoints get subscription => SubscriptionEndpoints();
 
   static PaymentEndpoints get payment => PaymentEndpoints();
-
 }
 
 /// [Authentication Endpoints]
@@ -78,6 +75,7 @@ class UserEndpoints {
   final String updateProfile =
       '$_base/profile'; // Use same endpoint as GET with PUT method
   final String getUserProfile = '$_base/profile';
+  final String changePassword = '$_base/change-password';
   final String getMyActivities = '$_base/my-activities';
 
   // final String create = '$_base/create';
@@ -90,7 +88,6 @@ class NotificationEndpoints {
   String getNotificationsWithPage(int page, int limit) =>
       '$_base?page=$page&limit=$limit';
 }
-
 
 class PlanEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/plan';
@@ -113,11 +110,9 @@ class AskPriceEndpoints {
   String askPrice(String id) => '$_base/$id/ask-price';
 }
 
-
 /// Subscription Endpoints
 class SubscriptionEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/subscription';
 
   final String getSubscriptions = _base;
 }
-

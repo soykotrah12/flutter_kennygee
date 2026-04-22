@@ -1,179 +1,211 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'food_list_screen.dart';
+import 'restaurant_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      useSafeArea: true,
-      isScrollable: true,
-      backgroundColor: AppColors.appBackground,
-      bodyPadding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Image.asset(
-                AppImages.appLogo,
-                width: 32,
-                height: 51,
-                fit: BoxFit.contain,
-              ),
-              const Spacer(),
-              Image.asset(
-                AppImages.ai,
-                width: 30,
-                height: 30,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(width: 10),
-              Container(
-                height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryGreen,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      AppImages.event,
-                      width: 20,
-                      height: 20,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Events',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Montserrat',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Container(
-            height: 44,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.primaryGreen, width: 1.2),
-            ),
-            child: Row(
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(AppImages.rolebackground),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: AppScaffold(
+        useSafeArea: true,
+        isScrollable: true,
+        backgroundColor: Colors.transparent,
+        bodyPadding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                const Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14),
-                    child: Text(
-                      'Search Restaurant, dishes...',
-                      style: TextStyle(
-                        color: AppColors.textGrey,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                        fontFamily: 'Montserrat',
+                Image.asset(
+                  AppImages.appLogo,
+                  width: 32,
+                  height: 51,
+                  fit: BoxFit.contain,
+                ),
+                const Spacer(),
+                Image.asset(
+                  AppImages.ai,
+                  width: 30,
+                  height: 30,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGreen,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        AppImages.event,
+                        width: 20,
+                        height: 20,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Events',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Hungry? Discover What\'s nearby.',
+              style: TextStyle(
+                color: AppColors.textBlack,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                height: 1.1,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 44,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.primaryGreen, width: 1.2),
+              ),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 14),
+                      child: Text(
+                        'Search Restaurant, dishes...',
+                        style: TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w300,
+                          fontFamily: 'Montserrat',
+                        ),
                       ),
                     ),
                   ),
+                  Container(
+                    width: 52,
+                    height: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryGreen,
+                      borderRadius: BorderRadius.horizontal(
+                        right: Radius.circular(9),
+                      ),
+                    ),
+                    child: Center(
+                      child: Image.asset(
+                        AppImages.search,
+                        width: 24,
+                        height: 24,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _FilterChip(label: 'All', active: true, icon: AppImages.all),
+                SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Restaurant List',
+                  icon: AppImages.restaurantlist,
+                  onTap: _openRestaurantList,
                 ),
-                Container(
-                  width: 52,
-                  height: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primaryGreen,
-                    borderRadius: BorderRadius.horizontal(
-                      right: Radius.circular(9),
-                    ),
-                  ),
-                  child: Center(
-                    child: Image.asset(
-                      AppImages.search,
-                      width: 24,
-                      height: 24,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
+                SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Food List',
+                  icon: AppImages.foodlist,
+                  onTap: _openFoodList,
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-          const Row(
-            children: [
-              _FilterChip(
-                label: 'All',
-                active: true,
-                icon: Icons.verified_user,
-              ),
-              SizedBox(width: 8),
-              _FilterChip(
-                label: 'Restaurant List',
-                icon: Icons.restaurant,
-              ),
-              SizedBox(width: 8),
-              _FilterChip(label: 'Food List', icon: Icons.lunch_dining),
-            ],
-          ),
-          const SizedBox(height: 18),
-          const _SectionHeader(
-            title: 'Nearby Restaurants',
-            subtitle: '(within 10km)',
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 260,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: const [
-                _NearbyCard(image: AppImages.homeRestaurant1),
-                SizedBox(width: 12),
-                _NearbyCard(image: AppImages.homeRestaurant2),
-              ],
+            const SizedBox(height: 18),
+            _SectionHeader(
+              title: 'Nearby Restaurants',
+              subtitle: '(within 10km)',
+              onSeeAll: _openRestaurantList,
             ),
-          ),
-          const SizedBox(height: 18),
-          const _OnlyTitleHeader(
-            title: 'Recommended for you',
-          ),
-          const SizedBox(height: 10),
-          const _RecommendedItem(
-            image: AppImages.homeRestaurant3,
-            rating: '5.0',
-          ),
-          const SizedBox(height: 10),
-          const _RecommendedItem(
-            image: AppImages.homeRestaurant1,
-            rating: '5.0',
-          ),
-          const SizedBox(height: 10),
-          const _RecommendedItem(
-            image: AppImages.homeRestaurant2,
-            rating: '5.0',
-          ),
-          const SizedBox(height: 10),
-          const _RecommendedItem(
-            image: AppImages.homeRestaurant3,
-            rating: '5.0',
-          ),
-          const SizedBox(height: 10),
-          const _RecommendedItem(
-            image: AppImages.homeRestaurant1,
-            rating: '4.8',
-          ),
-        ],
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 224,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: const [
+                  _NearbyCard(image: AppImages.homeRestaurant1),
+                  SizedBox(width: 12),
+                  _NearbyCard(image: AppImages.homeRestaurant2),
+                  SizedBox(width: 12),
+                  _NearbyCard(image: AppImages.homeRestaurant2),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            const _OnlyTitleHeader(title: 'Recommended for you'),
+            const SizedBox(height: 10),
+            const _RecommendedItem(
+              image: AppImages.homeRestaurant3,
+              rating: '5.0',
+            ),
+            const SizedBox(height: 10),
+            const _RecommendedItem(
+              image: AppImages.homeRestaurant1,
+              rating: '5.0',
+            ),
+            const SizedBox(height: 10),
+            const _RecommendedItem(
+              image: AppImages.homeRestaurant2,
+              rating: '5.0',
+            ),
+            const SizedBox(height: 10),
+            const _RecommendedItem(
+              image: AppImages.homeRestaurant3,
+              rating: '5.0',
+            ),
+            const SizedBox(height: 10),
+            const _RecommendedItem(
+              image: AppImages.homeRestaurant1,
+              rating: '4.8',
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _openRestaurantList() {
+    Get.to(() => const RestaurantListScreen());
+  }
+
+  void _openFoodList() {
+    Get.to(() => const FoodListScreen());
   }
 }
 
@@ -182,50 +214,43 @@ class _FilterChip extends StatelessWidget {
     required this.label,
     required this.icon,
     this.active = false,
+    this.onTap,
   });
 
   final String label;
-  final IconData icon;
+  final String icon;
   final bool active;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 36,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: active ? AppColors.primaryGreen : AppColors.appBackground,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.primaryGreen),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: active ? AppColors.primaryWhite : AppColors.appBackground,
-              border: Border.all(color: AppColors.primaryGreen),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primaryGreen : AppColors.appBackground,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.primaryGreen),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(icon, width: 20, height: 20, fit: BoxFit.contain),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: active ? Colors.white : AppColors.textBlack,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat',
+              ),
             ),
-            child: Icon(
-              icon,
-              size: 12,
-              color: AppColors.primaryGreen,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: active ? Colors.white : AppColors.textBlack,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Montserrat',
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -235,10 +260,12 @@ class _SectionHeader extends StatelessWidget {
   const _SectionHeader({
     required this.title,
     required this.subtitle,
+    this.onSeeAll,
   });
 
   final String title;
   final String subtitle;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
@@ -248,9 +275,9 @@ class _SectionHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Nearby Restaurants',
-                style: TextStyle(
+              Text(
+                title,
+                style: const TextStyle(
                   color: AppColors.textBlack,
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
@@ -270,13 +297,16 @@ class _SectionHeader extends StatelessWidget {
             ],
           ),
         ),
-        const Text(
-          'See all',
-          style: TextStyle(
-            color: AppColors.primaryGreen,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Montserrat',
+        GestureDetector(
+          onTap: onSeeAll,
+          child: const Text(
+            'See all',
+            style: TextStyle(
+              color: AppColors.primaryGreen,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Montserrat',
+            ),
           ),
         ),
       ],
@@ -331,27 +361,29 @@ class _NearbyCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.primaryWhite,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
             ),
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(14),
+                top: Radius.circular(16),
               ),
               child: Stack(
                 children: [
                   Image.asset(
                     image,
-                    height: 136,
+                    height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
@@ -367,7 +399,7 @@ class _NearbyCard extends StatelessWidget {
                       ),
                       child: const Icon(
                         Icons.favorite_border,
-                        size: 15,
+                        size: 20,
                         color: AppColors.primaryOrange,
                       ),
                     ),
@@ -376,7 +408,7 @@ class _NearbyCard extends StatelessWidget {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
+              padding: EdgeInsets.fromLTRB(8, 6, 8, 0),
               child: Row(
                 children: [
                   Expanded(
@@ -386,19 +418,19 @@ class _NearbyCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textBlack,
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
                       ),
                     ),
                   ),
-                  Icon(Icons.star, size: 15, color: AppColors.primaryOrange),
+                  Icon(Icons.star, size: 12, color: AppColors.primaryOrange),
                   SizedBox(width: 4),
                   Text(
                     '5.0',
                     style: TextStyle(
                       color: AppColors.primaryGreen,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
                     ),
@@ -406,14 +438,15 @@ class _NearbyCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            Padding(
+              padding: EdgeInsets.fromLTRB(8, 4, 8, 0),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 15,
-                    color: AppColors.primaryOrange,
+                  Image.asset(
+                    AppImages.location,
+                    width: 12,
+                    height: 12,
+                    fit: BoxFit.contain,
                   ),
                   SizedBox(width: 4),
                   Expanded(
@@ -423,8 +456,8 @@ class _NearbyCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textBlack,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
                       ),
                     ),
@@ -432,14 +465,15 @@ class _NearbyCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+            Padding(
+              padding: EdgeInsets.fromLTRB(8, 2, 8, 8),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.access_time_filled,
-                    size: 15,
-                    color: Color(0xFF2AB45D),
+                  Image.asset(
+                    AppImages.clock,
+                    width: 12,
+                    height: 12,
+                    fit: BoxFit.contain,
                   ),
                   SizedBox(width: 4),
                   Expanded(
@@ -449,7 +483,7 @@ class _NearbyCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textBlack,
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Montserrat',
                       ),
@@ -501,10 +535,11 @@ class _RecommendedItem extends StatelessWidget {
                   Expanded(
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.location_on,
-                          size: 15,
-                          color: AppColors.primaryOrange,
+                        Image.asset(
+                          AppImages.location,
+                          width: 12,
+                          height: 12,
+                          fit: BoxFit.contain,
                         ),
                         const SizedBox(width: 4),
                         const Expanded(
@@ -542,12 +577,13 @@ class _RecommendedItem extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              const Row(
+              Row(
                 children: [
-                  Icon(
-                    Icons.access_time_filled,
-                    size: 15,
-                    color: Color(0xFF2AB45D),
+                  Image.asset(
+                    AppImages.clock,
+                    width: 12,
+                    height: 12,
+                    fit: BoxFit.contain,
                   ),
                   SizedBox(width: 4),
                   Expanded(

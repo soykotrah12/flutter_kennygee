@@ -25,7 +25,7 @@ class AppScaffold extends StatelessWidget {
   final EdgeInsetsGeometry bodyPadding;
 
   const AppScaffold({
-    this.toolbarHeight = 100,
+    this.toolbarHeight = 72,
     super.key,
     required this.body,
     this.appBarTitle,
@@ -97,8 +97,8 @@ class AppScaffold extends StatelessWidget {
           Text(
             title,
             style: textTheme.headlineMedium?.copyWith(
-              fontSize: 28,
-              fontWeight: FontWeight.w500, 
+              fontSize: 18,
+              fontWeight: FontWeight.w600, 
               height: 1.0,
               
             ),

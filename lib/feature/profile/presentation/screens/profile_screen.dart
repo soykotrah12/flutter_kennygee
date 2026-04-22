@@ -5,7 +5,13 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/controller/auth_flow_controller.dart';
+import '../controller/profile_controller.dart';
+import 'change_password_screen.dart';
+import 'edit_profile_screen.dart';
+import 'help_support_screen.dart';
 import 'logout_confirm_screen.dart';
+import 'privacy_policy_security_screen.dart';
+import 'terms_of_condition_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -13,6 +19,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final flowController = ensureAuthFlowController();
+    final profileController = ensureProfileController();
 
     return AppScaffold(
       useSafeArea: true,
@@ -28,42 +35,63 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   Row(
-            children: [
-              Image.asset(
-                AppImages.appLogo,
-                width: 32,
-                height: 51,
-                fit: BoxFit.contain,
-              ),
-              const Spacer(),
-              Image.asset(
-                AppImages.ai,
-                width: 30,
-                height: 30,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(width: 10),
-              Container(
-  width: 44,
-  height: 44,
-  decoration: BoxDecoration(
-    shape: BoxShape.circle,
-    border: Border.all(
-      color: AppColors.primaryGreen, 
-      width: 2,
-    ),
-  ),
-  child: ClipOval(
-    child: Image.asset(
-      AppImages.defaultProfileImage, 
-      fit: BoxFit.cover,
-    ),
-  ),
-),
-            ],
-          ),
-          const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Image.asset(
+                        AppImages.appLogo,
+                        width: 32,
+                        height: 51,
+                        fit: BoxFit.contain,
+                      ),
+                      const Spacer(),
+                      Image.asset(
+                        AppImages.ai,
+                        width: 30,
+                        height: 30,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(width: 16),
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.primaryGreen,
+                            width: 2,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: Obx(() {
+                            final imageUrl =
+                                profileController
+                                    .profile
+                                    .value
+                                    ?.profileImage
+                                    .url ??
+                                '';
+
+                            if (imageUrl.isNotEmpty) {
+                              return Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Image.asset(
+                                  AppImages.defaultProfileImage,
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            }
+
+                            return Image.asset(
+                              AppImages.defaultProfileImage,
+                              fit: BoxFit.cover,
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   const Text(
                     'Quick Access',
                     style: TextStyle(
@@ -106,36 +134,43 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const _SectionCard(
+                  _SectionCard(
                     children: [
                       _SettingsRow(
                         icon: AppImages.editprofile,
                         title: 'Edit Profile',
                         subtitle: 'Update your personal information',
+                        onTap: () => Get.to(() => const EditProfileScreen()),
                       ),
                       Divider(color: Color(0xFFB9B9B9), height: 1),
                       _SettingsRow(
                         icon: AppImages.changepassword,
                         title: 'Change Password',
                         subtitle: 'Update your personal information',
+                        onTap: () => Get.to(() => const ChangePasswordScreen()),
                       ),
                       Divider(color: Color(0xFFB9B9B9), height: 1),
                       _SettingsRow(
                         icon: AppImages.privacypolicy,
                         title: 'Privacy policy & Security',
                         subtitle: 'How we handle your data',
+                        onTap: () =>
+                            Get.to(() => const PrivacyPolicySecurityScreen()),
                       ),
                       Divider(color: Color(0xFFB9B9B9), height: 1),
                       _SettingsRow(
                         icon: AppImages.terms,
                         title: 'Terms of Condition',
                         subtitle: 'App usage terms andiconditions',
+                        onTap: () =>
+                            Get.to(() => const TermsOfConditionScreen()),
                       ),
                       Divider(color: Color(0xFFB9B9B9), height: 1),
                       _SettingsRow(
                         icon: AppImages.helpsupport,
                         title: 'Help & Support',
                         subtitle: 'App usage terms and conditions',
+                        onTap: () => Get.to(() => const HelpSupportScreen()),
                       ),
                     ],
                   ),
@@ -152,11 +187,7 @@ class ProfileScreen extends StatelessWidget {
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.logout,
-                            size: 20,
-                            color: Colors.white,
-                          ),
+                          Icon(Icons.logout, size: 20, color: Colors.white),
                           SizedBox(width: 10),
                           Text(
                             'Log Out',
@@ -242,11 +273,11 @@ class _QuickAccessRow extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-        color: Color(0x1A000000),
-        blurRadius: 6,
-        spreadRadius: 2,
-        offset: Offset(0, 2),
-      ),
+                  color: Color(0x1A000000),
+                  blurRadius: 6,
+                  spreadRadius: 2,
+                  offset: Offset(0, 2),
+                ),
               ],
             ),
             child: Center(
@@ -298,7 +329,7 @@ class _QuickAccessRow extends StatelessWidget {
           const SizedBox(width: 14),
           const Icon(Icons.chevron_right, size: 20, color: AppColors.textBlack),
         ],
-      ), 
+      ),
     );
   }
 }
@@ -308,63 +339,67 @@ class _SettingsRow extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
-  
   final String title;
   final String subtitle;
   final String icon;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-  crossAxisAlignment: CrossAxisAlignment.center,
-  children: [
-    SizedBox(
-      width: 40,
-      child: SizedBox(
-  width: 40,
-  child: Center(
-    child: Image.asset(
-      icon,
-      width: 24,
-      height: 24,
-      fit: BoxFit.contain,
-    ),
-  ),
-),
-    ),
-    const SizedBox(width: 12),
-    Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textBlack,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Montserrat',
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 40,
+              child: SizedBox(
+                width: 40,
+                child: Center(
+                  child: Image.asset(
+                    icon,
+                    width: 24,
+                    height: 24,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              color: AppColors.textBlack,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              fontFamily: 'Montserrat',
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: AppColors.textBlack,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: AppColors.textBlack,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  ],
-),
     );
   }
 }

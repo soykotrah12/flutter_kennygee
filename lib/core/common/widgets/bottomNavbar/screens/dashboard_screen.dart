@@ -60,91 +60,91 @@ class _DashboardScreenState extends State<DashboardScreen> {
         bottomNavigationBar: SafeArea(
           top: false,
           child: Container(
-            height: 86,
-            margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            height: 72,
+            margin: const EdgeInsets.fromLTRB(0, 0, 12, 0),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.primaryWhite,
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Obx(
               () => Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: List.generate(_controller.tabs.length, (index) {
-    final tab = _controller.tabs[index];
-    final isActive = _controller.currentIndex.value == index;
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(_controller.tabs.length, (index) {
+                  final tab = _controller.tabs[index];
+                  final isActive = _controller.currentIndex.value == index;
 
-    return GestureDetector(
-      onTap: () => _controller.changeIndex(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(
-          horizontal: isActive ? 12 : 0,
-        ),
-        height: 51,
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.primaryGreen
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(27),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min, 
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: isActive ? 34 : 42,
-              height: isActive ? 34 : 42,
-              decoration: BoxDecoration(
-                color: isActive
-                    ? const Color(0xFFF2ECE5)
-                    : AppColors.primaryGreen,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isActive ? tab.activeIcon : tab.icon,
-                size: isActive ? 20 : 24,
-                color: isActive
-                    ? AppColors.primaryGreen
-                    : Colors.white,
-              ),
-            ),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SizeTransition(
-                    sizeFactor: animation,
-                    axis: Axis.horizontal,
-                    child: child,
-                  ),
-                );
-              },
-              child: isActive
-                  ? Padding(
-                      key: const ValueKey('label'),
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Center(
-                        child: Text(
-                          tab.label,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                  return GestureDetector(
+                    onTap: () => _controller.changeIndex(index),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isActive ? 12 : 0,
                       ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }),
-)
+                      height: 51,
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? AppColors.primaryGreen
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(27),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: isActive ? 34 : 42,
+                            height: isActive ? 34 : 42,
+                            decoration: BoxDecoration(
+                              color: isActive
+                                  ? const Color(0xFFF2ECE5)
+                                  : AppColors.primaryGreen,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isActive ? tab.activeIcon : tab.icon,
+                              size: isActive ? 20 : 24,
+                              color: isActive
+                                  ? AppColors.primaryGreen
+                                  : Colors.white,
+                            ),
+                          ),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 250),
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SizeTransition(
+                                  sizeFactor: animation,
+                                  axis: Axis.horizontal,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: isActive
+                                ? Padding(
+                                    key: const ValueKey('label'),
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Center(
+                                      child: Text(
+                                        tab.label,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
             ),
           ),
         ),

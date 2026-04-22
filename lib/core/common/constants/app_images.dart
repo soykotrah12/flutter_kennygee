@@ -34,10 +34,22 @@ class AppImages {
   static const String homeRestaurant2 = onboarding8image;
   static const String homeRestaurant3 = onboarding9image;
 
+  // Filter chips
+  static const String all = 'assets/icons/all.png';
+  static const String restaurantlist = 'assets/icons/restaurantlist.png';
+  static const String foodlist = 'assets/icons/foodlist.png';
+
+  // cart and checkout icons
+  static const String location = 'assets/icons/location.png';
+  static const String clock = 'assets/icons/clock.png';
+
+
   // user home icons
   static const String ai = 'assets/icons/ai.png';
   static const String event = 'assets/icons/event.png';
   static const String search = 'assets/icons/search.png';
+
+
 
   // profile iconsicons
   static const String wishlist = 'assets/icons/wishlist.png';
@@ -48,4 +60,5 @@ class AppImages {
   static const String terms = 'assets/icons/terms.png';
   static const String helpsupport = 'assets/icons/help.png';
   static const String logout = 'assets/icons/logout.png';
+  static const String gellary = 'assets/icons/gellary.png';
 }
