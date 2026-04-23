@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/home_recommendation_item_model.dart';
 import '../../data/model/restaurant_model.dart';
 import '../../data/repo/home_mock_data.dart';
+import '../controller/home_shop_controller.dart';
 import '../navigation/home_navigation.dart';
 import 'food_list_screen.dart';
 import 'restaurant_list_screen.dart';
@@ -21,6 +23,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final HomeShopController shopController =
+        HomeShopController.ensureInitialized();
+
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -163,21 +168,30 @@ class HomeScreen extends StatelessWidget {
               onSeeAll: _openRestaurantList,
             ),
             const SizedBox(height: 10),
-            SizedBox(
-              height: 224,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _nearbyRestaurants.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (_, index) {
-                  final RestaurantModel restaurant = _nearbyRestaurants[index];
-                  return _NearbyCard(
-                    restaurant: restaurant,
-                    onTap: () =>
-                        HomeNavigation.openRestaurantDetails(restaurant),
-                  );
-                },
-              ),
+            Obx(
+              () {
+                final List<RestaurantModel> source =
+                    shopController.shops.isNotEmpty
+                    ? shopController.shops.take(3).toList()
+                    : _nearbyRestaurants;
+
+                return SizedBox(
+                  height: 224,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: source.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, index) {
+                      final RestaurantModel restaurant = source[index];
+                      return _NearbyCard(
+                        restaurant: restaurant,
+                        onTap: () =>
+                            HomeNavigation.openRestaurantDetails(restaurant),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 18),
             const _OnlyTitleHeader(title: 'Recommended for you'),
@@ -387,8 +401,8 @@ class _NearbyCard extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    Image.asset(
-                      restaurant.image,
+                    AdaptiveImage(
+                      path: restaurant.image,
                       height: 150,
                       width: double.infinity,
                       fit: BoxFit.cover,

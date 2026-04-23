@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
@@ -173,8 +174,8 @@ class _ReviewHeroCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: Stack(
         children: [
-          Image.asset(
-            restaurant.image,
+          AdaptiveImage(
+            path: restaurant.image,
             width: double.infinity,
             height: 210,
             fit: BoxFit.cover,

@@ -31,6 +31,8 @@ class ApiConstants {
   static SubscriptionEndpoints get subscription => SubscriptionEndpoints();
 
   static PaymentEndpoints get payment => PaymentEndpoints();
+
+  static ShopEndpoints get shop => ShopEndpoints();
 }
 
 /// [Authentication Endpoints]
@@ -115,4 +117,10 @@ class SubscriptionEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/subscription';
 
   final String getSubscriptions = _base;
+}
+
+class ShopEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/shop';
+
+  final String fetchNearbyShops = '$_base/';
 }

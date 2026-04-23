@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
 import '../../data/repo/home_mock_data.dart';
+import '../controller/home_shop_controller.dart';
 import '../navigation/home_navigation.dart';
 
 class RestaurantListScreen extends StatelessWidget {
@@ -14,6 +17,9 @@ class RestaurantListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final HomeShopController shopController =
+        HomeShopController.ensureInitialized();
+
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -61,24 +67,30 @@ class RestaurantListScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: GridView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: _items.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.62,
-                ),
-                itemBuilder: (_, index) {
-                  final RestaurantModel restaurant = _items[index];
-                  return _RestaurantGridCard(
-                    item: restaurant,
-                    onTap: () =>
-                        HomeNavigation.openRestaurantDetails(restaurant),
-                  );
-                },
-              ),
+              child: Obx(() {
+                final List<RestaurantModel> source = shopController.shops.isNotEmpty
+                    ? shopController.shops
+                    : _items;
+
+                return GridView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: source.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.62,
+                  ),
+                  itemBuilder: (_, index) {
+                    final RestaurantModel restaurant = source[index];
+                    return _RestaurantGridCard(
+                      item: restaurant,
+                      onTap: () =>
+                          HomeNavigation.openRestaurantDetails(restaurant),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -119,8 +131,8 @@ class _RestaurantGridCard extends StatelessWidget {
               ),
               child: Stack(
                 children: [
-                  Image.asset(
-                    item.image,
+                  AdaptiveImage(
+                    path: item.image,
                     width: double.infinity,
                     height: 184,
                     fit: BoxFit.cover,

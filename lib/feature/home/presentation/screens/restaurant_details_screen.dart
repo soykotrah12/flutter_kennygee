@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
@@ -197,8 +198,8 @@ class _HeroCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(4),
       child: Stack(
         children: [
-          Image.asset(
-            restaurant.image,
+          AdaptiveImage(
+            path: restaurant.image,
             width: double.infinity,
             height: 220,
             fit: BoxFit.cover,
