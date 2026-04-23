@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../feature/auth/presentation/controller/auth_flow_controller.dart';
+import '../../../../../feature/home/presentation/screens/favorite_screen.dart';
 import '../../../../../feature/home/presentation/screens/home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_home_screen.dart';
 import '../../../../../feature/profile/presentation/screens/profile_screen.dart';
@@ -74,11 +75,7 @@ class BottomNavController extends GetxController {
             label: 'Favorite',
             icon: Icons.favorite_outline,
             activeIcon: Icons.favorite,
-            screen: DashboardPlaceholderView(
-              title: 'Favorites',
-              subtitle: 'Your loved restaurants and dishes appear here.',
-              icon: Icons.favorite_outline,
-            ),
+            screen: FavoriteScreen(),
           ),
           const DashboardTabItem(
             label: 'Profile',

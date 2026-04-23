@@ -38,6 +38,8 @@ class AppImages {
   static const String all = 'assets/icons/all.png';
   static const String restaurantlist = 'assets/icons/restaurantlist.png';
   static const String foodlist = 'assets/icons/foodlist.png';
+  static const String restaurantlistclored = 'assets/icons/restaurantlistclored.png';
+  static const String allcolored = 'assets/icons/allcolored.png';
 
   // cart and checkout icons
   static const String location = 'assets/icons/location.png';

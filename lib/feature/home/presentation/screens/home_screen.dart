@@ -422,7 +422,7 @@ class _NearbyCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         restaurant.name,
-                        maxLines: 1,
+                        softWrap: true,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: AppColors.textBlack,
