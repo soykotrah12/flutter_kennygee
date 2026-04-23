@@ -6,15 +6,26 @@ import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
 import 'restaurant_reviews_screen.dart';
 
-class RestaurantDetailsScreen extends StatelessWidget {
+class RestaurantDetailsScreen extends StatefulWidget {
   const RestaurantDetailsScreen({required this.restaurant, super.key});
 
   final RestaurantModel restaurant;
 
   @override
+  State<RestaurantDetailsScreen> createState() => _RestaurantDetailsScreenState();
+}
+
+class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
+  int selectedDishIndex = 0;
+  @override
   Widget build(BuildContext context) {
-    final List<String> dishes = restaurant.popularDishes;
-    final List<RestaurantMenuItemModel> menuItems = restaurant.menuItems;
+    final List<String> dishes = widget.restaurant.popularDishes;
+    final List<RestaurantMenuItemModel> menuItems = widget.restaurant.menuItems;
+    final List<String> dishIcons = [
+      'assets/icons/pasta.png',
+      'assets/icons/burger.png',
+      'assets/icons/cheese.png',
+    ];
 
     return Container(
       color: const Color(0xFFF3F3F3),
@@ -57,16 +68,16 @@ class RestaurantDetailsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _HeroCard(restaurant: restaurant),
+              _HeroCard(restaurant: widget.restaurant),
               const SizedBox(height: 16),
               Row(
                 children: [
                   _RatingPill(
-                    rating: restaurant.rating,
-                    reviewsCount: restaurant.reviewsCount,
+                    rating: widget.restaurant.rating,
+                    reviewsCount: widget.restaurant.reviewsCount,
                     onReviewsTap: () {
                       Get.to(
-                        () => RestaurantReviewsScreen(restaurant: restaurant),
+                        () => RestaurantReviewsScreen(restaurant: widget.restaurant),
                       );
                     },
                   ),
@@ -94,17 +105,17 @@ class RestaurantDetailsScreen extends StatelessWidget {
                 icon: Icons.location_on,
                 iconColor: AppColors.primaryOrange,
                 title: 'Location',
-                value: restaurant.address.isNotEmpty
-                    ? restaurant.address
-                    : restaurant.distance,
+                value: widget.restaurant.address.isNotEmpty
+                    ? widget.restaurant.address
+                    : widget.restaurant.distance,
               ),
               const SizedBox(height: 18),
               _InfoRow(
                 icon: Icons.access_time_rounded,
                 iconColor: const Color(0xFF39B45A),
                 title: 'Opening Hours',
-                value: restaurant.openingHours.isNotEmpty
-                    ? restaurant.openingHours
+                value: widget.restaurant.openingHours.isNotEmpty
+                    ? widget.restaurant.openingHours
                     : 'Not available',
               ),
               const SizedBox(height: 26),
@@ -118,24 +129,32 @@ class RestaurantDetailsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              if (dishes.isNotEmpty)
+              if (widget.restaurant.popularDishes.isNotEmpty)
                 SizedBox(
                   height: 44,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
-                    itemCount: dishes.length,
+                    itemCount: widget.restaurant.popularDishes.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 10),
-                    itemBuilder: (_, index) {
-                      final String dish = dishes[index];
-                      final String iconImage = menuItems.isNotEmpty
-                          ? menuItems[index % menuItems.length].image
-                          : restaurant.image;
-                      return _DishChip(
-                        label: dish,
-                        iconImage: iconImage,
-                        isActive: index == 0,
-                      );
-                    },
+                 itemBuilder: (_, index) {
+  final String dish = widget.restaurant.popularDishes[index];
+
+  final String iconImage =
+      dishIcons[index % dishIcons.length];
+
+  return GestureDetector(
+    onTap: () {
+      setState(() {
+        selectedDishIndex = index;
+      });
+    },
+    child: _DishChip(
+      label: dish,
+      iconImage: iconImage,
+      isActive: selectedDishIndex == index,
+    ),
+  );
+},
                   ),
                 )
               else
@@ -148,8 +167,8 @@ class RestaurantDetailsScreen extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 16),
-              if (menuItems.isNotEmpty)
-                ...menuItems.map((item) => _MenuItemTile(item: item))
+              if (widget.restaurant.menuItems.isNotEmpty)
+                ...widget.restaurant.menuItems.map((item) => _MenuItemTile(item: item))
               else
                 const Text(
                   'No menu items available',
@@ -382,8 +401,8 @@ class _DishChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         color: isActive ? AppColors.primaryGreen : Colors.transparent,
         borderRadius: BorderRadius.circular(24),

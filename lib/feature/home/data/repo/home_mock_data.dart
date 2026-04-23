@@ -1,9 +1,67 @@
 import '../../../../core/common/constants/app_images.dart';
+import '../model/food_model.dart';
 import '../model/home_recommendation_item_model.dart';
 import '../model/restaurant_model.dart';
 
 class HomeMockData {
   HomeMockData._();
+
+  static const FoodModel gourmetWagyuBurger = FoodModel(
+    id: 'food_1',
+    name: 'Gourmet Wagyu\nBurger',
+    image: AppImages.homeRestaurant3,
+    price: 18.00,
+    rating: 5.0,
+    reviewsCount: 232,
+    description:
+        'Experience pure indulgence with our signature Wagyu Burger. Features a premium 250g A5 Wagyu beef patty, aged cheddar cheese, caramelized onions, and our secret truffle aioli, all served on a toasted artisanal brioche bun.',
+    restaurantName: 'The Golden Truffel',
+    distance: '1.3KM AWAY',
+    address: '123 Sunset Boulevard, Beverly Hills, CA 9012',
+    openingHours: '9:00 AM to 11:00PM',
+    isLiked: true,
+  );
+
+  static const FoodModel trufflePasta = FoodModel(
+    id: 'food_2',
+    name: 'Truffle Cream Pasta',
+    image: AppImages.homeRestaurant2,
+    price: 16.00,
+    rating: 4.9,
+    reviewsCount: 158,
+    description:
+        'Silky handmade pasta tossed in truffle-infused cream sauce, parmesan, and crispy garlic crumbs for a rich and elegant bite.',
+    restaurantName: 'The Golden Truffel',
+    distance: '1.2KM AWAY',
+    address: '123 Sunset Boulevard, Beverly Hills, CA 9012',
+    openingHours: '9:00 AM to 11:00PM',
+    isLiked: false,
+  );
+
+  static const FoodModel spicyDumplingPlatter = FoodModel(
+    id: 'food_3',
+    name: 'Spicy Dumpling Platter',
+    image: AppImages.homeRestaurant1,
+    price: 14.00,
+    rating: 4.8,
+    reviewsCount: 96,
+    description:
+        'Pan-seared dumplings with house chili oil, sesame glaze, and fresh scallions. A balanced mix of heat and savory flavor.',
+    restaurantName: 'The Golden Truffel',
+    distance: '1.4KM AWAY',
+    address: '123 Sunset Boulevard, Beverly Hills, CA 9012',
+    openingHours: '9:00 AM to 11:00PM',
+    isLiked: true,
+  );
+
+  static const List<FoodModel> foodList = <FoodModel>[
+    gourmetWagyuBurger,
+    trufflePasta,
+    spicyDumplingPlatter,
+    gourmetWagyuBurger,
+    trufflePasta,
+    spicyDumplingPlatter,
+  ];
 
   static const RestaurantModel laBellaItalia = RestaurantModel(
     id: 'rest_1',
@@ -190,11 +248,12 @@ class HomeMockData {
         HomeRecommendationItemModel(
           id: 'rec_2',
           type: 'food',
-          title: 'Side view club sandwich made...',
+          title: 'Gourmet Wagyu Burger',
           image: AppImages.homeRestaurant3,
           rating: 5.0,
-          distance: '1.2 miles away',
-          openingHours: '11:00 AM - 10:00 PM',
+          distance: '1.3KM AWAY',
+          openingHours: '9:00 AM to 11:00PM',
+          food: gourmetWagyuBurger,
         ),
         HomeRecommendationItemModel(
           id: 'rec_3',
@@ -212,8 +271,9 @@ class HomeMockData {
           title: 'Spicy dumpling platter',
           image: AppImages.homeRestaurant1,
           rating: 4.8,
-          distance: '1.4 miles away',
-          openingHours: '12:00 PM - 11:00 PM',
+          distance: '1.4KM AWAY',
+          openingHours: '9:00 AM to 11:00PM',
+          food: spicyDumplingPlatter,
         ),
         HomeRecommendationItemModel(
           id: 'rec_5',

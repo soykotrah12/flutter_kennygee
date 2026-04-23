@@ -186,6 +186,8 @@ class HomeScreen extends StatelessWidget {
               final HomeRecommendationItemModel item = _recommendedItems[index];
               final VoidCallback? onTap = item.type == 'restaurant'
                   ? () => HomeNavigation.openRestaurantDetails(item.restaurant!)
+                  : item.type == 'food' && item.food != null
+                  ? () => HomeNavigation.openFoodDetails(item.food!)
                   : null;
               return Padding(
                 padding: EdgeInsets.only(

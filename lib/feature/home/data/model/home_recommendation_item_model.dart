@@ -1,3 +1,4 @@
+import 'food_model.dart';
 import 'restaurant_model.dart';
 
 class HomeRecommendationItemModel {
@@ -10,6 +11,7 @@ class HomeRecommendationItemModel {
     required this.distance,
     required this.openingHours,
     this.restaurant,
+    this.food,
   });
 
   final String id;
@@ -20,4 +22,5 @@ class HomeRecommendationItemModel {
   final String distance;
   final String openingHours;
   final RestaurantModel? restaurant;
+  final FoodModel? food;
 }

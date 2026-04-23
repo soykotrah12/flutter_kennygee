@@ -48,6 +48,7 @@ class AppImages {
   static const String ai = 'assets/icons/ai.png';
   static const String event = 'assets/icons/event.png';
   static const String search = 'assets/icons/search.png';
+  static const String map = 'assets/icons/map.png';
 
 
 

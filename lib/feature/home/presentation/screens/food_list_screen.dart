@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/model/food_model.dart';
+import '../../data/repo/home_mock_data.dart';
+import '../navigation/home_navigation.dart';
 
 class FoodListScreen extends StatelessWidget {
   const FoodListScreen({super.key});
 
-  static final List<_FoodItem> _items = [
-    const _FoodItem(image: AppImages.homeRestaurant2, isLiked: true),
-    const _FoodItem(image: AppImages.homeRestaurant3, isLiked: true),
-    const _FoodItem(image: AppImages.homeRestaurant1, isLiked: true),
-    const _FoodItem(image: AppImages.homeRestaurant2, isLiked: false),
-    const _FoodItem(image: AppImages.homeRestaurant3, isLiked: true),
-    const _FoodItem(image: AppImages.homeRestaurant1, isLiked: false),
-  ];
+  static const List<FoodModel> _items = HomeMockData.foodList;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +59,7 @@ class FoodListScreen extends StatelessWidget {
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [            
+          children: [
             Expanded(
               child: GridView.builder(
                 physics: const BouncingScrollPhysics(),
@@ -75,7 +70,13 @@ class FoodListScreen extends StatelessWidget {
                   crossAxisSpacing: 12,
                   childAspectRatio: 0.62,
                 ),
-                itemBuilder: (_, index) => _FoodGridCard(item: _items[index]),
+                itemBuilder: (_, index) {
+                  final FoodModel food = _items[index];
+                  return _FoodGridCard(
+                    item: food,
+                    onTap: () => HomeNavigation.openFoodDetails(food),
+                  );
+                },
               ),
             ),
           ],
@@ -86,149 +87,153 @@ class FoodListScreen extends StatelessWidget {
 }
 
 class _FoodGridCard extends StatelessWidget {
-  const _FoodGridCard({required this.item});
+  const _FoodGridCard({required this.item, this.onTap});
 
-  final _FoodItem item;
+  final FoodModel item;
+  final VoidCallback? onTap;
 
   @override
-   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            child: Stack(
-              children: [
-                Image.asset(
-                  item.image,
-                  width: double.infinity,
-                  height: 184,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  top: 15,
-                  right: 15,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      item.isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: AppColors.primaryOrange,
-                      size: 16,
-                    ),
-                  ),
-                ),
-              ],
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(12, 10, 12, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Side view club',
-                    maxLines: 2,
-                    overflow: TextOverflow.visible,
-                    style: TextStyle(
-                      color: AppColors.textBlack,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+              child: Stack(
+                children: [
+                  Image.asset(
+                    item.image,
+                    width: double.infinity,
+                    height: 184,
+                    fit: BoxFit.cover,
+                  ),
+                  Positioned(
+                    top: 15,
+                    right: 15,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        item.isLiked ? Icons.favorite : Icons.favorite_border,
+                        color: AppColors.primaryOrange,
+                        size: 16,
+                      ),
                     ),
                   ),
-                ),
-                Icon(Icons.star, size: 16, color: AppColors.primaryOrange),
-                SizedBox(width: 2),
-                Text(
-                  '5.0',
-                  style: TextStyle(
-                    color: AppColors.primaryGreen,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Montserrat',
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(12, 2, 12, 0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.location_on_rounded,
-                  color: AppColors.primaryOrange,
-                  size: 24,
-                ),
-                SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    '1.2 miles away',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.textBlack,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.visible,
+                      style: const TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.star,
+                    size: 16,
+                    color: AppColors.primaryOrange,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    item.rating.toStringAsFixed(1),
+                    style: const TextStyle(
+                      color: AppColors.primaryGreen,
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(12, 0, 12, 8),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.access_time_rounded,
-                  color: Color(0xFF31B24C),
-                  size: 24,
-                ),
-                SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    '11:00 AM - 10:00 PM',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.textBlack,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Montserrat',
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.location_on_rounded,
+                    color: AppColors.primaryOrange,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      item.distance,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.access_time_rounded,
+                    color: Color(0xFF31B24C),
+                    size: 24,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      item.openingHours,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-class _FoodItem {
-  const _FoodItem({required this.image, required this.isLiked});
-
-  final String image;
-  final bool isLiked;
 }

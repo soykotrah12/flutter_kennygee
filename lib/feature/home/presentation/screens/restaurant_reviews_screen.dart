@@ -350,14 +350,14 @@ class _ReviewCard extends StatelessWidget {
                 item.timeAgo,
                 style: const TextStyle(
                   color: Color(0xFF9BA0B8),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
                   fontFamily: 'Montserrat',
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 18),
           Text(
             item.message,
             style: const TextStyle(
@@ -368,7 +368,7 @@ class _ReviewCard extends StatelessWidget {
               fontFamily: 'Montserrat',
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 18),
           Row(
             children: [
               const Icon(
