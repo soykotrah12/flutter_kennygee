@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/food_model.dart';
+import '../../data/model/restaurant_model.dart';
+import 'restaurant_reviews_screen.dart';
 
 class SingleFoodScreen extends StatefulWidget {
   const SingleFoodScreen({required this.food, super.key});
@@ -36,10 +39,25 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
     super.dispose();
   }
 
+  RestaurantModel get _restaurantFromFood {
+    return RestaurantModel(
+      id: 'food_rest_${widget.food.id}',
+      name: widget.food.restaurantName,
+      subtitle: 'Restaurant',
+      image: widget.food.image,
+      rating: widget.food.rating,
+      reviewsCount: widget.food.reviewsCount,
+      distance: widget.food.distance,
+      address: widget.food.address,
+      openingHours: widget.food.openingHours,
+      isLiked: widget.food.isLiked,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F3F3),
+      backgroundColor: AppColors.appBackground,
       body: Column(
         children: [
           Expanded(
@@ -80,10 +98,13 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                         right: 20,
                         child: _CircleActionButton(icon: Icons.favorite_border),
                       ),
+
+                      // Dots Indicator
+
                       Positioned(
                         left: 0,
                         right: 0,
-                        bottom: 12,
+                        bottom: 30,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List<Widget>.generate(
@@ -164,14 +185,23 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  '(${widget.food.reviewsCount} Reviews)',
-                                  style: const TextStyle(
-                                    color: AppColors.textBlack,
-                                    fontSize: 12,
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Montserrat',
+                                GestureDetector(
+                                  onTap: () {
+                                    Get.to(
+                                      () => RestaurantReviewsScreen(
+                                        restaurant: _restaurantFromFood,
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    '(${widget.food.reviewsCount} Reviews)',
+                                    style: const TextStyle(
+                                      color: AppColors.textBlack,
+                                      fontSize: 12,
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Montserrat',
+                                    ),
                                   ),
                                 ),
                               ],
@@ -197,7 +227,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                 fontFamily: 'Montserrat',
                               ),
                             ),
-                            const SizedBox(height: 18),
+                            const SizedBox(height: 35),
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.fromLTRB(
@@ -208,7 +238,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF5F5F5),
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,7 +295,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                             width: 24,
                                             height: 24,
                                           ),
-                                        )
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -408,8 +438,8 @@ class _BottomActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 64,
+    return SizedBox(      
+      height: 51,      
       child: ElevatedButton.icon(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
@@ -419,13 +449,13 @@ class _BottomActionButton extends StatelessWidget {
           ),
           elevation: 0,
         ),
-        icon: Icon(icon, color: Colors.white, size: 32),
+        icon: Icon(icon, color: Colors.white, size: 24),
         label: Text(
           label,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
             fontFamily: 'Montserrat',
           ),
         ),
