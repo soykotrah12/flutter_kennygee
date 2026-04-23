@@ -4,11 +4,20 @@ import 'package:get/get.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/model/home_recommendation_item_model.dart';
+import '../../data/model/restaurant_model.dart';
+import '../../data/repo/home_mock_data.dart';
+import '../navigation/home_navigation.dart';
 import 'food_list_screen.dart';
 import 'restaurant_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  static const List<RestaurantModel> _nearbyRestaurants =
+      HomeMockData.nearbyRestaurants;
+  static const List<HomeRecommendationItemModel> _recommendedItems =
+      HomeMockData.recommendedItems;
 
   @override
   Widget build(BuildContext context) {
@@ -156,44 +165,35 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 10),
             SizedBox(
               height: 224,
-              child: ListView(
+              child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                children: const [
-                  _NearbyCard(image: AppImages.homeRestaurant1),
-                  SizedBox(width: 12),
-                  _NearbyCard(image: AppImages.homeRestaurant2),
-                  SizedBox(width: 12),
-                  _NearbyCard(image: AppImages.homeRestaurant2),
-                ],
+                itemCount: _nearbyRestaurants.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (_, index) {
+                  final RestaurantModel restaurant = _nearbyRestaurants[index];
+                  return _NearbyCard(
+                    restaurant: restaurant,
+                    onTap: () =>
+                        HomeNavigation.openRestaurantDetails(restaurant),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 18),
             const _OnlyTitleHeader(title: 'Recommended for you'),
             const SizedBox(height: 10),
-            const _RecommendedItem(
-              image: AppImages.homeRestaurant3,
-              rating: '5.0',
-            ),
-            const SizedBox(height: 10),
-            const _RecommendedItem(
-              image: AppImages.homeRestaurant1,
-              rating: '5.0',
-            ),
-            const SizedBox(height: 10),
-            const _RecommendedItem(
-              image: AppImages.homeRestaurant2,
-              rating: '5.0',
-            ),
-            const SizedBox(height: 10),
-            const _RecommendedItem(
-              image: AppImages.homeRestaurant3,
-              rating: '5.0',
-            ),
-            const SizedBox(height: 10),
-            const _RecommendedItem(
-              image: AppImages.homeRestaurant1,
-              rating: '4.8',
-            ),
+            ...List<Widget>.generate(_recommendedItems.length, (index) {
+              final HomeRecommendationItemModel item = _recommendedItems[index];
+              final VoidCallback? onTap = item.type == 'restaurant'
+                  ? () => HomeNavigation.openRestaurantDetails(item.restaurant!)
+                  : null;
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == _recommendedItems.length - 1 ? 0 : 10,
+                ),
+                child: _RecommendedItem(item: item, onTap: onTap),
+              );
+            }),
           ],
         ),
       ),
@@ -350,149 +350,160 @@ class _OnlyTitleHeader extends StatelessWidget {
 }
 
 class _NearbyCard extends StatelessWidget {
-  const _NearbyCard({required this.image});
+  const _NearbyCard({required this.restaurant, this.onTap});
 
-  final String image;
+  final RestaurantModel restaurant;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 160,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.primaryWhite,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.primaryWhite,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+                spreadRadius: 0,
               ),
-              child: Stack(
-                children: [
-                  Image.asset(
-                    image,
-                    height: 150,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 26,
-                      height: 26,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primaryWhite,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.favorite_border,
-                        size: 20,
-                        color: AppColors.primaryOrange,
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
+                ),
+                child: Stack(
+                  children: [
+                    Image.asset(
+                      restaurant.image,
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primaryWhite,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          restaurant.isLiked
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          size: 20,
+                          color: AppColors.primaryOrange,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(8, 6, 8, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Side view club',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.textBlack,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        restaurant.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textBlack,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.star,
+                      size: 12,
+                      color: AppColors.primaryOrange,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      restaurant.rating.toStringAsFixed(1),
+                      style: const TextStyle(
+                        color: AppColors.primaryGreen,
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Montserrat',
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.star, size: 12, color: AppColors.primaryOrange),
-                  SizedBox(width: 4),
-                  Text(
-                    '5.0',
-                    style: TextStyle(
-                      color: AppColors.primaryGreen,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(8, 4, 8, 0),
-              child: Row(
-                children: [
-                  Image.asset(
-                    AppImages.location,
-                    width: 12,
-                    height: 12,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      '1.2 miles away',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.textBlack,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Montserrat',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(8, 2, 8, 8),
-              child: Row(
-                children: [
-                  Image.asset(
-                    AppImages.clock,
-                    width: 12,
-                    height: 12,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      '11:00 AM - 10:00 PM',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.textBlack,
-                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Montserrat',
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      AppImages.location,
+                      width: 12,
+                      height: 12,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        restaurant.distance,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textBlack,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 2, 8, 8),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      AppImages.clock,
+                      width: 12,
+                      height: 12,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        restaurant.openingHours,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textBlack,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -500,111 +511,120 @@ class _NearbyCard extends StatelessWidget {
 }
 
 class _RecommendedItem extends StatelessWidget {
-  const _RecommendedItem({required this.image, required this.rating});
+  const _RecommendedItem({required this.item, this.onTap});
 
-  final String image;
-  final String rating;
+  final HomeRecommendationItemModel item;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.asset(image, width: 90, height: 90, fit: BoxFit.cover),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Side view club sandwich made...',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: AppColors.textBlack,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Montserrat',
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(
+              item.image,
+              width: 90,
+              height: 90,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textBlack,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Montserrat',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          AppImages.location,
-                          width: 12,
-                          height: 12,
-                          fit: BoxFit.contain,
-                        ),
-                        const SizedBox(width: 4),
-                        const Expanded(
-                          child: Text(
-                            '1.2 miles away',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: AppColors.textBlack,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Montserrat',
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            AppImages.location,
+                            width: 12,
+                            height: 12,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              item.distance,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.textBlack,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Montserrat',
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.star,
-                    size: 16,
-                    color: AppColors.primaryOrange,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    rating,
-                    style: const TextStyle(
-                      color: AppColors.primaryGreen,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.star,
+                      size: 16,
+                      color: AppColors.primaryOrange,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Image.asset(
-                    AppImages.clock,
-                    width: 12,
-                    height: 12,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      '11:00 AM - 10:00 PM',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.textBlack,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    const SizedBox(width: 4),
+                    Text(
+                      item.rating.toStringAsFixed(1),
+                      style: const TextStyle(
+                        color: AppColors.primaryGreen,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Image.asset(
+                      AppImages.clock,
+                      width: 12,
+                      height: 12,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        item.openingHours,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textBlack,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

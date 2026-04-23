@@ -30,50 +30,41 @@ class FoodListScreen extends StatelessWidget {
         useSafeArea: true,
         isScrollable: false,
         backgroundColor: Colors.transparent,
-        bodyPadding: const EdgeInsets.fromLTRB(16, 56, 16, 24),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: Get.back,
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppColors.textBlack,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text.rich(
-                    TextSpan(
-                      text: 'Food List ',
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Montserrat',
-                      ),
-                      children: const [
-                        TextSpan(
-                          text: '(within 10km Restaurant)',
-                          style: TextStyle(
-                            color: AppColors.textGrey,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Montserrat',
-                          ),
-                        ),
-                      ],
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+        bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        customAppBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          toolbarHeight: 72,
+          titleSpacing: 0,
+          automaticallyImplyLeading: true,
+          title: Text.rich(
+            TextSpan(
+              text: 'Food List ',
+              style: const TextStyle(
+                color: AppColors.textBlack,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Montserrat',
+              ),
+              children: const [
+                TextSpan(
+                  text: '(within 10km)',
+                  style: TextStyle(
+                    color: AppColors.textGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat',
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 18),
+            maxLines: 2,
+            overflow: TextOverflow.visible,
+          ),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [            
             Expanded(
               child: GridView.builder(
                 physics: const BouncingScrollPhysics(),
@@ -100,7 +91,7 @@ class _FoodGridCard extends StatelessWidget {
   final _FoodItem item;
 
   @override
-  Widget build(BuildContext context) {
+   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -127,11 +118,11 @@ class _FoodGridCard extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
                 Positioned(
-                  top: 10,
-                  right: 10,
+                  top: 15,
+                  right: 15,
                   child: Container(
-                    width: 44,
-                    height: 44,
+                    width: 24,
+                    height: 24,
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
@@ -139,7 +130,7 @@ class _FoodGridCard extends StatelessWidget {
                     child: Icon(
                       item.isLiked ? Icons.favorite : Icons.favorite_border,
                       color: AppColors.primaryOrange,
-                      size: 30,
+                      size: 16,
                     ),
                   ),
                 ),
@@ -153,23 +144,23 @@ class _FoodGridCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Side view club',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                    overflow: TextOverflow.visible,
                     style: TextStyle(
                       color: AppColors.textBlack,
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
                     ),
                   ),
                 ),
-                Icon(Icons.star, size: 30, color: AppColors.primaryOrange),
+                Icon(Icons.star, size: 16, color: AppColors.primaryOrange),
                 SizedBox(width: 2),
                 Text(
                   '5.0',
                   style: TextStyle(
                     color: AppColors.primaryGreen,
-                    fontSize: 20,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Montserrat',
                   ),
@@ -184,7 +175,7 @@ class _FoodGridCard extends StatelessWidget {
                 Icon(
                   Icons.location_on_rounded,
                   color: AppColors.primaryOrange,
-                  size: 28,
+                  size: 24,
                 ),
                 SizedBox(width: 4),
                 Expanded(
@@ -194,7 +185,7 @@ class _FoodGridCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: AppColors.textBlack,
-                      fontSize: 16,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
                     ),
@@ -210,7 +201,7 @@ class _FoodGridCard extends StatelessWidget {
                 Icon(
                   Icons.access_time_rounded,
                   color: Color(0xFF31B24C),
-                  size: 28,
+                  size: 24,
                 ),
                 SizedBox(width: 4),
                 Expanded(
@@ -220,7 +211,7 @@ class _FoodGridCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: AppColors.textBlack,
-                      fontSize: 16,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Montserrat',
                     ),
