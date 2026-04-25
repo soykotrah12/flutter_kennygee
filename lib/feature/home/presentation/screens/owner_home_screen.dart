@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../profile/presentation/screens/profile_screen.dart';
 
 class OwnerHomeScreen extends StatelessWidget {
   const OwnerHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isCompact = width < 380;
-    final heroSize = isCompact ? 36.0 : 52.0;
-    final actionTextSize = isCompact ? 16.0 : 18.0;
-    final ctaTextSize = isCompact ? 16.0 : 20.0;
+    // final width = MediaQuery.of(context).size.width;
+    // final isCompact = width < 380;
+    // final heroSize = isCompact ? 22.0 : 36.0;
+    // final actionTextSize = isCompact ? 16.0 : 18.0;
+    // final ctaTextSize = isCompact ? 16.0 : 20.0;
 
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
       backgroundColor: AppColors.appBackground,
-      bodyPadding: const EdgeInsets.fromLTRB(16, 32, 16, 20),
+      bodyPadding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,20 +30,27 @@ class OwnerHomeScreen extends StatelessWidget {
             children: [
               Image.asset(
                 AppImages.appLogo,
-                width: 36,
-                height: 54,
+                width: 32,
+                height: 51,
                 fit: BoxFit.contain,
               ),
               const Spacer(),
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primaryGreen, width: 1.2),
-                  image: const DecorationImage(
-                    image: AssetImage(AppImages.ownerOnboarding1),
-                    fit: BoxFit.cover,
+              InkWell(
+                onTap: () => Get.to(() => const ProfileScreen()),
+                borderRadius: BorderRadius.circular(23),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.primaryGreen,
+                      width: 1.2,
+                    ),
+                    image: const DecorationImage(
+                      image: AssetImage(AppImages.ownerOnboarding1),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -52,8 +61,8 @@ class OwnerHomeScreen extends StatelessWidget {
             'Welcome back,\nThe Culinary Architect',
             style: TextStyle(
               color: AppColors.textBlack,
-              fontSize: heroSize,
-              fontWeight: FontWeight.w700,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
               letterSpacing: -0.9,
               height: 0.95,
             ),
@@ -65,20 +74,21 @@ class OwnerHomeScreen extends StatelessWidget {
                 child: SecondaryButton(
                   onPressed: () {},
                   text: 'Boost Now',
-                  height: 60,
+                  height: 51,
+                  borderRadius: 8,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: PrimaryButton(
                   onPressed: () {},
-                  height: 60,
-                  borderRadius: 12,
+                  height: 51,
+                  borderRadius: 8,
                   child: Text(
                     'Add Event',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: actionTextSize,
+                      fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -113,7 +123,7 @@ class OwnerHomeScreen extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
             decoration: BoxDecoration(
-              color: AppColors.primaryGreen.withValues(alpha: 0.8),
+              color: AppColors.primaryGreen.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Column(
@@ -124,15 +134,15 @@ class OwnerHomeScreen extends StatelessWidget {
                     Icon(
                       Icons.workspace_premium,
                       color: Color(0xFFFFCF57),
-                      size: 20,
+                      size: 14,
                     ),
                     SizedBox(width: 8),
                     Text(
                       'Active Plan',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],
@@ -147,8 +157,8 @@ class OwnerHomeScreen extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: isCompact ? 16 : 18,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -157,8 +167,8 @@ class OwnerHomeScreen extends StatelessWidget {
                       '\$129/month',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: isCompact ? 14 : 16,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -167,7 +177,8 @@ class OwnerHomeScreen extends StatelessWidget {
                 SecondaryButton(
                   onPressed: () {},
                   text: 'Upgrade Plan',
-                  height: 52,
+                  height: 48,
+                  borderRadius: 8,
                   backgroundColor: AppColors.primaryWhite,
                   textColor: AppColors.primaryGreen,
                   borderColor: Colors.transparent,
@@ -182,8 +193,8 @@ class OwnerHomeScreen extends StatelessWidget {
                 'Recent Reviews',
                 style: TextStyle(
                   color: AppColors.textBlack,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               Spacer(),
@@ -192,7 +203,7 @@ class OwnerHomeScreen extends StatelessWidget {
                 style: TextStyle(
                   decoration: TextDecoration.underline,
                   color: AppColors.primaryGreen,
-                  fontSize: ctaTextSize,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -242,8 +253,8 @@ class _StatsCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: AppColors.textGrey,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
             ),
           ),
           const Spacer(),
@@ -253,8 +264,8 @@ class _StatsCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: AppColors.textBlack,
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -300,8 +311,8 @@ class _ReviewCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 54,
-                  height: 54,
+                  width: 38,
+                  height: 38,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
@@ -316,6 +327,7 @@ class _ReviewCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Text(
@@ -324,8 +336,8 @@ class _ReviewCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: AppColors.textBlack,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -335,9 +347,9 @@ class _ReviewCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: AppColors.subTextGrey,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                                color: AppColors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w300,
                               ),
                             ),
                           ),
@@ -348,28 +360,28 @@ class _ReviewCard extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.star,
-                            size: 18,
-                            color: AppColors.primaryOrange,
+                            size: 12,
+                            color: Colors.amberAccent,
                           ),
                           Icon(
                             Icons.star,
-                            size: 18,
-                            color: AppColors.primaryOrange,
+                            size: 12,
+                            color: Colors.amberAccent,
                           ),
                           Icon(
                             Icons.star,
-                            size: 18,
-                            color: AppColors.primaryOrange,
+                            size: 12,
+                            color: Colors.amberAccent,
                           ),
                           Icon(
                             Icons.star,
-                            size: 18,
-                            color: AppColors.primaryOrange,
+                            size: 12,
+                            color: Colors.amberAccent,
                           ),
                           Icon(
                             Icons.star,
-                            size: 18,
-                            color: AppColors.primaryOrange,
+                            size: 12,
+                            color: Colors.amberAccent,
                           ),
                         ],
                       ),
@@ -378,8 +390,8 @@ class _ReviewCard extends StatelessWidget {
                         'Great food, nice ambiance and friendly service. The dishes were fresh, flavorful and well presented.',
                         style: TextStyle(
                           color: AppColors.textGrey,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
                           height: 1.3,
                         ),
                       ),

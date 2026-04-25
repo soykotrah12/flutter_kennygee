@@ -51,6 +51,14 @@ class AppImages {
   static const String event = 'assets/icons/event.png';
   static const String search = 'assets/icons/search.png';
   static const String map = 'assets/icons/map.png';
+  static const String cheese = 'assets/icons/cheese.png';
+  static const String pasta = 'assets/icons/pasta.png';
+  static const String burger = 'assets/icons/burger.png';
+
+  // event details icons
+  static const String date = 'assets/icons/date.png';
+  static const String time = 'assets/icons/time.png';
+  static const String entryfee = 'assets/icons/entryfee.png';
 
 
 

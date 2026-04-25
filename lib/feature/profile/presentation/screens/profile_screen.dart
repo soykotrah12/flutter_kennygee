@@ -21,20 +21,33 @@ class ProfileScreen extends StatelessWidget {
     final flowController = ensureAuthFlowController();
     final profileController = ensureProfileController();
 
-    return AppScaffold(
-      useSafeArea: true,
-      isScrollable: false,
-      backgroundColor: AppColors.appBackground,
-      bodyPadding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+    return Obx(() {
+      final AppUserRole? selectedRole = flowController.selectedRole.value;
+      final String profileRole = profileController.profile.value?.role ?? '';
+      final bool isOwner =
+          (selectedRole?.isOwner ?? false) || roleFromStorage(profileRole).isOwner;
+
+      if (isOwner) {
+        return _OwnerProfileView(
+          flowController: flowController,
+          profileController: profileController,
+        );
+      }
+
+      return AppScaffold(
+        useSafeArea: true,
+        isScrollable: false,
+        backgroundColor: AppColors.appBackground,
+        bodyPadding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   Row(
                     children: [
                       Image.asset(
@@ -203,13 +216,251 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
+                    Obx(
+                      () => flowController.isSubmitting.value
+                          ? const Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    });
+  }
+}
+
+class _OwnerProfileView extends StatelessWidget {
+  const _OwnerProfileView({
+    required this.flowController,
+    required this.profileController,
+  });
+
+  final AuthFlowController flowController;
+  final ProfileController profileController;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppScaffold(
+      useSafeArea: true,
+      isScrollable: false,
+      backgroundColor: AppColors.appBackground,
+      bodyPadding: const EdgeInsets.fromLTRB(10, 4, 10, 12),
+      customAppBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        toolbarHeight: 48,
+        centerTitle: true,
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: AppColors.textBlack,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Montserrat',
+          ),
+        ),
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: AppColors.primaryGreen,
+                        width: 1,
+                      ),
+                    ),
+                    child: Obx(() {
+                      final profile = profileController.profile.value;
+                      final imageUrl = profile?.profileImage.url ?? '';
+
+                      return Row(
+                        children: [
+                          Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.primaryGreen,
+                                width: 0.8,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: imageUrl.isNotEmpty
+                                  ? Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Image.asset(
+                                        AppImages.defaultProfileImage,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      AppImages.defaultProfileImage,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  profile?.name.isNotEmpty == true
+                                      ? profile!.name
+                                      : 'User Name',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.textBlack,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  profile?.email.isNotEmpty == true
+                                      ? profile!.email
+                                      : 'example@email.com',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.textGrey,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Settings',
+                    style: TextStyle(
+                      color: AppColors.textBlack,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: const Color(0xFFB9B9B9),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        _OwnerSettingsRow(
+                          icon: AppImages.editprofile,
+                          title: 'Edit Profile',
+                          subtitle: 'Update your personal information',
+                          onTap: () => Get.to(() => const EditProfileScreen()),
+                        ),
+                        const Divider(height: 1, color: Color(0xFFB9B9B9)),
+                        _OwnerSettingsRow(
+                          icon: AppImages.changepassword,
+                          title: 'Change Password',
+                          subtitle: 'Update your personal information',
+                          onTap: () =>
+                              Get.to(() => const ChangePasswordScreen()),
+                        ),
+                        const Divider(height: 1, color: Color(0xFFB9B9B9)),
+                        _OwnerSettingsRow(
+                          icon: AppImages.privacypolicy,
+                          title: 'Privacy policy & Security',
+                          subtitle: 'How we handle your data',
+                          onTap: () =>
+                              Get.to(() => const PrivacyPolicySecurityScreen()),
+                        ),
+                        const Divider(height: 1, color: Color(0xFFB9B9B9)),
+                        _OwnerSettingsRow(
+                          icon: AppImages.terms,
+                          title: 'Terms of Condition',
+                          subtitle: 'App usage terms and conditions',
+                          onTap: () =>
+                              Get.to(() => const TermsOfConditionScreen()),
+                        ),
+                        const Divider(height: 1, color: Color(0xFFB9B9B9)),
+                        _OwnerSettingsRow(
+                          icon: AppImages.helpsupport,
+                          title: 'Help & Support',
+                          subtitle: 'App usage terms and conditions',
+                          onTap: () => Get.to(() => const HelpSupportScreen()),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  GestureDetector(
+                    onTap: () => Get.to(() => const LogoutConfirmScreen()),
+                    child: Container(
+                      height: 40,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.logoutRed,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.logout, size: 14, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Log Out',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Obx(
                     () => flowController.isSubmitting.value
                         ? const Padding(
                             padding: EdgeInsets.only(top: 8),
                             child: SizedBox(
-                              height: 18,
-                              width: 18,
+                              height: 16,
+                              width: 16,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
                           )
@@ -220,6 +471,66 @@ class ProfileScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _OwnerSettingsRow extends StatelessWidget {
+  const _OwnerSettingsRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.onTap,
+  });
+
+  final String icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 14,
+              height: 14,
+              child: Image.asset(icon, fit: BoxFit.contain),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: AppColors.textBlack,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: AppColors.textGrey,
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

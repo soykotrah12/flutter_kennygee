@@ -33,6 +33,8 @@ class ApiConstants {
   static PaymentEndpoints get payment => PaymentEndpoints();
 
   static ShopEndpoints get shop => ShopEndpoints();
+  static EventEndpoints get event => EventEndpoints();
+  static WishlistEndpoints get wishlist => WishlistEndpoints();
 }
 
 /// [Authentication Endpoints]
@@ -123,4 +125,22 @@ class ShopEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/shop';
 
   final String fetchNearbyShops = '$_base/';
+}
+
+class EventEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/event';
+
+  final String fetchEvents = _base;
+
+  String fetchEventById(String eventId) => '$_base/$eventId';
+
+  String fetchGoingStatus(String eventId) => '$_base/$eventId/going';
+
+  String toggleGoing(String eventId) => '$_base/$eventId/going';
+}
+
+class WishlistEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/wishlist';
+
+  final String fetchMyWishlist = '$_base/my';
 }

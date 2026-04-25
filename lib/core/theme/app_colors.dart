@@ -25,7 +25,7 @@ class AppColors {
   // Legacy colors for compatibility
   static const Color white = Color(0xFFFFFFFF);
   static const Color white1 = Color(0xFFF4F4F4);
-  static const Color black = Color(0xFF202124);
+  static const Color black = Color(0xFF000000);
   static const Color grey = Color(0xFFB0BEC5);
   static const Color grey1 = Color(0xFF666666);
   static const Color grey2 = Color(0xFF8F8F8F);

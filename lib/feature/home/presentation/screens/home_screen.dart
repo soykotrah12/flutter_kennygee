@@ -57,33 +57,37 @@ class HomeScreen extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(width: 10),
-                Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryGreen,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        AppImages.event,
-                        width: 20,
-                        height: 20,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Events',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Montserrat',
+                InkWell(
+                  onTap: HomeNavigation.openEvents,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGreen,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          AppImages.event,
+                          width: 20,
+                          height: 20,
+                          fit: BoxFit.contain,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Events',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -168,31 +172,29 @@ class HomeScreen extends StatelessWidget {
               onSeeAll: _openRestaurantList,
             ),
             const SizedBox(height: 10),
-            Obx(
-              () {
-                final List<RestaurantModel> source =
-                    shopController.shops.isNotEmpty
-                    ? shopController.shops.take(3).toList()
-                    : _nearbyRestaurants;
+            Obx(() {
+              final List<RestaurantModel> source =
+                  shopController.shops.isNotEmpty
+                  ? shopController.shops.take(3).toList()
+                  : _nearbyRestaurants;
 
-                return SizedBox(
-                  height: 224,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: source.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (_, index) {
-                      final RestaurantModel restaurant = source[index];
-                      return _NearbyCard(
-                        restaurant: restaurant,
-                        onTap: () =>
-                            HomeNavigation.openRestaurantDetails(restaurant),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
+              return SizedBox(
+                height: 224,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: source.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (_, index) {
+                    final RestaurantModel restaurant = source[index];
+                    return _NearbyCard(
+                      restaurant: restaurant,
+                      onTap: () =>
+                          HomeNavigation.openRestaurantDetails(restaurant),
+                    );
+                  },
+                ),
+              );
+            }),
             const SizedBox(height: 18),
             const _OnlyTitleHeader(title: 'Recommended for you'),
             const SizedBox(height: 10),

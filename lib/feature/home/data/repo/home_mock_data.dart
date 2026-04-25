@@ -1,4 +1,5 @@
 import '../../../../core/common/constants/app_images.dart';
+import '../model/event_model.dart';
 import '../model/food_model.dart';
 import '../model/home_recommendation_item_model.dart';
 import '../model/restaurant_model.dart';
@@ -286,4 +287,43 @@ class HomeMockData {
           restaurant: sunsetGrill,
         ),
       ];
+
+  static const List<EventModel> eventList = <EventModel>[
+    EventModel(
+      id: 'event_1',
+      title: 'Chef\'s Special Tasting Night',
+      image: AppImages.homeRestaurant1,
+      date: 'FRI, MAR 26',
+      time: '6:00PM - 8:00PM',
+      fee: '\$10.00',
+      location: 'The Gilded Fork, Downtown',
+      detailsTitle: 'Culinary Craft',
+      detailsDescription:
+          'Join us for an immersive journey through curated regional flavors paired with hand-crafted artisan selections. This session is designed for both the curious novice and the seasoned enthusiast, focusing on thoughtful flavor combinations and the stories behind every plate.',
+    ),
+    EventModel(
+      id: 'event_2',
+      title: 'Chef\'s Special Tasting Night',
+      image: AppImages.homeRestaurant2,
+      date: 'FRI, MAR 26',
+      time: '6:00PM - 8:00PM',
+      fee: 'Free',
+      location: 'The Gilded Fork, Downtown',
+      detailsTitle: 'Culinary Craft',
+      detailsDescription:
+          'Discover seasonal tasting plates, thoughtfully paired beverages, and chef insights that celebrate local ingredients and modern culinary artistry in a warm social setting.',
+    ),
+    EventModel(
+      id: 'event_3',
+      title: 'Chef\'s Special Tasting Night',
+      image: AppImages.homeRestaurant3,
+      date: 'FRI, MAR 26',
+      time: '6:00PM - 8:00PM',
+      fee: '\$10.00',
+      location: 'The Gilded Fork, Downtown',
+      detailsTitle: 'Culinary Craft',
+      detailsDescription:
+          'A one-evening tasting showcase featuring signature dishes, plated storytelling, and carefully balanced pairings built to highlight texture, aroma, and depth of flavor.',
+    ),
+  ];
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
-
-enum _FavoriteTab { all, restaurant, food }
-
-enum _FavoriteItemType { restaurant, food }
+import '../../data/model/wishlist_item_model.dart';
+import '../controller/home_wishlist_controller.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
@@ -16,82 +16,48 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
-  _FavoriteTab _activeTab = _FavoriteTab.all;
+  late final HomeWishlistController _wishlistController;
+  late final TextEditingController _searchController;
+  String _searchQuery = '';
 
-  static const List<_FavoriteItem> _items = <_FavoriteItem>[
-    _FavoriteItem(
-      type: _FavoriteItemType.restaurant,
-      image: AppImages.homeRestaurant1,
-      title: 'Side view club',
-      rating: 5.0,
-      distance: '1.2 miles away',
-      openingHours: '11:00 AM - 10:00 PM',
-      isLiked: true,
-    ),
-    _FavoriteItem(
-      type: _FavoriteItemType.food,
-      image: AppImages.homeRestaurant2,
-      title: 'Side view club',
-      rating: 5.0,
-      distance: '1.2 miles away',
-      openingHours: '11:00 AM - 10:00 PM',
-      isLiked: true,
-    ),
-    _FavoriteItem(
-      type: _FavoriteItemType.food,
-      image: AppImages.homeRestaurant3,
-      title: 'Side view club',
-      rating: 5.0,
-      distance: '1.2 miles away',
-      openingHours: '11:00 AM - 10:00 PM',
-      isLiked: false,
-    ),
-    _FavoriteItem(
-      type: _FavoriteItemType.restaurant,
-      image: AppImages.homeRestaurant1,
-      title: 'Side view club',
-      rating: 5.0,
-      distance: '1.2 miles away',
-      openingHours: '11:00 AM - 10:00 PM',
-      isLiked: true,
-    ),
-    _FavoriteItem(
-      type: _FavoriteItemType.restaurant,
-      image: AppImages.homeRestaurant2,
-      title: 'Side view club',
-      rating: 5.0,
-      distance: '1.2 miles away',
-      openingHours: '11:00 AM - 10:00 PM',
-      isLiked: true,
-    ),
-    _FavoriteItem(
-      type: _FavoriteItemType.food,
-      image: AppImages.homeRestaurant3,
-      title: 'Side view club',
-      rating: 5.0,
-      distance: '1.2 miles away',
-      openingHours: '11:00 AM - 10:00 PM',
-      isLiked: true,
-    ),
-  ];
-
-  List<_FavoriteItem> get _filteredItems {
-    switch (_activeTab) {
-      case _FavoriteTab.all:
-        return _items;
-      case _FavoriteTab.restaurant:
-        return _items
-            .where((item) => item.type == _FavoriteItemType.restaurant)
-            .toList();
-      case _FavoriteTab.food:
-        return _items
-            .where((item) => item.type == _FavoriteItemType.food)
-            .toList();
+  @override
+  void initState() {
+    super.initState();
+    _wishlistController = HomeWishlistController.ensureInitialized();
+    _searchController = TextEditingController();
+    if (_wishlistController.items.isEmpty &&
+        !_wishlistController.isLoading.value) {
+      _wishlistController.refreshCurrentTab();
     }
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<WishlistItemModel> _applySearch(List<WishlistItemModel> items) {
+    final String query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return items;
+
+    return items.where((item) {
+      final String name = item.name.toLowerCase();
+      final String description = item.description.toLowerCase();
+      final String distance = item.distance.toLowerCase();
+      final String time = item.openingHours.toLowerCase();
+      return name.contains(query) ||
+          description.contains(query) ||
+          distance.contains(query) ||
+          time.contains(query);
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double cardAspectRatio = screenWidth < 370 ? 0.66 : 0.72;
+
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -116,35 +82,74 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               ),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 18),
-                      child: Text(
-                        'Search Restaurant, dishes...',
-                        style: TextStyle(
-                          color: AppColors.textGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Montserrat',
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          inputDecorationTheme: const InputDecorationTheme(
+                            border: InputBorder.none,
+                          ),
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() {
+                              _searchQuery = value;
+                            });
+                          },
+                          style: const TextStyle(
+                            color: AppColors.textBlack,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Montserrat',
+                          ),
+                          decoration: const InputDecoration(
+                            isCollapsed: true,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+                            hintText: 'Search Restaurant, dishes...',
+                            hintStyle: TextStyle(
+                              color: AppColors.textGrey,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  Container(
-                    width: 56,
-                    height: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primaryGreen,
-                      borderRadius: BorderRadius.horizontal(
-                        right: Radius.circular(14),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _searchController.clear();
+                        _searchQuery = '';
+                      });
+                      FocusScope.of(context).unfocus();
+                    },
+                    child: Container(
+                      width: 56,
+                      height: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryGreen,
+                        borderRadius: BorderRadius.horizontal(
+                          right: Radius.circular(14),
+                        ),
                       ),
-                    ),
-                    child: Center(
-                      child: Image.asset(
-                        AppImages.search,
-                        width: 28,
-                        height: 28,
-                        fit: BoxFit.contain,
+                      child: Center(
+                        child: Image.asset(
+                          AppImages.search,
+                          width: 28,
+                          height: 28,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
@@ -152,49 +157,134 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               ),
             ),
             const SizedBox(height: 16),
-         Row(
-           children: [
-             _FavoriteFilterChip(
-               label: 'All',
-               activeIcon: AppImages.all,
-               inactiveIcon: AppImages.allcolored,
-               isActive: _activeTab == _FavoriteTab.all,
-               onTap: () => setState(() => _activeTab = _FavoriteTab.all),
-             ),
-             const SizedBox(width: 10),
-             _FavoriteFilterChip(
-               label: 'Restaurant List',
-               activeIcon: AppImages.restaurantlistclored,
-               inactiveIcon: AppImages.restaurantlist,
-               isActive: _activeTab == _FavoriteTab.restaurant,
-               onTap: () =>
-                   setState(() => _activeTab = _FavoriteTab.restaurant),
-             ),
-             const SizedBox(width: 10),
-             _FavoriteFilterChip(
-               label: 'Food List',
-               activeIcon: AppImages.foodlist,
-               inactiveIcon: AppImages.foodlist,
-               isActive: _activeTab == _FavoriteTab.food,
-               onTap: () => setState(() => _activeTab = _FavoriteTab.food),
-             ),
-           ],
-         ),
+            Obx(() {
+              final WishlistTab activeTab = _wishlistController.activeTab.value;
+
+              return Row(
+                children: [
+                  _FavoriteFilterChip(
+                    label: 'All',
+                    activeIcon: AppImages.all,
+                    inactiveIcon: AppImages.allcolored,
+                    isActive: activeTab == WishlistTab.all,
+                    onTap: () => _wishlistController.changeTab(WishlistTab.all),
+                  ),
+                  const SizedBox(width: 10),
+                  _FavoriteFilterChip(
+                    label: 'Restaurant List',
+                    activeIcon: AppImages.restaurantlistclored,
+                    inactiveIcon: AppImages.restaurantlist,
+                    isActive: activeTab == WishlistTab.restaurant,
+                    onTap: () =>
+                        _wishlistController.changeTab(WishlistTab.restaurant),
+                  ),
+                  const SizedBox(width: 10),
+                  _FavoriteFilterChip(
+                    label: 'Food List',
+                    activeIcon: AppImages.foodlist,
+                    inactiveIcon: AppImages.foodlist,
+                    isActive: activeTab == WishlistTab.food,
+                    onTap: () =>
+                        _wishlistController.changeTab(WishlistTab.food),
+                  ),
+                ],
+              );
+            }),
             const SizedBox(height: 14),
             Expanded(
-              child: GridView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: _filteredItems.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.62,
-                ),
-                itemBuilder: (_, index) {
-                  return _FavoriteGridCard(item: _filteredItems[index]);
-                },
-              ),
+              child: Obx(() {
+                final List<WishlistItemModel> items = _wishlistController.items;
+                final List<WishlistItemModel> filteredItems = _applySearch(
+                  items,
+                );
+
+                if (_wishlistController.isLoading.value && items.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGreen,
+                    ),
+                  );
+                }
+
+                if (_wishlistController.error.value.isNotEmpty &&
+                    items.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _wishlistController.error.value,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppColors.textGrey,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          TextButton(
+                            onPressed: _wishlistController.refreshCurrentTab,
+                            child: const Text(
+                              'Try again',
+                              style: TextStyle(
+                                color: AppColors.primaryGreen,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (items.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No wishlist items found',
+                      style: TextStyle(
+                        color: AppColors.textGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  );
+                }
+
+                if (filteredItems.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No matching items found',
+                      style: TextStyle(
+                        color: AppColors.textGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  );
+                }
+
+                return GridView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: filteredItems.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: cardAspectRatio,
+                  ),
+                  itemBuilder: (_, index) {
+                    return _FavoriteGridCard(item: filteredItems[index]);
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -266,7 +356,7 @@ class _FavoriteFilterChip extends StatelessWidget {
 class _FavoriteGridCard extends StatelessWidget {
   const _FavoriteGridCard({required this.item});
 
-  final _FavoriteItem item;
+  final WishlistItemModel item;
 
   @override
   Widget build(BuildContext context) {
@@ -289,10 +379,12 @@ class _FavoriteGridCard extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             child: Stack(
               children: [
-                Image.asset(
-                  item.image,
+                AdaptiveImage(
+                  path: item.image.isNotEmpty
+                      ? item.image
+                      : AppImages.homeRestaurant1,
                   width: double.infinity,
-                  height: 150,
+                  height: 145,
                   fit: BoxFit.cover,
                 ),
                 Positioned(
@@ -321,9 +413,9 @@ class _FavoriteGridCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    item.title,
-                    softWrap: true,
-                    overflow: TextOverflow.visible,
+                    item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.textBlack,
                       fontSize: 14,
@@ -354,13 +446,13 @@ class _FavoriteGridCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
             child: Row(
               children: [
-                 Image.asset(
-                      AppImages.location,
-                      width: 12,
-                      height: 12,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(width: 4),
+                Image.asset(
+                  AppImages.location,
+                  width: 12,
+                  height: 12,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     item.distance,
@@ -378,16 +470,16 @@ class _FavoriteGridCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
             child: Row(
               children: [
                 Image.asset(
-                      AppImages.clock,
-                      width: 12,
-                      height: 12,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(width: 4),
+                  AppImages.clock,
+                  width: 12,
+                  height: 12,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     item.openingHours,
@@ -408,24 +500,4 @@ class _FavoriteGridCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _FavoriteItem {
-  const _FavoriteItem({
-    required this.type,
-    required this.image,
-    required this.title,
-    required this.rating,
-    required this.distance,
-    required this.openingHours,
-    this.isLiked = true,
-  });
-
-  final _FavoriteItemType type;
-  final String image;
-  final String title;
-  final double rating;
-  final String distance;
-  final String openingHours;
-  final bool isLiked;
 }

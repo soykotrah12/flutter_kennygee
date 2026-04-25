@@ -23,6 +23,7 @@ class AppScaffold extends StatelessWidget {
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
   final EdgeInsetsGeometry bodyPadding;
+  final bool centerTitle;
 
   const AppScaffold({
     this.toolbarHeight = 72,
@@ -42,6 +43,7 @@ class AppScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.titlespacing,
     this.bodyPadding = const EdgeInsets.symmetric(horizontal: 16),
+    this.centerTitle = true,
   });
 
   @override
@@ -87,7 +89,7 @@ class AppScaffold extends StatelessWidget {
       backgroundColor: Colors.transparent,
       toolbarHeight: toolbarHeight,
       titleSpacing: titlespacing ?? 00,
-      centerTitle: true,
+      centerTitle: centerTitle ?? true,
 
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
