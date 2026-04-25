@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/food_model.dart';
-import '../../data/repo/home_mock_data.dart';
+import '../controller/home_food_controller.dart';
 import '../navigation/home_navigation.dart';
 
 class FoodListScreen extends StatelessWidget {
   const FoodListScreen({super.key});
 
-  static const List<FoodModel> _items = HomeMockData.foodList;
-
   @override
   Widget build(BuildContext context) {
+    final HomeFoodController foodController =
+        HomeFoodController.ensureInitialized();
+
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -61,23 +65,71 @@ class FoodListScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: GridView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: _items.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.62,
-                ),
-                itemBuilder: (_, index) {
-                  final FoodModel food = _items[index];
-                  return _FoodGridCard(
-                    item: food,
-                    onTap: () => HomeNavigation.openFoodDetails(food),
+              child: Obx(() {
+                final List<FoodModel> items = foodController.foods;
+
+                if (foodController.isLoading.value && items.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGreen,
+                    ),
                   );
-                },
-              ),
+                }
+
+                if (foodController.error.value.isNotEmpty && items.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            foodController.error.value,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppColors.textGrey,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          TextButton(
+                            onPressed: foodController.fetchNearbyFoods,
+                            child: const Text(
+                              'Try again',
+                              style: TextStyle(
+                                color: AppColors.primaryGreen,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return GridView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: items.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.62,
+                  ),
+                  itemBuilder: (_, index) {
+                    final FoodModel food = items[index];
+                    return _FoodGridCard(
+                      item: food,
+                      onTap: () => HomeNavigation.openFoodDetails(food),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -118,8 +170,8 @@ class _FoodGridCard extends StatelessWidget {
               ),
               child: Stack(
                 children: [
-                  Image.asset(
-                    item.image,
+                  AdaptiveImage(
+                    path: item.image,
                     width: double.infinity,
                     height: 184,
                     fit: BoxFit.cover,
@@ -134,10 +186,13 @@ class _FoodGridCard extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        item.isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: AppColors.primaryOrange,
-                        size: 16,
+                      child: Center(
+                        child: WishlistIcon(
+                          type: 'menu',
+                          itemId: item.id,
+                          color: AppColors.primaryOrange,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ),

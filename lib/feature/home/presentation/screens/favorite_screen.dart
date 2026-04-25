@@ -4,9 +4,11 @@ import 'package:get/get.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/wishlist_item_model.dart';
 import '../controller/home_wishlist_controller.dart';
+import '../../../../core/common/controllers/wishlist_controller.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
@@ -17,6 +19,8 @@ class FavoriteScreen extends StatefulWidget {
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
   late final HomeWishlistController _wishlistController;
+  late final WishlistController _globalWishlistController;
+  late final Worker _wishlistChangeWorker;
   late final TextEditingController _searchController;
   String _searchQuery = '';
 
@@ -24,7 +28,16 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   void initState() {
     super.initState();
     _wishlistController = HomeWishlistController.ensureInitialized();
+    _globalWishlistController = Get.find<WishlistController>();
     _searchController = TextEditingController();
+    _wishlistChangeWorker = ever<int>(_globalWishlistController.changeVersion, (
+      _,
+    ) {
+      if (!mounted) {
+        return;
+      }
+      _wishlistController.refreshCurrentTab();
+    });
     if (_wishlistController.items.isEmpty &&
         !_wishlistController.isLoading.value) {
       _wishlistController.refreshCurrentTab();
@@ -33,6 +46,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   @override
   void dispose() {
+    _wishlistChangeWorker.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -191,6 +205,25 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               );
             }),
             const SizedBox(height: 14),
+            Obx(() {
+              final bool isSyncing =
+                  _wishlistController.isLoading.value ||
+                  _globalWishlistController.loadingItems.isNotEmpty;
+
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                child: isSyncing
+                    ? const Padding(
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: LinearProgressIndicator(
+                          minHeight: 2,
+                          color: AppColors.primaryGreen,
+                          backgroundColor: Color(0xFFE8F3EA),
+                        ),
+                      )
+                    : const SizedBox(height: 10),
+              );
+            }),
             Expanded(
               child: Obx(() {
                 final List<WishlistItemModel> items = _wishlistController.items;
@@ -397,10 +430,14 @@ class _FavoriteGridCard extends StatelessWidget {
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      item.isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: AppColors.primaryOrange,
-                      size: 20,
+                    child: Center(
+                      child: WishlistIcon(
+                        type: item.type.apiType,
+                        itemId: item.id,
+                        initiallyWishlisted: item.isLiked,
+                        color: AppColors.primaryOrange,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ),

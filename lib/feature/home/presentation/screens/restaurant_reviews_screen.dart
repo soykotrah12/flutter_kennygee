@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
 
@@ -99,10 +100,14 @@ class RestaurantReviewsScreen extends StatelessWidget {
                             width: 2,
                           ),
                         ),
-                        child: const Icon(
-                          Icons.bookmark,
-                          color: AppColors.primaryGreen,
-                          size: 20,
+                        child: Center(
+                          child: WishlistIcon(
+                            type: 'shop',
+                            itemId: restaurant.id,
+                            initiallyWishlisted: restaurant.isLiked,
+                            color: AppColors.primaryOrange,
+                            size: 24,
+                          ),
                         ),
                       ),
                     ],
@@ -238,10 +243,14 @@ class _ReviewHeroCard extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.favorite_border,
-                    color: AppColors.primaryOrange,
-                    size: 24,
+                  child: Center(
+                    child: WishlistIcon(
+                      type: 'shop',
+                      itemId: restaurant.id,
+                      initiallyWishlisted: restaurant.isLiked,
+                      color: AppColors.primaryOrange,
+                      size: 24,
+                    ),
                   ),
                 ),
               ],

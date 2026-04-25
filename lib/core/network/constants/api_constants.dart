@@ -143,4 +143,5 @@ class WishlistEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/wishlist';
 
   final String fetchMyWishlist = '$_base/my';
+  final String toggleWishlist = '$_base/toggle';
 }

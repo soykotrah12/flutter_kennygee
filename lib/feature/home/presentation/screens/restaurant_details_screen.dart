@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
 import 'restaurant_reviews_screen.dart';
@@ -13,15 +14,14 @@ class RestaurantDetailsScreen extends StatefulWidget {
   final RestaurantModel restaurant;
 
   @override
-  State<RestaurantDetailsScreen> createState() => _RestaurantDetailsScreenState();
+  State<RestaurantDetailsScreen> createState() =>
+      _RestaurantDetailsScreenState();
 }
 
 class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   int selectedDishIndex = 0;
   @override
   Widget build(BuildContext context) {
-    final List<String> dishes = widget.restaurant.popularDishes;
-    final List<RestaurantMenuItemModel> menuItems = widget.restaurant.menuItems;
     final List<String> dishIcons = [
       'assets/icons/pasta.png',
       'assets/icons/burger.png',
@@ -78,7 +78,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     reviewsCount: widget.restaurant.reviewsCount,
                     onReviewsTap: () {
                       Get.to(
-                        () => RestaurantReviewsScreen(restaurant: widget.restaurant),
+                        () => RestaurantReviewsScreen(
+                          restaurant: widget.restaurant,
+                        ),
                       );
                     },
                   ),
@@ -137,25 +139,26 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     scrollDirection: Axis.horizontal,
                     itemCount: widget.restaurant.popularDishes.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 10),
-                 itemBuilder: (_, index) {
-  final String dish = widget.restaurant.popularDishes[index];
+                    itemBuilder: (_, index) {
+                      final String dish =
+                          widget.restaurant.popularDishes[index];
 
-  final String iconImage =
-      dishIcons[index % dishIcons.length];
+                      final String iconImage =
+                          dishIcons[index % dishIcons.length];
 
-  return GestureDetector(
-    onTap: () {
-      setState(() {
-        selectedDishIndex = index;
-      });
-    },
-    child: _DishChip(
-      label: dish,
-      iconImage: iconImage,
-      isActive: selectedDishIndex == index,
-    ),
-  );
-},
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedDishIndex = index;
+                          });
+                        },
+                        child: _DishChip(
+                          label: dish,
+                          iconImage: iconImage,
+                          isActive: selectedDishIndex == index,
+                        ),
+                      );
+                    },
                   ),
                 )
               else
@@ -169,7 +172,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                 ),
               const SizedBox(height: 16),
               if (widget.restaurant.menuItems.isNotEmpty)
-                ...widget.restaurant.menuItems.map((item) => _MenuItemTile(item: item))
+                ...widget.restaurant.menuItems.map(
+                  (item) => _MenuItemTile(item: item),
+                )
               else
                 const Text(
                   'No menu items available',
@@ -267,10 +272,14 @@ class _HeroCard extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.favorite_border,
-                    color: AppColors.primaryOrange,
-                    size: 16,
+                  child: Center(
+                    child: WishlistIcon(
+                      type: 'shop',
+                      itemId: restaurant.id,
+                      initiallyWishlisted: restaurant.isLiked,
+                      color: AppColors.primaryOrange,
+                      size: 16,
+                    ),
                   ),
                 ),
               ],
@@ -511,10 +520,14 @@ class _MenuItemTile extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(
-              item.isLiked ? Icons.favorite : Icons.favorite_border,
-              size: 18,
-              color: AppColors.primaryOrange,
+            child: Center(
+              child: WishlistIcon(
+                type: 'menu',
+                itemId: item.id,
+                initiallyWishlisted: item.isLiked,
+                color: AppColors.primaryOrange,
+                size: 18,
+              ),
             ),
           ),
         ],

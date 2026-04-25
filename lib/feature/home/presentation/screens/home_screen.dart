@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/home_recommendation_item_model.dart';
 import '../../data/model/restaurant_model.dart';
@@ -419,12 +420,14 @@ class _NearbyCard extends StatelessWidget {
                           color: AppColors.primaryWhite,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          restaurant.isLiked
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          size: 20,
-                          color: AppColors.primaryOrange,
+                        child: Center(
+                          child: WishlistIcon(
+                            type: 'shop',
+                            itemId: restaurant.id,
+                            initiallyWishlisted: restaurant.isLiked,
+                            size: 20,
+                            color: AppColors.primaryOrange,
+                          ),
                         ),
                       ),
                     ),

@@ -1,5 +1,16 @@
 enum WishlistItemType { restaurant, food }
 
+extension WishlistItemTypeApiX on WishlistItemType {
+  String get apiType {
+    switch (this) {
+      case WishlistItemType.restaurant:
+        return 'shop';
+      case WishlistItemType.food:
+        return 'menu';
+    }
+  }
+}
+
 class WishlistItemModel {
   const WishlistItemModel({
     required this.id,

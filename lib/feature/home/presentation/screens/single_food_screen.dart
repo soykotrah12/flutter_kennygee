@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/widgets/adaptive_image.dart';
+import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/food_model.dart';
 import '../../data/model/restaurant_model.dart';
@@ -78,8 +80,10 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                             setState(() => _activeBannerIndex = index);
                           },
                           itemBuilder: (_, index) {
-                            return Image.asset(
-                              _bannerImages[index],
+                            return AdaptiveImage(
+                              path: _bannerImages[index],
+                              width: double.infinity,
+                              height: 395,
                               fit: BoxFit.cover,
                             );
                           },
@@ -93,14 +97,29 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                           onTap: () => Navigator.of(context).pop(),
                         ),
                       ),
-                      const Positioned(
+                      Positioned(
                         top: 56,
                         right: 20,
-                        child: _CircleActionButton(icon: Icons.favorite_border),
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: const Color(
+                              0xFF4F6077,
+                            ).withValues(alpha: 0.85),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: WishlistIcon(
+                              type: 'menu',
+                              itemId: widget.food.id,
+                              initiallyWishlisted: widget.food.isLiked,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                          ),
+                        ),
                       ),
-
-                      // Dots Indicator
-
                       Positioned(
                         left: 0,
                         right: 0,
@@ -247,8 +266,8 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
-                                        child: Image.asset(
-                                          widget.food.image,
+                                        child: AdaptiveImage(
+                                          path: widget.food.image,
                                           width: 84,
                                           height: 60,
                                           fit: BoxFit.cover,
@@ -438,8 +457,8 @@ class _BottomActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(      
-      height: 51,      
+    return SizedBox(
+      height: 51,
       child: ElevatedButton.icon(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(

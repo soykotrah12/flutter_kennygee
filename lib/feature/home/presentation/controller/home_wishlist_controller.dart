@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/model/wishlist_item_model.dart';
 import '../../data/repo/home_wishlist_repo.dart';
@@ -83,6 +84,33 @@ class HomeWishlistController extends GetxController {
       },
       (success) {
         items.assignAll(success.data);
+
+        final WishlistController wishlistController =
+            Get.find<WishlistController>();
+        final Iterable<String> fetchedKeys = success.data.map((item) {
+          return '${item.type.apiType}_${item.id}';
+        });
+
+        if (targetTab == WishlistTab.all) {
+          wishlistController.syncFromFetchedItems(
+            fetchedKeys.where((key) => key.startsWith('shop_')),
+            type: 'shop',
+          );
+          wishlistController.syncFromFetchedItems(
+            fetchedKeys.where((key) => key.startsWith('menu_')),
+            type: 'menu',
+          );
+        } else if (targetTab == WishlistTab.restaurant) {
+          wishlistController.syncFromFetchedItems(
+            fetchedKeys.where((key) => key.startsWith('shop_')),
+            type: 'shop',
+          );
+        } else {
+          wishlistController.syncFromFetchedItems(
+            fetchedKeys.where((key) => key.startsWith('menu_')),
+            type: 'menu',
+          );
+        }
       },
     );
 

@@ -78,31 +78,37 @@ class HomeMockData {
     popularDishes: <String>['Pasta', 'Burger', 'Cheesecake'],
     menuItems: <RestaurantMenuItemModel>[
       RestaurantMenuItemModel(
+        id: 'rest_1_menu_1',
         name: 'Side view club',
         price: 25,
         image: AppImages.homeRestaurant1,
       ),
       RestaurantMenuItemModel(
+        id: 'rest_1_menu_2',
         name: 'Side view club',
         price: 25,
         image: AppImages.homeRestaurant2,
       ),
       RestaurantMenuItemModel(
+        id: 'rest_1_menu_3',
         name: 'Side view club',
         price: 25,
         image: AppImages.homeRestaurant3,
       ),
       RestaurantMenuItemModel(
+        id: 'rest_1_menu_4',
         name: 'Side view club',
         price: 25,
         image: AppImages.homeRestaurant1,
       ),
       RestaurantMenuItemModel(
+        id: 'rest_1_menu_5',
         name: 'Side view club',
         price: 25,
         image: AppImages.homeRestaurant2,
       ),
       RestaurantMenuItemModel(
+        id: 'rest_1_menu_6',
         name: 'Side view club',
         price: 25,
         image: AppImages.homeRestaurant3,
@@ -124,11 +130,13 @@ class HomeMockData {
     popularDishes: <String>['Noodles', 'Salad', 'Soup'],
     menuItems: <RestaurantMenuItemModel>[
       RestaurantMenuItemModel(
+        id: 'rest_2_menu_1',
         name: 'Chef special bowl',
         price: 22,
         image: AppImages.homeRestaurant2,
       ),
       RestaurantMenuItemModel(
+        id: 'rest_2_menu_2',
         name: 'Spicy chicken wraps',
         price: 19,
         image: AppImages.homeRestaurant1,
@@ -150,11 +158,13 @@ class HomeMockData {
     popularDishes: <String>['Steak', 'Sandwich', 'Soup'],
     menuItems: <RestaurantMenuItemModel>[
       RestaurantMenuItemModel(
+        id: 'rest_3_menu_1',
         name: 'Grilled burger combo',
         price: 20,
         image: AppImages.homeRestaurant3,
       ),
       RestaurantMenuItemModel(
+        id: 'rest_3_menu_2',
         name: 'House pasta',
         price: 24,
         image: AppImages.homeRestaurant2,
@@ -186,6 +196,7 @@ class HomeMockData {
       popularDishes: <String>['Sandwich', 'Rice Bowl'],
       menuItems: <RestaurantMenuItemModel>[
         RestaurantMenuItemModel(
+          id: 'rest_4_menu_1',
           name: 'Veg delight plate',
           price: 18,
           image: AppImages.homeRestaurant1,
@@ -206,6 +217,7 @@ class HomeMockData {
       popularDishes: <String>['Coffee', 'Burger', 'Pasta'],
       menuItems: <RestaurantMenuItemModel>[
         RestaurantMenuItemModel(
+          id: 'rest_5_menu_1',
           name: 'Classic breakfast set',
           price: 16,
           image: AppImages.homeRestaurant2,
@@ -226,6 +238,7 @@ class HomeMockData {
       popularDishes: <String>['Falafel', 'Hummus'],
       menuItems: <RestaurantMenuItemModel>[
         RestaurantMenuItemModel(
+          id: 'rest_6_menu_1',
           name: 'Mediterranean platter',
           price: 23,
           image: AppImages.homeRestaurant3,

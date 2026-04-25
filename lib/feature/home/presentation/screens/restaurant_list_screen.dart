@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
 import '../../data/repo/home_mock_data.dart';
@@ -68,7 +69,8 @@ class RestaurantListScreen extends StatelessWidget {
           children: [
             Expanded(
               child: Obx(() {
-                final List<RestaurantModel> source = shopController.shops.isNotEmpty
+                final List<RestaurantModel> source =
+                    shopController.shops.isNotEmpty
                     ? shopController.shops
                     : _items;
 
@@ -147,10 +149,14 @@ class _RestaurantGridCard extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        item.isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: AppColors.primaryOrange,
-                        size: 16,
+                      child: Center(
+                        child: WishlistIcon(
+                          type: 'shop',
+                          itemId: item.id,
+                          initiallyWishlisted: item.isLiked,
+                          color: AppColors.primaryOrange,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ),
