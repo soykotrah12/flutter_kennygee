@@ -48,6 +48,23 @@ class NearbyFoodApiModel {
     return (image['url'] ?? '').toString();
   }
 
+  List<String> get imageUrls {
+    final List<String> urls = images
+        .map((image) => (image['url'] ?? '').toString())
+        .where((url) => url.trim().isNotEmpty)
+        .toList();
+
+    if (urls.isNotEmpty) {
+      return urls;
+    }
+
+    final String fallback = imageUrl;
+    if (fallback.trim().isEmpty) {
+      return const <String>[];
+    }
+    return <String>[fallback];
+  }
+
   String get restaurantName =>
       (shop['restaurantName'] ?? 'Restaurant').toString();
 

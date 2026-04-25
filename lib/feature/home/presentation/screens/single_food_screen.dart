@@ -7,6 +7,7 @@ import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/food_model.dart';
 import '../../data/model/restaurant_model.dart';
+import '../controller/home_food_details_controller.dart';
 import 'restaurant_reviews_screen.dart';
 
 class SingleFoodScreen extends StatefulWidget {
@@ -19,45 +20,82 @@ class SingleFoodScreen extends StatefulWidget {
 }
 
 class _SingleFoodScreenState extends State<SingleFoodScreen> {
+  late final HomeFoodDetailsController _detailsController;
   late final PageController _bannerController;
-  late final List<String> _bannerImages;
+  late List<String> _bannerImages;
+  late final Worker _detailsWorker;
   int _activeBannerIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    _detailsController = HomeFoodDetailsController.ensureInitialized(
+      widget.food.id,
+    );
     _bannerController = PageController();
-    _bannerImages = <String>[
-      widget.food.image,
-      widget.food.image,
-      widget.food.image,
-      widget.food.image,
-    ];
+    _bannerImages = _resolveBannerImages(widget.food);
+    _detailsWorker = ever<FoodModel?>(_detailsController.menu, (food) {
+      if (food == null || !mounted) return;
+
+      final List<String> nextImages = _resolveBannerImages(food);
+      setState(() {
+        _bannerImages = nextImages;
+        _activeBannerIndex = 0;
+      });
+
+      if (_bannerController.hasClients) {
+        _bannerController.jumpToPage(0);
+      }
+    });
+    _detailsController.fetchMenuDetails(menuId: widget.food.id);
   }
 
   @override
   void dispose() {
+    _detailsWorker.dispose();
     _bannerController.dispose();
     super.dispose();
   }
 
+  FoodModel get _currentFood => _detailsController.menu.value ?? widget.food;
+
+  List<String> _resolveBannerImages(FoodModel food) {
+    final List<String> images = food.images
+        .where((image) => image.trim().isNotEmpty)
+        .toList();
+
+    if (images.isNotEmpty) {
+      return images;
+    }
+
+    if (food.image.trim().isNotEmpty) {
+      return <String>[food.image, food.image, food.image, food.image];
+    }
+
+    return <String>[AppImages.homeRestaurant1];
+  }
+
   RestaurantModel get _restaurantFromFood {
+    final FoodModel food = _currentFood;
+
     return RestaurantModel(
-      id: 'food_rest_${widget.food.id}',
-      name: widget.food.restaurantName,
+      id: 'food_rest_${food.id}',
+      name: food.restaurantName,
       subtitle: 'Restaurant',
-      image: widget.food.image,
-      rating: widget.food.rating,
-      reviewsCount: widget.food.reviewsCount,
-      distance: widget.food.distance,
-      address: widget.food.address,
-      openingHours: widget.food.openingHours,
-      isLiked: widget.food.isLiked,
+      image: food.image,
+      rating: food.rating,
+      reviewsCount: food.reviewsCount,
+      distance: food.distance,
+      address: food.address,
+      openingHours: food.openingHours,
+      isLiked: food.isLiked,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final FoodModel food = _currentFood;
+
     return Scaffold(
       backgroundColor: AppColors.appBackground,
       body: Column(
@@ -112,8 +150,8 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                           child: Center(
                             child: WishlistIcon(
                               type: 'menu',
-                              itemId: widget.food.id,
-                              initiallyWishlisted: widget.food.isLiked,
+                              itemId: food.id,
+                              initiallyWishlisted: food.isLiked,
                               color: Colors.white,
                               size: 15,
                             ),
@@ -161,7 +199,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    widget.food.name,
+                                    food.name,
                                     style: const TextStyle(
                                       color: AppColors.textBlack,
                                       fontSize: 24,
@@ -173,7 +211,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '\$${widget.food.price.toStringAsFixed(2)}',
+                                  '\$${food.price.toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     color: AppColors.primaryGreen,
                                     fontSize: 24,
@@ -194,7 +232,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                 ),
                                 const SizedBox(width: 2),
                                 Text(
-                                  widget.food.rating.toStringAsFixed(1),
+                                  food.rating.toStringAsFixed(1),
                                   style: const TextStyle(
                                     color: AppColors.primaryGreen,
                                     fontSize: 16,
@@ -213,7 +251,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                     );
                                   },
                                   child: Text(
-                                    '(${widget.food.reviewsCount} Reviews)',
+                                    '(${food.reviewsCount} Reviews)',
                                     style: const TextStyle(
                                       color: AppColors.textBlack,
                                       fontSize: 12,
@@ -237,7 +275,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              widget.food.description,
+                              food.description,
                               style: const TextStyle(
                                 color: Color(0xFF6E6E6E),
                                 fontSize: 14,
@@ -267,7 +305,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: AdaptiveImage(
-                                          path: widget.food.image,
+                                          path: food.image,
                                           width: 84,
                                           height: 60,
                                           fit: BoxFit.cover,
@@ -280,7 +318,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              widget.food.restaurantName,
+                                              food.restaurantName,
                                               style: const TextStyle(
                                                 color: AppColors.textBlack,
                                                 fontSize: 16,
@@ -290,7 +328,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              widget.food.distance,
+                                              food.distance,
                                               style: const TextStyle(
                                                 color: AppColors.primaryGreen,
                                                 fontSize: 14,
@@ -329,7 +367,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          widget.food.address,
+                                          food.address,
                                           style: const TextStyle(
                                             color: Color(0xFF6E6E6E),
                                             fontSize: 12,
@@ -351,7 +389,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          'Open - ${widget.food.openingHours}',
+                                          'Open - ${food.openingHours}',
                                           style: const TextStyle(
                                             color: Color(0xFF6E6E6E),
                                             fontSize: 12,

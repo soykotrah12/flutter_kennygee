@@ -33,6 +33,7 @@ class ApiConstants {
   static PaymentEndpoints get payment => PaymentEndpoints();
 
   static ShopEndpoints get shop => ShopEndpoints();
+  static MenuEndpoints get menu => MenuEndpoints();
   static EventEndpoints get event => EventEndpoints();
   static WishlistEndpoints get wishlist => WishlistEndpoints();
 }
@@ -125,6 +126,16 @@ class ShopEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/shop';
 
   final String fetchNearbyShops = '$_base/';
+
+  String fetchShopDetails(String shopId) => '$_base/$shopId';
+}
+
+class MenuEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/menu';
+
+  final String fetchNearbyMenus = '$_base/nearby';
+
+  String fetchMenuDetails(String menuId) => '$_base/$menuId';
 }
 
 class EventEndpoints {

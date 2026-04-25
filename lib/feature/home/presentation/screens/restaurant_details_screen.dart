@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
+import '../controller/home_shop_details_controller.dart';
 import 'restaurant_reviews_screen.dart';
 
 class RestaurantDetailsScreen extends StatefulWidget {
@@ -19,7 +21,22 @@ class RestaurantDetailsScreen extends StatefulWidget {
 }
 
 class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
+  late final HomeShopDetailsController _detailsController;
+
   int selectedDishIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _detailsController = HomeShopDetailsController.ensureInitialized(
+      widget.restaurant.id,
+    );
+    _detailsController.fetchShopDetails(shopId: widget.restaurant.id);
+  }
+
+  RestaurantModel get _currentRestaurant =>
+      _detailsController.restaurant.value ?? widget.restaurant;
+
   @override
   Widget build(BuildContext context) {
     final List<String> dishIcons = [
@@ -28,167 +45,171 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       'assets/icons/cheese.png',
     ];
 
-    return Container(
-      color: const Color(0xFFF3F3F3),
-      child: AppScaffold(
-        useSafeArea: true,
-        isScrollable: false,
-        backgroundColor: Colors.transparent,
-        bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        customAppBar: AppBar(
+    return Obx(() {
+      final RestaurantModel restaurant = _currentRestaurant;
+      final List<String> popularDishes = restaurant.popularDishes.isNotEmpty
+          ? restaurant.popularDishes
+          : restaurant.menuItems.map((item) => item.name).toList();
+
+      return Container(
+        color: const Color(0xFFF3F3F3),
+        child: AppScaffold(
+          useSafeArea: true,
+          isScrollable: false,
           backgroundColor: Colors.transparent,
-          elevation: 0,
-          toolbarHeight: 72,
-          titleSpacing: 0,
-          automaticallyImplyLeading: true,
-          title: Text.rich(
-            TextSpan(
-              text: 'Details ',
-              style: const TextStyle(
-                color: AppColors.textBlack,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Montserrat',
-              ),
-              children: const [
-                TextSpan(
-                  text: '(within 10km Restaurant)',
-                  style: TextStyle(
-                    color: AppColors.textGrey,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Montserrat',
-                  ),
+          bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          customAppBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            toolbarHeight: 72,
+            titleSpacing: 0,
+            automaticallyImplyLeading: true,
+            title: Text.rich(
+              TextSpan(
+                text: 'Details ',
+                style: const TextStyle(
+                  color: AppColors.textBlack,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Montserrat',
                 ),
-              ],
-            ),
-          ),
-        ),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _HeroCard(restaurant: widget.restaurant),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  _RatingPill(
-                    rating: widget.restaurant.rating,
-                    reviewsCount: widget.restaurant.reviewsCount,
-                    onReviewsTap: () {
-                      Get.to(
-                        () => RestaurantReviewsScreen(
-                          restaurant: widget.restaurant,
-                        ),
-                      );
-                    },
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.primaryGreen,
-                        width: 2,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.bookmark,
-                      color: AppColors.primaryGreen,
-                      size: 20,
+                children: const [
+                  TextSpan(
+                    text: '(within 10km Restaurant)',
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 26),
-              _InfoRow(
-                icon: Icons.location_on,
-                iconColor: AppColors.primaryOrange,
-                title: 'Location',
-                value: widget.restaurant.address.isNotEmpty
-                    ? widget.restaurant.address
-                    : widget.restaurant.distance,
-              ),
-              const SizedBox(height: 18),
-              _InfoRow(
-                icon: Icons.access_time_rounded,
-                iconColor: const Color(0xFF39B45A),
-                title: 'Opening Hours',
-                value: widget.restaurant.openingHours.isNotEmpty
-                    ? widget.restaurant.openingHours
-                    : 'Not available',
-              ),
-              const SizedBox(height: 26),
-              const Text(
-                'Popular Dishes',
-                style: TextStyle(
-                  color: AppColors.textBlack,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Montserrat',
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (widget.restaurant.popularDishes.isNotEmpty)
-                SizedBox(
-                  height: 44,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: widget.restaurant.popularDishes.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 10),
-                    itemBuilder: (_, index) {
-                      final String dish =
-                          widget.restaurant.popularDishes[index];
-
-                      final String iconImage =
-                          dishIcons[index % dishIcons.length];
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedDishIndex = index;
-                          });
-                        },
-                        child: _DishChip(
-                          label: dish,
-                          iconImage: iconImage,
-                          isActive: selectedDishIndex == index,
+            ),
+          ),
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _HeroCard(restaurant: restaurant),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _RatingPill(
+                      rating: restaurant.rating,
+                      reviewsCount: restaurant.reviewsCount,
+                      onReviewsTap: () {
+                        Get.to(
+                          () => RestaurantReviewsScreen(restaurant: restaurant),
+                        );
+                      },
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.primaryGreen,
+                          width: 2,
                         ),
-                      );
-                    },
-                  ),
-                )
-              else
+                      ),
+                      child: const Icon(
+                        Icons.bookmark,
+                        color: AppColors.primaryGreen,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 26),
+                _InfoRow(
+                  icon: Icons.location_on,
+                  iconColor: AppColors.primaryOrange,
+                  title: 'Location',
+                  value: restaurant.address.isNotEmpty
+                      ? restaurant.address
+                      : restaurant.distance,
+                ),
+                const SizedBox(height: 18),
+                _InfoRow(
+                  icon: Icons.access_time_rounded,
+                  iconColor: const Color(0xFF39B45A),
+                  title: 'Opening Hours',
+                  value: restaurant.openingHours.isNotEmpty
+                      ? restaurant.openingHours
+                      : 'Not available',
+                ),
+                const SizedBox(height: 26),
                 const Text(
-                  'No popular dishes available',
+                  'Popular Dishes',
                   style: TextStyle(
-                    color: AppColors.textGrey,
-                    fontSize: 14,
+                    color: AppColors.textBlack,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                     fontFamily: 'Montserrat',
                   ),
                 ),
-              const SizedBox(height: 16),
-              if (widget.restaurant.menuItems.isNotEmpty)
-                ...widget.restaurant.menuItems.map(
-                  (item) => _MenuItemTile(item: item),
-                )
-              else
-                const Text(
-                  'No menu items available',
-                  style: TextStyle(
-                    color: AppColors.textGrey,
-                    fontSize: 14,
-                    fontFamily: 'Montserrat',
+                const SizedBox(height: 12),
+                if (popularDishes.isNotEmpty)
+                  SizedBox(
+                    height: 44,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: popularDishes.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (_, index) {
+                        final String dish = popularDishes[index];
+
+                        final String iconImage =
+                            dishIcons[index % dishIcons.length];
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedDishIndex = index;
+                            });
+                          },
+                          child: _DishChip(
+                            label: dish,
+                            iconImage: iconImage,
+                            isActive: selectedDishIndex == index,
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                else
+                  const Text(
+                    'No popular dishes available',
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                      fontSize: 14,
+                      fontFamily: 'Montserrat',
+                    ),
                   ),
-                ),
-            ],
+                const SizedBox(height: 16),
+                if (restaurant.menuItems.isNotEmpty)
+                  ...restaurant.menuItems.map(
+                    (item) => _MenuItemTile(item: item),
+                  )
+                else
+                  const Text(
+                    'No menu items available',
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                      fontSize: 14,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -445,6 +466,10 @@ class _MenuItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String imagePath = item.image.trim().isNotEmpty
+        ? item.image
+        : AppImages.homeRestaurant1;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(0),
@@ -457,8 +482,8 @@ class _MenuItemTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              item.image,
+            child: AdaptiveImage(
+              path: imagePath,
               width: 78,
               height: 78,
               fit: BoxFit.cover,

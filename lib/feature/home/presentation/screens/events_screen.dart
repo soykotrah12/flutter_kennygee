@@ -9,14 +9,48 @@ import '../controller/home_event_controller.dart';
 import '../../data/model/event_model.dart';
 import '../navigation/home_navigation.dart';
 
-class EventsScreen extends StatelessWidget {
+class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final HomeEventController eventController =
-        HomeEventController.ensureInitialized();
+  State<EventsScreen> createState() => _EventsScreenState();
+}
 
+class _EventsScreenState extends State<EventsScreen> {
+  late final HomeEventController _eventController;
+  late final TextEditingController _searchController;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _eventController = HomeEventController.ensureInitialized();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<EventModel> _filterEvents(List<EventModel> events) {
+    final String query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return events;
+
+    return events.where((event) {
+      return event.title.toLowerCase().contains(query) ||
+          event.fee.toLowerCase().contains(query) ||
+          event.date.toLowerCase().contains(query) ||
+          event.time.toLowerCase().contains(query) ||
+          event.location.toLowerCase().contains(query) ||
+          event.detailsTitle.toLowerCase().contains(query) ||
+          event.detailsDescription.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -53,16 +87,37 @@ class EventsScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'Search Restaurant, dishes...',
-                        style: TextStyle(
-                          color: AppColors.textGrey,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value;
+                          });
+                        },
+                        style: const TextStyle(
+                          color: AppColors.textBlack,
                           fontSize: 14,
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w400,
                           fontFamily: 'Montserrat',
+                        ),
+                        decoration: const InputDecoration(
+                          isCollapsed: true,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
+                          hintText: 'Search event name, price...',
+                          hintStyle: TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                            fontFamily: 'Montserrat',
+                          ),
                         ),
                       ),
                     ),
@@ -70,18 +125,27 @@ class EventsScreen extends StatelessWidget {
                   Container(
                     width: 64,
                     height: double.infinity,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.primaryGreen,
-                      borderRadius: BorderRadius.horizontal(
+                      borderRadius: const BorderRadius.horizontal(
                         right: Radius.circular(10),
                       ),
                     ),
-                    child: Center(
-                      child: Image.asset(
-                        AppImages.search,
-                        width: 26,
-                        height: 26,
-                        fit: BoxFit.contain,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _searchController.clear();
+                          _searchQuery = '';
+                        });
+                        FocusScope.of(context).unfocus();
+                      },
+                      child: Center(
+                        child: Image.asset(
+                          AppImages.search,
+                          width: 26,
+                          height: 26,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
@@ -110,9 +174,10 @@ class EventsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Obx(() {
-              final List<EventModel> events = eventController.events;
+              final List<EventModel> events = _eventController.events;
+              final List<EventModel> filteredEvents = _filterEvents(events);
 
-              if (eventController.isLoading.value && events.isEmpty) {
+              if (_eventController.isLoading.value && events.isEmpty) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
                   child: Center(
@@ -123,11 +188,11 @@ class EventsScreen extends StatelessWidget {
                 );
               }
 
-              if (eventController.error.value.isNotEmpty && events.isEmpty) {
+              if (_eventController.error.value.isNotEmpty && events.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    eventController.error.value,
+                    _eventController.error.value,
                     style: const TextStyle(
                       color: AppColors.textGrey,
                       fontSize: 14,
@@ -153,13 +218,28 @@ class EventsScreen extends StatelessWidget {
                 );
               }
 
+              if (filteredEvents.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'No matching events found',
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                );
+              }
+
               return Column(
-                children: List<Widget>.generate(events.length, (index) {
-                  final EventModel event = events[index];
+                children: List<Widget>.generate(filteredEvents.length, (index) {
+                  final EventModel event = filteredEvents[index];
 
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom: index == events.length - 1 ? 0 : 16,
+                      bottom: index == filteredEvents.length - 1 ? 0 : 16,
                     ),
                     child: _EventCard(
                       event: event,

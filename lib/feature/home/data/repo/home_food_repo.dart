@@ -14,7 +14,7 @@ class HomeFoodRepository {
     required double lng,
   }) {
     return _apiClient.get<List<FoodModel>>(
-      ApiConstants.baseUrl + '/menu/nearby',
+      ApiConstants.menu.fetchNearbyMenus,
       queryParameters: <String, dynamic>{'lat': lat, 'lng': lng},
       fromJsonT: (json) {
         final List<dynamic> raw = json is List ? json : <dynamic>[];
@@ -22,6 +22,23 @@ class HomeFoodRepository {
             .map((item) => NearbyFoodApiModel.fromJson(_asMap(item)))
             .map(_toFoodModel)
             .toList();
+      },
+    );
+  }
+
+  NetworkResult<FoodModel> fetchMenuDetails({
+    required String menuId,
+    required double lat,
+    required double lng,
+  }) {
+    return _apiClient.get<FoodModel>(
+      ApiConstants.menu.fetchMenuDetails(menuId),
+      queryParameters: <String, dynamic>{'lat': lat, 'lng': lng},
+      fromJsonT: (json) {
+        final NearbyFoodApiModel raw = NearbyFoodApiModel.fromJson(
+          _asMap(json),
+        );
+        return _toFoodModel(raw);
       },
     );
   }
@@ -39,6 +56,7 @@ class HomeFoodRepository {
       distance: food.distance.isNotEmpty ? food.distance : 'N/A',
       address: food.address,
       openingHours: food.openingHours,
+      images: food.imageUrls,
       isLiked: false,
     );
   }

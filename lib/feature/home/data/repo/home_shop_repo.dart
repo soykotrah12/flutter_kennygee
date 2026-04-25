@@ -1,6 +1,7 @@
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/constants/api_constants.dart';
 import '../../../../core/network/network_result.dart';
+import '../model/shop_details_api_model.dart';
 import '../model/nearby_shop_api_model.dart';
 import '../model/restaurant_model.dart';
 
@@ -31,6 +32,28 @@ class HomeShopRepository {
     );
   }
 
+  NetworkResult<RestaurantModel> fetchShopDetails({
+    required String shopId,
+    required double lat,
+    required double lng,
+    String? search,
+  }) {
+    return _apiClient.get<RestaurantModel>(
+      ApiConstants.shop.fetchShopDetails(shopId),
+      queryParameters: <String, dynamic>{
+        'lat': lat,
+        'lng': lng,
+        if (search != null && search.trim().isNotEmpty) 'search': search,
+      },
+      fromJsonT: (json) {
+        final ShopDetailsApiModel raw = ShopDetailsApiModel.fromJson(
+          _asMap(json),
+        );
+        return _toRestaurantDetailsModel(raw);
+      },
+    );
+  }
+
   RestaurantModel _toRestaurantModel(NearbyShopApiModel shop) {
     final String opening = _resolveOpeningHours(shop);
 
@@ -49,14 +72,61 @@ class HomeShopRepository {
     );
   }
 
-  String _resolveOpeningHours(NearbyShopApiModel shop) {
-    if (shop.isClosedToday) return 'Closed today';
+  RestaurantModel _toRestaurantDetailsModel(ShopDetailsApiModel shop) {
+    final String opening = _resolveOpeningHoursFromRaw(
+      openTime: shop.openTime,
+      closeTime: shop.closeTime,
+      isClosedToday: shop.isClosedToday,
+    );
 
-    final bool hasOpen = shop.openTime.trim().isNotEmpty;
-    final bool hasClose = shop.closeTime.trim().isNotEmpty;
+    final List<RestaurantMenuItemModel> menuItems = shop.popularDishes
+        .map(
+          (dish) => RestaurantMenuItemModel(
+            id: dish.menuId,
+            name: dish.dishName,
+            price: dish.price,
+            image: shop.imageUrl,
+            isLiked: false,
+          ),
+        )
+        .toList();
+
+    return RestaurantModel(
+      id: shop.shopId,
+      name: shop.restaurantName,
+      subtitle: 'Restaurant',
+      image: shop.imageUrl,
+      rating: shop.rating,
+      reviewsCount: shop.reviewsCount,
+      distance: shop.distance.isNotEmpty ? shop.distance : 'N/A',
+      address: shop.address,
+      openingHours: opening,
+      isLiked: false,
+      popularDishes: shop.popularDishes.map((dish) => dish.dishName).toList(),
+      menuItems: menuItems,
+    );
+  }
+
+  String _resolveOpeningHours(NearbyShopApiModel shop) {
+    return _resolveOpeningHoursFromRaw(
+      openTime: shop.openTime,
+      closeTime: shop.closeTime,
+      isClosedToday: shop.isClosedToday,
+    );
+  }
+
+  String _resolveOpeningHoursFromRaw({
+    required String openTime,
+    required String closeTime,
+    required bool isClosedToday,
+  }) {
+    if (isClosedToday) return 'Closed today';
+
+    final bool hasOpen = openTime.trim().isNotEmpty;
+    final bool hasClose = closeTime.trim().isNotEmpty;
 
     if (hasOpen && hasClose) {
-      return '${shop.openTime} - ${shop.closeTime}';
+      return '$openTime - $closeTime';
     }
 
     return '11:00 AM - 10:00 PM';

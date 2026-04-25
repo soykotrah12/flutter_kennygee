@@ -11,6 +11,7 @@ class FoodModel {
     required this.distance,
     required this.address,
     required this.openingHours,
+    this.images = const <String>[],
     this.isLiked = false,
   });
 
@@ -25,5 +26,6 @@ class FoodModel {
   final String distance;
   final String address;
   final String openingHours;
+  final List<String> images;
   final bool isLiked;
 }

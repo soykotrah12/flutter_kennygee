@@ -14,13 +14,67 @@ import '../navigation/home_navigation.dart';
 import 'food_list_screen.dart';
 import 'restaurant_list_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final TextEditingController _searchController;
+  String _searchQuery = '';
 
   static const List<RestaurantModel> _nearbyRestaurants =
       HomeMockData.nearbyRestaurants;
   static const List<HomeRecommendationItemModel> _recommendedItems =
       HomeMockData.recommendedItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<RestaurantModel> _filterRestaurants(List<RestaurantModel> items) {
+    final String query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return items;
+
+    return items.where((restaurant) {
+      return restaurant.name.toLowerCase().contains(query) ||
+          restaurant.subtitle.toLowerCase().contains(query) ||
+          restaurant.distance.toLowerCase().contains(query) ||
+          restaurant.address.toLowerCase().contains(query) ||
+          restaurant.openingHours.toLowerCase().contains(query) ||
+          restaurant.popularDishes.any(
+            (dish) => dish.toLowerCase().contains(query),
+          );
+    }).toList();
+  }
+
+  List<HomeRecommendationItemModel> _filterRecommended(
+    List<HomeRecommendationItemModel> items,
+  ) {
+    final String query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return items;
+
+    return items.where((item) {
+      return item.title.toLowerCase().contains(query) ||
+          item.distance.toLowerCase().contains(query) ||
+          item.openingHours.toLowerCase().contains(query) ||
+          item.rating.toStringAsFixed(1).contains(query) ||
+          (item.restaurant?.name.toLowerCase().contains(query) ?? false) ||
+          (item.food?.name.toLowerCase().contains(query) ?? false) ||
+          (item.food?.description.toLowerCase().contains(query) ?? false) ||
+          (item.food?.restaurantName.toLowerCase().contains(query) ?? false);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,16 +167,46 @@ class HomeScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 14),
-                      child: Text(
-                        'Search Restaurant, dishes...',
-                        style: TextStyle(
-                          color: AppColors.textGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w300,
-                          fontFamily: 'Montserrat',
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Theme(
+                         data: Theme.of(context).copyWith(
+                          inputDecorationTheme: const InputDecorationTheme(
+                            border: InputBorder.none,
+                          ),
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() {
+                              _searchQuery = value;
+                            });
+                          },
+                          style: const TextStyle(
+                            color: AppColors.textBlack,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'Montserrat',
+                          ),
+                          decoration: const InputDecoration(
+                           isCollapsed: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                            hintText: 'Search Restaurant, dishes...',
+                            hintStyle: TextStyle(
+                              color: AppColors.textGrey,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w300,
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -136,12 +220,21 @@ class HomeScreen extends StatelessWidget {
                         right: Radius.circular(9),
                       ),
                     ),
-                    child: Center(
-                      child: Image.asset(
-                        AppImages.search,
-                        width: 24,
-                        height: 24,
-                        fit: BoxFit.contain,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _searchController.clear();
+                          _searchQuery = '';
+                        });
+                        FocusScope.of(context).unfocus();
+                      },
+                      child: Center(
+                        child: Image.asset(
+                          AppImages.search,
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
@@ -152,13 +245,13 @@ class HomeScreen extends StatelessWidget {
             Row(
               children: [
                 _FilterChip(label: 'All', active: true, icon: AppImages.all),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 _FilterChip(
                   label: 'Restaurant List',
                   icon: AppImages.restaurantlist,
                   onTap: _openRestaurantList,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 _FilterChip(
                   label: 'Food List',
                   icon: AppImages.foodlist,
@@ -178,41 +271,83 @@ class HomeScreen extends StatelessWidget {
                   shopController.shops.isNotEmpty
                   ? shopController.shops.take(3).toList()
                   : _nearbyRestaurants;
+              final List<RestaurantModel> filteredRestaurants =
+                  _filterRestaurants(source);
 
               return SizedBox(
                 height: 224,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: source.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, index) {
-                    final RestaurantModel restaurant = source[index];
-                    return _NearbyCard(
-                      restaurant: restaurant,
-                      onTap: () =>
-                          HomeNavigation.openRestaurantDetails(restaurant),
-                    );
-                  },
-                ),
+                child: filteredRestaurants.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No matching restaurants found',
+                          style: TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: filteredRestaurants.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (_, index) {
+                          final RestaurantModel restaurant =
+                              filteredRestaurants[index];
+                          return _NearbyCard(
+                            restaurant: restaurant,
+                            onTap: () => HomeNavigation.openRestaurantDetails(
+                              restaurant,
+                            ),
+                          );
+                        },
+                      ),
               );
             }),
             const SizedBox(height: 18),
             const _OnlyTitleHeader(title: 'Recommended for you'),
             const SizedBox(height: 10),
-            ...List<Widget>.generate(_recommendedItems.length, (index) {
-              final HomeRecommendationItemModel item = _recommendedItems[index];
-              final VoidCallback? onTap = item.type == 'restaurant'
-                  ? () => HomeNavigation.openRestaurantDetails(item.restaurant!)
-                  : item.type == 'food' && item.food != null
-                  ? () => HomeNavigation.openFoodDetails(item.food!)
-                  : null;
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: index == _recommendedItems.length - 1 ? 0 : 10,
-                ),
-                child: _RecommendedItem(item: item, onTap: onTap),
-              );
-            }),
+            ...(() {
+              final List<HomeRecommendationItemModel> filteredRecommended =
+                  _filterRecommended(_recommendedItems);
+
+              if (_searchQuery.trim().isNotEmpty &&
+                  filteredRecommended.isEmpty) {
+                return <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      'No matching recommendations found',
+                      style: TextStyle(
+                        color: AppColors.textGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                ];
+              }
+
+              return List<Widget>.generate(filteredRecommended.length, (index) {
+                final HomeRecommendationItemModel item =
+                    filteredRecommended[index];
+                final VoidCallback? onTap = item.type == 'restaurant'
+                    ? () =>
+                          HomeNavigation.openRestaurantDetails(item.restaurant!)
+                    : item.type == 'food' && item.food != null
+                    ? () => HomeNavigation.openFoodDetails(item.food!)
+                    : null;
+
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: index == filteredRecommended.length - 1 ? 0 : 10,
+                  ),
+                  child: _RecommendedItem(item: item, onTap: onTap),
+                );
+              });
+            })(),
           ],
         ),
       ),
@@ -424,9 +559,8 @@ class _NearbyCard extends StatelessWidget {
                           child: WishlistIcon(
                             type: 'shop',
                             itemId: restaurant.id,
-                            initiallyWishlisted: restaurant.isLiked,
-                            size: 20,
                             color: AppColors.primaryOrange,
+                            size: 20,
                           ),
                         ),
                       ),
@@ -546,8 +680,8 @@ class _RecommendedItem extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              item.image,
+            child: AdaptiveImage(
+              path: item.image,
               width: 90,
               height: 90,
               fit: BoxFit.cover,
