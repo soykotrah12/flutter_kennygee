@@ -30,6 +30,21 @@ class _WishlistIconState extends State<WishlistIcon> {
   void initState() {
     super.initState();
     _controller = Get.find<WishlistController>();
+    _scheduleSeedInitialWishlistState();
+  }
+
+  @override
+  void didUpdateWidget(covariant WishlistIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final bool becameInitiallyWishlisted =
+        !oldWidget.initiallyWishlisted && widget.initiallyWishlisted;
+    final bool identityChanged =
+        oldWidget.type != widget.type || oldWidget.itemId != widget.itemId;
+
+    if (becameInitiallyWishlisted || identityChanged) {
+      _scheduleSeedInitialWishlistState();
+    }
   }
 
   @override
@@ -67,5 +82,28 @@ class _WishlistIconState extends State<WishlistIcon> {
         ),
       );
     });
+  }
+
+  void _scheduleSeedInitialWishlistState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _seedInitialWishlistState();
+    });
+  }
+
+  void _seedInitialWishlistState() {
+    final String normalizedType = widget.type.trim().toLowerCase();
+    final String normalizedId = widget.itemId.trim();
+    if (normalizedType.isEmpty || normalizedId.isEmpty) {
+      return;
+    }
+
+    _controller.seedWishlist(
+      type: normalizedType,
+      itemId: normalizedId,
+      isWishlisted: widget.initiallyWishlisted,
+    );
   }
 }

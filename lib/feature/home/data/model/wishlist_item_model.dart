@@ -36,7 +36,7 @@ class WishlistItemModel {
 
   factory WishlistItemModel.fromShopJson(Map<String, dynamic> json) {
     return WishlistItemModel(
-      id: _readString(json['id']),
+      id: _resolveShopId(json),
       type: WishlistItemType.restaurant,
       name: _resolveName(json),
       description: _readString(json['description']),
@@ -49,7 +49,7 @@ class WishlistItemModel {
 
   factory WishlistItemModel.fromMenuJson(Map<String, dynamic> json) {
     return WishlistItemModel(
-      id: _readString(json['id']),
+      id: _resolveMenuId(json),
       type: WishlistItemType.food,
       name: _resolveName(json),
       description: _readString(json['description']),
@@ -61,6 +61,9 @@ class WishlistItemModel {
   }
 
   static String _resolveName(Map<String, dynamic> json) {
+    final String dishName = _readString(json['dishName']);
+    if (dishName.isNotEmpty) return dishName;
+
     final String restaurantName = _readString(json['restaurantName']);
     if (restaurantName.isNotEmpty) return restaurantName;
 
@@ -71,6 +74,26 @@ class WishlistItemModel {
     if (title.isNotEmpty) return title;
 
     return 'Unnamed';
+  }
+
+  static String _resolveShopId(Map<String, dynamic> json) {
+    final String shopId = _readString(json['shopId']);
+    if (shopId.isNotEmpty) return shopId;
+
+    final String id = _readString(json['id']);
+    if (id.isNotEmpty) return id;
+
+    return _readString(json['_id']);
+  }
+
+  static String _resolveMenuId(Map<String, dynamic> json) {
+    final String menuId = _readString(json['menuId']);
+    if (menuId.isNotEmpty) return menuId;
+
+    final String id = _readString(json['id']);
+    if (id.isNotEmpty) return id;
+
+    return _readString(json['_id']);
   }
 
   static String _resolveImageUrl(dynamic imageValue) {

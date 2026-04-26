@@ -41,6 +41,10 @@ class WishlistController extends GetxController {
       return;
     }
 
+    if (wishlistItems.contains(key)) {
+      return;
+    }
+
     wishlistItems.add(key);
   }
 

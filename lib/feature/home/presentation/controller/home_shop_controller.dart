@@ -10,8 +10,11 @@ class HomeShopController extends GetxController {
   final HomeShopRepository _repository;
 
   final RxList<RestaurantModel> shops = <RestaurantModel>[].obs;
+  final RxList<RestaurantModel> recommendedShops = <RestaurantModel>[].obs;
   final RxBool isLoading = false.obs;
+  final RxBool isRecommendedLoading = false.obs;
   final RxString error = ''.obs;
+  final RxString recommendedError = ''.obs;
 
   static HomeShopController ensureInitialized() {
     if (!Get.isRegistered<ApiClient>()) {
@@ -36,6 +39,7 @@ class HomeShopController extends GetxController {
   void onInit() {
     super.onInit();
     fetchNearbyShops();
+    fetchRecommendedShops();
   }
 
   Future<void> fetchNearbyShops() async {
@@ -61,5 +65,30 @@ class HomeShopController extends GetxController {
     );
 
     isLoading.value = false;
+  }
+
+  Future<void> fetchRecommendedShops() async {
+    if (isRecommendedLoading.value) return;
+
+    isRecommendedLoading.value = true;
+    recommendedError.value = '';
+
+    final result = await _repository.fetchRecommendedShops(
+      lat: 23.8103,
+      lng: 90.4125,
+      radius: 5000,
+    );
+
+    result.fold(
+      (failure) {
+        recommendedError.value = failure.message;
+        recommendedShops.clear();
+      },
+      (success) {
+        recommendedShops.assignAll(success.data);
+      },
+    );
+
+    isRecommendedLoading.value = false;
   }
 }

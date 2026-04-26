@@ -8,7 +8,6 @@ import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/home_recommendation_item_model.dart';
 import '../../data/model/restaurant_model.dart';
-import '../../data/repo/home_mock_data.dart';
 import '../controller/home_shop_controller.dart';
 import '../navigation/home_navigation.dart';
 import 'food_list_screen.dart';
@@ -24,9 +23,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final TextEditingController _searchController;
   String _searchQuery = '';
-
-  static const List<HomeRecommendationItemModel> _recommendedItems =
-      HomeMockData.recommendedItems;
 
   @override
   void initState() {
@@ -72,6 +68,19 @@ class _HomeScreenState extends State<HomeScreen> {
           (item.food?.description.toLowerCase().contains(query) ?? false) ||
           (item.food?.restaurantName.toLowerCase().contains(query) ?? false);
     }).toList();
+  }
+
+  HomeRecommendationItemModel _toRecommendationItem(RestaurantModel shop) {
+    return HomeRecommendationItemModel(
+      id: shop.id,
+      type: 'restaurant',
+      title: shop.name,
+      image: shop.image.isNotEmpty ? shop.image : AppImages.homeRestaurant1,
+      rating: shop.rating,
+      distance: shop.distance,
+      openingHours: shop.openingHours,
+      restaurant: shop,
+    );
   }
 
   @override
@@ -327,46 +336,89 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 18),
             const _OnlyTitleHeader(title: 'Recommended for you'),
             const SizedBox(height: 10),
-            ...(() {
+            Obx(() {
+              final bool isRecommendedLoading =
+                  shopController.isRecommendedLoading.value;
+              final String recommendedError =
+                  shopController.recommendedError.value;
+
+              final List<HomeRecommendationItemModel> recommendedItems =
+                  shopController.recommendedShops
+                      .map(_toRecommendationItem)
+                      .toList();
+
               final List<HomeRecommendationItemModel> filteredRecommended =
-                  _filterRecommended(_recommendedItems);
+                  _filterRecommended(recommendedItems);
+
+              if (isRecommendedLoading && recommendedItems.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGreen,
+                    ),
+                  ),
+                );
+              }
+
+              if (recommendedItems.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    recommendedError.isNotEmpty
+                        ? 'Could not load recommendations'
+                        : 'No recommendations available',
+                    style: const TextStyle(
+                      color: AppColors.textGrey,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                );
+              }
 
               if (_searchQuery.trim().isNotEmpty &&
                   filteredRecommended.isEmpty) {
-                return <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      'No matching recommendations found',
-                      style: TextStyle(
-                        color: AppColors.textGrey,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Montserrat',
-                      ),
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'No matching recommendations found',
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
-                ];
+                );
               }
 
-              return List<Widget>.generate(filteredRecommended.length, (index) {
-                final HomeRecommendationItemModel item =
-                    filteredRecommended[index];
-                final VoidCallback? onTap = item.type == 'restaurant'
-                    ? () =>
-                          HomeNavigation.openRestaurantDetails(item.restaurant!)
-                    : item.type == 'food' && item.food != null
-                    ? () => HomeNavigation.openFoodDetails(item.food!)
-                    : null;
+              return Column(
+                children: List<Widget>.generate(filteredRecommended.length, (
+                  index,
+                ) {
+                  final HomeRecommendationItemModel item =
+                      filteredRecommended[index];
+                  final RestaurantModel? restaurant = item.restaurant;
 
-                return Padding(
-                  padding: EdgeInsets.only(
-                    bottom: index == filteredRecommended.length - 1 ? 0 : 10,
-                  ),
-                  child: _RecommendedItem(item: item, onTap: onTap),
-                );
-              });
-            })(),
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == filteredRecommended.length - 1 ? 0 : 10,
+                    ),
+                    child: _RecommendedItem(
+                      item: item,
+                      onTap: restaurant == null
+                          ? null
+                          : () =>
+                                HomeNavigation.openRestaurantDetails(
+                                  restaurant,
+                                ),
+                    ),
+                  );
+                }),
+              );
+            }),
           ],
         ),
       ),

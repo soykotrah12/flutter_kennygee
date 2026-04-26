@@ -152,7 +152,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                               type: 'menu',
                               itemId: food.id,
                               initiallyWishlisted: food.isLiked,
-                              color: Colors.white,
+                              color: AppColors.primaryOrange,
                               size: 15,
                             ),
                           ),

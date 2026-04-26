@@ -32,6 +32,28 @@ class HomeShopRepository {
     );
   }
 
+  NetworkResult<List<RestaurantModel>> fetchRecommendedShops({
+    required double lat,
+    required double lng,
+    required int radius,
+  }) {
+    return _apiClient.get<List<RestaurantModel>>(
+      ApiConstants.shop.fetchRecommendedShops,
+      queryParameters: <String, dynamic>{
+        'lat': lat,
+        'lng': lng,
+        'radius': radius,
+      },
+      fromJsonT: (json) {
+        final List<dynamic> raw = json is List ? json : <dynamic>[];
+        return raw
+            .map((item) => NearbyShopApiModel.fromJson(_asMap(item)))
+            .map(_toRestaurantModel)
+            .toList();
+      },
+    );
+  }
+
   NetworkResult<RestaurantModel> fetchShopDetails({
     required String shopId,
   }) {
@@ -59,7 +81,7 @@ class HomeShopRepository {
       distance: shop.distance.isNotEmpty ? shop.distance : 'N/A',
       address: shop.address,
       openingHours: opening,
-      isLiked: true,
+      isLiked: false,
       popularDishes: const <String>['Pasta', 'Burger', 'Cheesecake'],
       openTime: shop.openTime,
       closeTime: shop.closeTime,

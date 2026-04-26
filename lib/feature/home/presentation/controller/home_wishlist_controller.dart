@@ -87,9 +87,9 @@ class HomeWishlistController extends GetxController {
 
         final WishlistController wishlistController =
             Get.find<WishlistController>();
-        final Iterable<String> fetchedKeys = success.data.map((item) {
-          return '${item.type.apiType}_${item.id}';
-        });
+        final Iterable<String> fetchedKeys = success.data
+            .where((item) => item.id.trim().isNotEmpty)
+            .map((item) => '${item.type.apiType}_${item.id}');
 
         if (targetTab == WishlistTab.all) {
           wishlistController.syncFromFetchedItems(
