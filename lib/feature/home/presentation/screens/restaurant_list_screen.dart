@@ -7,14 +7,11 @@ import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
-import '../../data/repo/home_mock_data.dart';
 import '../controller/home_shop_controller.dart';
 import '../navigation/home_navigation.dart';
 
 class RestaurantListScreen extends StatelessWidget {
   const RestaurantListScreen({super.key});
-
-  static const List<RestaurantModel> _items = HomeMockData.restaurantList;
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +66,33 @@ class RestaurantListScreen extends StatelessWidget {
           children: [
             Expanded(
               child: Obx(() {
-                final List<RestaurantModel> source =
-                    shopController.shops.isNotEmpty
-                    ? shopController.shops
-                    : _items;
+                final bool isLoading = shopController.isLoading.value;
+                final String error = shopController.error.value;
+                final List<RestaurantModel> source = shopController.shops;
+
+                if (isLoading && source.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGreen,
+                    ),
+                  );
+                }
+
+                if (source.isEmpty) {
+                  return Center(
+                    child: Text(
+                      error.isNotEmpty
+                          ? 'Could not load restaurants'
+                          : 'No restaurants available',
+                      style: const TextStyle(
+                        color: AppColors.textGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  );
+                }
 
                 return GridView.builder(
                   physics: const BouncingScrollPhysics(),

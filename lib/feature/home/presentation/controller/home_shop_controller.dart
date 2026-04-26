@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../data/model/restaurant_model.dart';
-import '../../data/repo/home_mock_data.dart';
 import '../../data/repo/home_shop_repo.dart';
 
 class HomeShopController extends GetxController {
@@ -54,17 +53,10 @@ class HomeShopController extends GetxController {
     result.fold(
       (failure) {
         error.value = failure.message;
-        if (shops.isEmpty) {
-          shops.assignAll(HomeMockData.restaurantList);
-        }
+        shops.clear();
       },
       (success) {
-        final List<RestaurantModel> apiItems = success.data;
-        if (apiItems.isNotEmpty) {
-          shops.assignAll(apiItems);
-        } else {
-          shops.assignAll(HomeMockData.restaurantList);
-        }
+        shops.assignAll(success.data);
       },
     );
 

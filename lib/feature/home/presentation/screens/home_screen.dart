@@ -25,8 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late final TextEditingController _searchController;
   String _searchQuery = '';
 
-  static const List<RestaurantModel> _nearbyRestaurants =
-      HomeMockData.nearbyRestaurants;
   static const List<HomeRecommendationItemModel> _recommendedItems =
       HomeMockData.recommendedItems;
 
@@ -267,16 +265,37 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 10),
             Obx(() {
-              final List<RestaurantModel> source =
-                  shopController.shops.isNotEmpty
-                  ? shopController.shops.take(3).toList()
-                  : _nearbyRestaurants;
+              final bool isLoading = shopController.isLoading.value;
+              final String error = shopController.error.value;
+              final List<RestaurantModel> source = shopController.shops
+                  .take(3)
+                  .toList();
               final List<RestaurantModel> filteredRestaurants =
                   _filterRestaurants(source);
 
               return SizedBox(
                 height: 224,
-                child: filteredRestaurants.isEmpty
+                child: isLoading && source.isEmpty
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryGreen,
+                        ),
+                      )
+                    : source.isEmpty
+                    ? Center(
+                        child: Text(
+                          error.isNotEmpty
+                              ? 'Could not load restaurants'
+                              : 'No restaurants available',
+                          style: const TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                      )
+                    : filteredRestaurants.isEmpty
                     ? const Center(
                         child: Text(
                           'No matching restaurants found',

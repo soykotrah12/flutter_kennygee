@@ -5,6 +5,7 @@ class NearbyShopApiModel {
     required this.imageUrl,
     required this.address,
     required this.rating,
+    required this.reviewCount,
     required this.distance,
     required this.openTime,
     required this.closeTime,
@@ -14,14 +15,16 @@ class NearbyShopApiModel {
   factory NearbyShopApiModel.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic> image = _asMap(json['image']);
     final Map<String, dynamic> operatingToday = _asMap(json['operatingToday']);
+    final String rawDistance = (json['distance'] ?? '').toString();
 
     return NearbyShopApiModel(
-      shopId: (json['shopId'] ?? '').toString(),
+      shopId: (json['shopId'] ?? json['_id'] ?? json['id'] ?? '').toString(),
       restaurantName: (json['restaurantName'] ?? 'Restaurant').toString(),
       imageUrl: (image['url'] ?? '').toString(),
       address: (json['address'] ?? '').toString(),
       rating: _toDouble(json['rating']),
-      distance: (json['distance'] ?? '').toString(),
+      reviewCount: _toInt(json['reviewCount'] ?? json['reviewsCount']),
+      distance: rawDistance.toLowerCase() == 'null' ? '' : rawDistance,
       openTime: (operatingToday['open'] ?? '').toString(),
       closeTime: (operatingToday['close'] ?? '').toString(),
       isClosedToday: operatingToday['closed'] == true,
@@ -33,6 +36,7 @@ class NearbyShopApiModel {
   final String imageUrl;
   final String address;
   final double rating;
+  final int reviewCount;
   final String distance;
   final String openTime;
   final String closeTime;
@@ -42,6 +46,12 @@ class NearbyShopApiModel {
 double _toDouble(dynamic value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+int _toInt(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '') ?? 0;
 }
 
 Map<String, dynamic> _asMap(dynamic value) {

@@ -34,17 +34,9 @@ class HomeShopRepository {
 
   NetworkResult<RestaurantModel> fetchShopDetails({
     required String shopId,
-    required double lat,
-    required double lng,
-    String? search,
   }) {
     return _apiClient.get<RestaurantModel>(
       ApiConstants.shop.fetchShopDetails(shopId),
-      queryParameters: <String, dynamic>{
-        'lat': lat,
-        'lng': lng,
-        if (search != null && search.trim().isNotEmpty) 'search': search,
-      },
       fromJsonT: (json) {
         final ShopDetailsApiModel raw = ShopDetailsApiModel.fromJson(
           _asMap(json),
@@ -63,12 +55,15 @@ class HomeShopRepository {
       subtitle: 'Restaurant',
       image: shop.imageUrl,
       rating: shop.rating,
-      reviewsCount: 0,
+      reviewsCount: shop.reviewCount,
       distance: shop.distance.isNotEmpty ? shop.distance : 'N/A',
       address: shop.address,
       openingHours: opening,
       isLiked: true,
       popularDishes: const <String>['Pasta', 'Burger', 'Cheesecake'],
+      openTime: shop.openTime,
+      closeTime: shop.closeTime,
+      isClosedToday: shop.isClosedToday,
     );
   }
 
@@ -104,6 +99,9 @@ class HomeShopRepository {
       isLiked: false,
       popularDishes: shop.popularDishes.map((dish) => dish.dishName).toList(),
       menuItems: menuItems,
+      openTime: shop.openTime,
+      closeTime: shop.closeTime,
+      isClosedToday: shop.isClosedToday,
     );
   }
 
@@ -129,7 +127,9 @@ class HomeShopRepository {
       return '$openTime - $closeTime';
     }
 
-    return '11:00 AM - 10:00 PM';
+    if (hasOpen) return 'Open: $openTime';
+    if (hasClose) return 'Until $closeTime';
+    return 'Time unavailable';
   }
 }
 

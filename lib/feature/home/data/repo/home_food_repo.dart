@@ -50,7 +50,7 @@ class HomeFoodRepository {
       image: food.imageUrl,
       price: food.price,
       rating: food.rating,
-      reviewsCount: 0,
+      reviewsCount: food.reviewsCount,
       description: food.description,
       restaurantName: food.restaurantName,
       distance: food.distance.isNotEmpty ? food.distance : 'N/A',

@@ -41,7 +41,6 @@ class HomeShopDetailsController extends GetxController {
 
   Future<void> fetchShopDetails({
     required String shopId,
-    String? search,
   }) async {
     if (isLoading.value) return;
 
@@ -50,9 +49,6 @@ class HomeShopDetailsController extends GetxController {
 
     final result = await _repository.fetchShopDetails(
       shopId: shopId,
-      lat: 23.8564,
-      lng: 90.4354,
-      search: search,
     );
 
     result.fold(

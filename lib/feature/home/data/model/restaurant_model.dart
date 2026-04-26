@@ -29,6 +29,9 @@ class RestaurantModel {
     this.type = 'restaurant',
     this.popularDishes = const <String>[],
     this.menuItems = const <RestaurantMenuItemModel>[],
+    this.openTime = '',
+    this.closeTime = '',
+    this.isClosedToday = false,
   });
 
   final String id;
@@ -44,4 +47,7 @@ class RestaurantModel {
   final String type;
   final List<String> popularDishes;
   final List<RestaurantMenuItemModel> menuItems;
+  final String openTime;
+  final String closeTime;
+  final bool isClosedToday;
 }

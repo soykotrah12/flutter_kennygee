@@ -134,13 +134,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       : restaurant.distance,
                 ),
                 const SizedBox(height: 18),
-                _InfoRow(
-                  icon: Icons.access_time_rounded,
-                  iconColor: const Color(0xFF39B45A),
-                  title: 'Opening Hours',
-                  value: restaurant.openingHours.isNotEmpty
-                      ? restaurant.openingHours
-                      : 'Not available',
+                _OpeningHoursSection(
+                  openTime: restaurant.openTime,
+                  closeTime: restaurant.closeTime,
+                  isClosedToday: restaurant.isClosedToday,
                 ),
                 const SizedBox(height: 26),
                 const Text(
@@ -416,6 +413,232 @@ class _InfoRow extends StatelessWidget {
       ],
     );
   }
+}
+
+class _OpeningHoursSection extends StatelessWidget {
+  const _OpeningHoursSection({
+    required this.openTime,
+    required this.closeTime,
+    required this.isClosedToday,
+  });
+
+  final String openTime;
+  final String closeTime;
+  final bool isClosedToday;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<_OperatingHoursEntry> entries = <_OperatingHoursEntry>[
+      _OperatingHoursEntry(
+        day: 'Today',
+        open: _formatTime(openTime),
+        close: _formatTime(closeTime),
+        isClosed: isClosedToday,
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(
+              Icons.access_time_outlined,
+              color: Color(0xFF2EA84A),
+              size: 26,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Operating Hours',
+              style: TextStyle(
+                color: AppColors.textBlack,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: List<Widget>.generate(entries.length, (int index) {
+              final _OperatingHoursEntry entry = entries[index];
+              return Column(
+                children: [
+                  _OpeningHoursDayRow(entry: entry),
+                  if (index != entries.length - 1)
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFF0F0F0),
+                      indent: 14,
+                      endIndent: 14,
+                    ),
+                ],
+              );
+            }),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OpeningHoursDayRow extends StatelessWidget {
+  const _OpeningHoursDayRow({required this.entry});
+
+  final _OperatingHoursEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double dayColumnWidth = (constraints.maxWidth * 0.30)
+            .clamp(74.0, 120.0)
+            .toDouble();
+        final bool hasOpen = entry.open.trim().isNotEmpty;
+        final bool hasClose = entry.close.trim().isNotEmpty;
+        final String singleLabel = hasOpen
+            ? entry.open
+            : hasClose
+            ? entry.close
+            : 'Time unavailable';
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: dayColumnWidth,
+                child: Text(
+                  entry.day,
+                  style: const TextStyle(
+                    color: AppColors.textBlack,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: entry.isClosed
+                      ? const _OpeningHoursChip(
+                          label: 'Closed',
+                          textColor: Color(0xFFF04E45),
+                        )
+                      : Wrap(
+                          alignment: WrapAlignment.end,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          runSpacing: 8,
+                          children: hasOpen && hasClose
+                              ? <Widget>[
+                                  _OpeningHoursChip(label: entry.open),
+                                  const Text(
+                                    '\u2014',
+                                    style: TextStyle(
+                                      color: Color(0xFF13674F),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Montserrat',
+                                    ),
+                                  ),
+                                  _OpeningHoursChip(label: entry.close),
+                                ]
+                              : <Widget>[
+                                  _OpeningHoursChip(label: singleLabel),
+                                ],
+                        ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _OpeningHoursChip extends StatelessWidget {
+  const _OpeningHoursChip({
+    required this.label,
+    this.textColor,
+  });
+
+  final String label;
+  final Color? textColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 98),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F3F3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: textColor ?? AppColors.textBlack,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Montserrat',
+        ),
+      ),
+    );
+  }
+}
+
+class _OperatingHoursEntry {
+  const _OperatingHoursEntry({
+    required this.day,
+    required this.isClosed,
+    this.open = '',
+    this.close = '',
+  });
+
+  final String day;
+  final bool isClosed;
+  final String open;
+  final String close;
+}
+
+String _formatTime(String value) {
+  final String trimmed = value.trim();
+  final RegExpMatch? match = RegExp(
+    r'(\d{1,2})(?::(\d{2}))?\s*([aApP][mM])',
+  ).firstMatch(trimmed);
+
+  if (match == null) {
+    return trimmed;
+  }
+
+  final String hour = (int.tryParse(match.group(1) ?? '') ?? 0)
+      .toString()
+      .padLeft(2, '0');
+  final String minute = (match.group(2) ?? '00').padLeft(2, '0');
+  final String period = (match.group(3) ?? '').toUpperCase();
+
+  return '$hour:$minute $period';
 }
 
 class _DishChip extends StatelessWidget {

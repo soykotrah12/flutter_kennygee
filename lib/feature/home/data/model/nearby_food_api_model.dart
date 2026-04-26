@@ -10,12 +10,20 @@ class NearbyFoodApiModel {
     required this.offerText,
     required this.shop,
     required this.createdAt,
+    required this.ratingValue,
+    required this.averageRating,
+    required this.hasAverageRating,
+    required this.reviewCount,
+    required this.hasReviewCount,
+    required this.reviewsLength,
   });
 
   factory NearbyFoodApiModel.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> reviews = _asList(json['reviews']);
+
     return NearbyFoodApiModel(
-      menuId: (json['menuId'] ?? '').toString(),
-      dishName: (json['dishName'] ?? 'Food').toString(),
+      menuId: (json['menuId'] ?? json['_id'] ?? '').toString(),
+      dishName: (json['dishName'] ?? json['name'] ?? 'Food').toString(),
       description: (json['description'] ?? '').toString(),
       images: _asList(json['images']).map(_asMap).toList(),
       category: (json['category'] ?? '').toString(),
@@ -24,6 +32,12 @@ class NearbyFoodApiModel {
       offerText: (json['offerText'] ?? '').toString(),
       shop: _asMap(json['shop']),
       createdAt: (json['createdAt'] ?? '').toString(),
+      ratingValue: _toDouble(json['rating']),
+      averageRating: _toDouble(json['averageRating']),
+      hasAverageRating: json.containsKey('averageRating'),
+      reviewCount: _toInt(json['reviewCount']),
+      hasReviewCount: json.containsKey('reviewCount'),
+      reviewsLength: reviews.length,
     );
   }
 
@@ -37,6 +51,12 @@ class NearbyFoodApiModel {
   final String offerText;
   final Map<String, dynamic> shop;
   final String createdAt;
+  final double ratingValue;
+  final double averageRating;
+  final bool hasAverageRating;
+  final int reviewCount;
+  final bool hasReviewCount;
+  final int reviewsLength;
 
   String get imageUrl {
     if (images.isNotEmpty) {
@@ -70,7 +90,20 @@ class NearbyFoodApiModel {
 
   String get address => (shop['address'] ?? '').toString();
 
-  double get rating => _toDouble(shop['rating']);
+  double get rating {
+    if (hasAverageRating) return averageRating;
+    if (ratingValue > 0) return ratingValue;
+    return _toDouble(shop['rating']);
+  }
+
+  int get reviewsCount {
+    if (hasReviewCount) return reviewCount;
+    if (reviewsLength > 0) return reviewsLength;
+
+    final dynamic shopReviewCount =
+        shop['reviewCount'] ?? shop['reviewsCount'];
+    return _toInt(shopReviewCount);
+  }
 
   String get distance => (shop['distance'] ?? '').toString();
 
@@ -95,6 +128,12 @@ class NearbyFoodApiModel {
 double _toDouble(dynamic value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+int _toInt(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '') ?? 0;
 }
 
 Map<String, dynamic> _asMap(dynamic value) {
