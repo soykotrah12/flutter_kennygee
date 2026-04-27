@@ -77,4 +77,9 @@ class AppImages {
   static const String starIcon = 'assets/icons/star.png';
   static const String reviewIcon = 'assets/icons/reviews.png';
   static const String activePlanIcon = 'assets/icons/activePlan.png';
+  static const String boostImage = 'assets/images/boostImage.png';
+
+  // owner shop icons
+  static const String food = 'assets/images/food.png';
+  static const String editfood = 'assets/icons/editicon.png';
 }

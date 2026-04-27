@@ -1,8 +1,5 @@
 class CreateShopImageModel {
-  const CreateShopImageModel({
-    required this.publicId,
-    required this.url,
-  });
+  const CreateShopImageModel({required this.publicId, required this.url});
 
   factory CreateShopImageModel.fromJson(Map<String, dynamic> json) {
     return CreateShopImageModel(
@@ -13,6 +10,10 @@ class CreateShopImageModel {
 
   final String publicId;
   final String url;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{'public_id': publicId, 'url': url};
+  }
 }
 
 class CreateShopLocationModel {
@@ -37,6 +38,14 @@ class CreateShopLocationModel {
   final String type;
   final List<double> coordinates;
   final String address;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'type': type,
+      'coordinates': coordinates,
+      'address': address,
+    };
+  }
 }
 
 class CreateShopOperatingDayModel {
@@ -57,6 +66,10 @@ class CreateShopOperatingDayModel {
   final String open;
   final String close;
   final bool closed;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{'open': open, 'close': close, 'closed': closed};
+  }
 }
 
 class CreateShopResponseModel {
@@ -106,6 +119,22 @@ class CreateShopResponseModel {
   final Map<String, CreateShopOperatingDayModel> operatingHours;
   final String createdAt;
   final String updatedAt;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'shopId': shopId,
+      'userId': userId,
+      'restaurantName': restaurantName,
+      'description': description,
+      'image': image.toJson(),
+      'location': location.toJson(),
+      'operatingHours': operatingHours.map(
+        (key, value) => MapEntry(key, value.toJson()),
+      ),
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+    };
+  }
 
   CreateShopOperatingDayModel? get firstActiveOperatingDay {
     for (final String day in <String>[

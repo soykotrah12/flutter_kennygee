@@ -5,6 +5,7 @@ import '../../../../../feature/auth/presentation/controller/auth_flow_controller
 import '../../../../../feature/home/presentation/screens/favorite_screen.dart';
 import '../../../../../feature/home/presentation/screens/home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_home_screen.dart';
+import '../../../../../feature/home/presentation/screens/owner_shop_screen.dart';
 import '../../../../../feature/profile/presentation/screens/profile_screen.dart';
 import '../../../../theme/app_colors.dart';
 
@@ -37,11 +38,7 @@ class BottomNavController extends GetxController {
             label: 'Store',
             icon: Icons.storefront_outlined,
             activeIcon: Icons.storefront,
-            screen: DashboardPlaceholderView(
-              title: 'Store Management',
-              subtitle: 'Manage menus, inventory and listings.',
-              icon: Icons.inventory_2_outlined,
-            ),
+            screen: OwnerShopScreen(),
           ),
           const DashboardTabItem(
             label: 'Reports',

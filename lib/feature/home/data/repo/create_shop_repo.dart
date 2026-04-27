@@ -16,19 +16,7 @@ class CreateShopRepository {
   NetworkResult<CreateShopResponseModel> createShop({
     required CreateShopRequestModel request,
   }) {
-    final payload = request.toPayload();
-
-    final formData = FormData.fromMap(<String, dynamic>{
-      'userId': payload['userId'],
-      'restaurantName': payload['restaurantName'],
-      'description': payload['description'],
-      'location': jsonEncode(payload['location']),
-      'operatingHours': jsonEncode(payload['operatingHours']),
-      'image': MultipartFile.fromFileSync(
-        request.imagePath,
-        filename: request.imagePath.split('/').last,
-      ),
-    });
+    final formData = _buildFormData(request);
 
     return _apiClient.post<CreateShopResponseModel>(
       ApiConstants.shop.createShop,
@@ -37,6 +25,43 @@ class CreateShopRepository {
       options: Options(contentType: 'multipart/form-data'),
       fromJsonT: (json) => CreateShopResponseModel.fromJson(_asMap(json)),
     );
+  }
+
+  NetworkResult<CreateShopResponseModel> updateShop({
+    required String shopId,
+    required CreateShopRequestModel request,
+  }) {
+    final formData = _buildFormData(request);
+
+    return _apiClient.put<CreateShopResponseModel>(
+      ApiConstants.shop.updateShop(shopId),
+      formData: formData,
+      isFormData: true,
+      options: Options(contentType: 'multipart/form-data'),
+      fromJsonT: (json) => CreateShopResponseModel.fromJson(_asMap(json)),
+    );
+  }
+
+  FormData _buildFormData(CreateShopRequestModel request) {
+    final payload = request.toPayload();
+
+    final Map<String, dynamic> map = <String, dynamic>{
+      'userId': payload['userId'],
+      'restaurantName': payload['restaurantName'],
+      'description': payload['description'],
+      'location': jsonEncode(payload['location']),
+      'operatingHours': jsonEncode(payload['operatingHours']),
+    };
+
+    final String? imagePath = request.imagePath?.trim();
+    if (imagePath != null && imagePath.isNotEmpty) {
+      map['image'] = MultipartFile.fromFileSync(
+        imagePath,
+        filename: imagePath.split('/').last,
+      );
+    }
+
+    return FormData.fromMap(map);
   }
 }
 

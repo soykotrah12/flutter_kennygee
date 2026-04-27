@@ -1,30 +1,54 @@
+class CreateShopOperatingDayRequestModel {
+  const CreateShopOperatingDayRequestModel({
+    required this.open,
+    required this.close,
+    required this.closed,
+  });
+
+  final String open;
+  final String close;
+  final bool closed;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'open': open.trim(),
+      'close': close.trim(),
+      'closed': closed,
+    };
+  }
+}
+
 class CreateShopRequestModel {
   const CreateShopRequestModel({
     required this.userId,
     required this.restaurantName,
     required this.description,
-    required this.imagePath,
     required this.address,
     required this.longitude,
     required this.latitude,
-    required this.eventDate,
-    required this.openTime,
-    required this.closeTime,
+    this.imagePath,
+    this.operatingHours,
+    this.eventDate,
+    this.openTime,
+    this.closeTime,
   });
 
   final String userId;
   final String restaurantName;
   final String description;
-  final String imagePath;
+  final String? imagePath;
   final String address;
   final double longitude;
   final double latitude;
-  final DateTime eventDate;
-  final String openTime;
-  final String closeTime;
+  final Map<String, CreateShopOperatingDayRequestModel>? operatingHours;
+  final DateTime? eventDate;
+  final String? openTime;
+  final String? closeTime;
 
   String get selectedDayKey {
-    switch (eventDate.weekday) {
+    final DateTime sourceDate = eventDate ?? DateTime.now();
+
+    switch (sourceDate.weekday) {
       case DateTime.monday:
         return 'monday';
       case DateTime.tuesday:
@@ -58,6 +82,12 @@ class CreateShopRequestModel {
   }
 
   Map<String, dynamic> _buildOperatingHours() {
+    if (operatingHours != null && operatingHours!.isNotEmpty) {
+      return operatingHours!.map(
+        (key, value) => MapEntry(key.toLowerCase(), value.toJson()),
+      );
+    }
+
     const List<String> days = <String>[
       'monday',
       'tuesday',
@@ -72,9 +102,12 @@ class CreateShopRequestModel {
 
     for (final String day in days) {
       final bool isSelected = day == selectedDayKey;
+      final String resolvedOpen = isSelected ? (openTime ?? '').trim() : '';
+      final String resolvedClose = isSelected ? (closeTime ?? '').trim() : '';
+
       hours[day] = <String, dynamic>{
-        'open': isSelected ? openTime.trim() : '',
-        'close': isSelected ? closeTime.trim() : '',
+        'open': resolvedOpen,
+        'close': resolvedClose,
         'closed': false,
       };
     }

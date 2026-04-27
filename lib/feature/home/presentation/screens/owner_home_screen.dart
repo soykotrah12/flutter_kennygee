@@ -317,7 +317,7 @@ class _BoostNowDialog extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
                             child: Image.asset(
-                              AppImages.homeRestaurant1,
+                              AppImages.boostImage,
                               fit: BoxFit.cover,
                             ),
                           ),

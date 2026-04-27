@@ -130,6 +130,8 @@ class ShopEndpoints {
   final String createShop = '$_base/create';
 
   String fetchShopDetails(String shopId) => '$_base/$shopId';
+
+  String updateShop(String shopId) => '$_base/$shopId';
 }
 
 class MenuEndpoints {
@@ -138,6 +140,8 @@ class MenuEndpoints {
   final String fetchNearbyMenus = '$_base/nearby';
 
   String fetchMenuDetails(String menuId) => '$_base/$menuId';
+
+  String fetchShopMenus(String shopId) => '$_base/shop/$shopId';
 }
 
 class EventEndpoints {
