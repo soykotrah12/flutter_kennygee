@@ -72,4 +72,9 @@ class AppImages {
   static const String helpsupport = 'assets/icons/help.png';
   static const String logout = 'assets/icons/logout.png';
   static const String gellary = 'assets/icons/gellary.png';
+
+  // owner home icons
+  static const String starIcon = 'assets/icons/star.png';
+  static const String reviewIcon = 'assets/icons/reviews.png';
+  static const String activePlanIcon = 'assets/icons/activePlan.png';
 }

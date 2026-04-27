@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -9,6 +11,36 @@ import '../../../profile/presentation/screens/profile_screen.dart';
 
 class OwnerHomeScreen extends StatelessWidget {
   const OwnerHomeScreen({super.key});
+
+  void _showBoostNowDialog(BuildContext context) {
+    showDialog(
+  context: context,
+  barrierDismissible: true,
+  barrierColor: Colors.black.withOpacity(0.2), // optional dark overlay
+  builder: (context) {
+    return Stack(
+      children: [
+        ///  Blur Background
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+          child: Container(
+            color: Colors.black.withOpacity(0), // must be present
+          ),
+        ),
+
+        ///  Your Dialog
+         Align(
+          alignment: Alignment.topCenter, 
+          child: Padding(
+            padding: const EdgeInsets.only(top:90), // adjust as needed
+            child: const _BoostNowDialog(),
+          ),
+        ),
+      ],
+    );
+  },
+);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +104,7 @@ class OwnerHomeScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: SecondaryButton(
-                  onPressed: () {},
+                  onPressed: () => _showBoostNowDialog(context),
                   text: 'Boost Now',
                   height: 51,
                   borderRadius: 8,
@@ -101,7 +133,7 @@ class OwnerHomeScreen extends StatelessWidget {
             children: const [
               Expanded(
                 child: _StatsCard(
-                  icon: Icons.star,
+                  icon: AppImages.starIcon,
                   iconColor: AppColors.primaryOrange,
                   title: 'Average Rating',
                   value: '4.8',
@@ -110,7 +142,7 @@ class OwnerHomeScreen extends StatelessWidget {
               SizedBox(width: 12),
               Expanded(
                 child: _StatsCard(
-                  icon: Icons.reviews_outlined,
+                  icon: AppImages.reviewIcon,
                   iconColor: Color(0xFF34B58A),
                   title: 'Total Reviews',
                   value: '1,240',
@@ -129,12 +161,12 @@ class OwnerHomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(
-                      Icons.workspace_premium,
-                      color: Color(0xFFFFCF57),
-                      size: 14,
+                    Image.asset(
+                      AppImages.activePlanIcon,
+                      width: 16,
+                      height: 16,
                     ),
                     SizedBox(width: 8),
                     Text(
@@ -219,6 +251,159 @@ class OwnerHomeScreen extends StatelessWidget {
   }
 }
 
+class _BoostNowDialog extends StatelessWidget {
+  const _BoostNowDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Dialog(
+        elevation: 0,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 24),
+        // backgroundColor: Colors.transparent,
+        child: Container(
+          width: 340,
+          decoration: BoxDecoration(
+            color: AppColors.primaryWhite,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 18, 14, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 230,
+                  height: 220,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Positioned(
+                        top: 16,
+                        left: 42,
+                        child: Transform.rotate(
+                          angle: 0.09,
+                          child: Container(
+                            width: 152,
+                            height: 174,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8E8CB),
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 20,
+                        child: Container(
+                          width: 162,
+                          height: 188,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryWhite,
+                            borderRadius: BorderRadius.circular(22),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.14),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.asset(
+                              AppImages.homeRestaurant1,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 26,
+                        bottom: 12,
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF3A61F),
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.rocket_launch_rounded,
+                            size: 20,
+                            color: AppColors.textBlack,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Skyrocket Your\nVisibility',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.textBlack,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    'Boost your restaurant for 7 days. Your best dishes will be featured directly on potential customers home screens, driving more traffic and orders.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 44),
+                PrimaryButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  height: 46,
+                  borderRadius: 8,
+                  child: const Text(
+                    'Upgrade & Boost Now',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 18, 0, 20),
+                  child: GestureDetector(                
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'Maybe Later',
+                      style: TextStyle(
+                        color: Color(0xFF666666),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StatsCard extends StatelessWidget {
   const _StatsCard({
     required this.icon,
@@ -227,7 +412,7 @@ class _StatsCard extends StatelessWidget {
     required this.value,
   });
 
-  final IconData icon;
+  final String icon;
   final Color iconColor;
   final String title;
   final String value;
@@ -245,7 +430,12 @@ class _StatsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: iconColor),
+          Image.asset(
+            icon,
+            width: 24,
+            height: 24,
+            color: iconColor,
+          ),
           const SizedBox(height: 14),
           Text(
             title,
