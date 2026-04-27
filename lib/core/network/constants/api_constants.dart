@@ -127,6 +127,7 @@ class ShopEndpoints {
 
   final String fetchNearbyShops = '$_base/';
   final String fetchRecommendedShops = '$_base/recommended';
+  final String createShop = '$_base/create';
 
   String fetchShopDetails(String shopId) => '$_base/$shopId';
 }
@@ -143,6 +144,7 @@ class EventEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/event';
 
   final String fetchEvents = _base;
+  final String createEvent = '$_base/create';
 
   String fetchEventById(String eventId) => '$_base/$eventId';
 

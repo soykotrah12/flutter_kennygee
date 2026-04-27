@@ -7,6 +7,7 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../create_event/presentation/screens/create_event_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 
 class OwnerHomeScreen extends StatelessWidget {
@@ -14,32 +15,34 @@ class OwnerHomeScreen extends StatelessWidget {
 
   void _showBoostNowDialog(BuildContext context) {
     showDialog(
-  context: context,
-  barrierDismissible: true,
-  barrierColor: Colors.black.withOpacity(0.2), // optional dark overlay
-  builder: (context) {
-    return Stack(
-      children: [
-        ///  Blur Background
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-          child: Container(
-            color: Colors.black.withOpacity(0), // must be present
-          ),
-        ),
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(
+        alpha: 0.2,
+      ), // optional dark overlay
+      builder: (context) {
+        return Stack(
+          children: [
+            ///  Blur Background
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+              child: Container(
+                color: Colors.black.withValues(alpha: 0), // must be present
+              ),
+            ),
 
-        ///  Your Dialog
-         Align(
-          alignment: Alignment.topCenter, 
-          child: Padding(
-            padding: const EdgeInsets.only(top:90), // adjust as needed
-            child: const _BoostNowDialog(),
-          ),
-        ),
-      ],
+            ///  Your Dialog
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 90), // adjust as needed
+                child: const _BoostNowDialog(),
+              ),
+            ),
+          ],
+        );
+      },
     );
-  },
-);
   }
 
   @override
@@ -113,7 +116,7 @@ class OwnerHomeScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: PrimaryButton(
-                  onPressed: () {},
+                  onPressed: () => Get.to(() => const CreateEventScreen()),
                   height: 51,
                   borderRadius: 8,
                   child: Text(
@@ -383,7 +386,7 @@ class _BoostNowDialog extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 18, 0, 20),
-                  child: GestureDetector(                
+                  child: GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: const Text(
                       'Maybe Later',
@@ -430,12 +433,7 @@ class _StatsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            icon,
-            width: 24,
-            height: 24,
-            color: iconColor,
-          ),
+          Image.asset(icon, width: 16, height: 16, color: iconColor),
           const SizedBox(height: 14),
           Text(
             title,
@@ -548,31 +546,11 @@ class _ReviewCard extends StatelessWidget {
                       SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(
-                            Icons.star,
-                            size: 12,
-                            color: Colors.amberAccent,
-                          ),
-                          Icon(
-                            Icons.star,
-                            size: 12,
-                            color: Colors.amberAccent,
-                          ),
-                          Icon(
-                            Icons.star,
-                            size: 12,
-                            color: Colors.amberAccent,
-                          ),
-                          Icon(
-                            Icons.star,
-                            size: 12,
-                            color: Colors.amberAccent,
-                          ),
-                          Icon(
-                            Icons.star,
-                            size: 12,
-                            color: Colors.amberAccent,
-                          ),
+                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
+                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
+                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
+                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
+                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
                         ],
                       ),
                       SizedBox(height: 6),
