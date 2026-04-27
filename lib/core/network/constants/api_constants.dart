@@ -142,6 +142,12 @@ class MenuEndpoints {
   String fetchMenuDetails(String menuId) => '$_base/$menuId';
 
   String fetchShopMenus(String shopId) => '$_base/shop/$shopId';
+
+  String updateMenu(String menuId) => '$_base/$menuId';
+
+  String deleteMenu(String menuId) => '$_base/$menuId';
+
+  String toggleSpecialOffer(String menuId) => '$_base/menu/$menuId/specialOffer';
 }
 
 class EventEndpoints {

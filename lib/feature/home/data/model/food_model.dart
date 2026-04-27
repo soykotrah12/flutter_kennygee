@@ -13,6 +13,9 @@ class FoodModel {
     required this.openingHours,
     this.images = const <String>[],
     this.isLiked = false,
+    this.specialOffer = false,
+    this.offerText = '',
+    this.category = '',
   });
 
   final String id;
@@ -28,4 +31,33 @@ class FoodModel {
   final String openingHours;
   final List<String> images;
   final bool isLiked;
+  final bool specialOffer;
+  final String offerText;
+  final String category;
+
+  /// Convert FoodModel to UpdateMenuResponseModel for the update screen
+  /// This creates a mock response based on available data
+  dynamic toUpdateMenuResponseModel() {
+    final List<dynamic> imagesList = images.asMap().entries.map((entry) {
+      return {
+        'publicId': '',
+        'url': entry.value,
+        'id': '',
+      };
+    }).toList();
+
+    return {
+      'menuId': id,
+      'shopId': '',
+      'dishName': name,
+      'description': description,
+      'category': category,
+      'basePrice': price,
+      'specialOffer': specialOffer,
+      'offerText': offerText,
+      'images': imagesList,
+      'createdAt': '',
+      'updatedAt': '',
+    };
+  }
 }

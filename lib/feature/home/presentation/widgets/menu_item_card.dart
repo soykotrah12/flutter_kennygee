@@ -13,6 +13,7 @@ class MenuItemCard extends StatelessWidget {
     this.priceText = '\$18.90',
     this.subtitle = 'Sourdough, poached eggs...',
     this.offerLabel,
+    this.onEditTap,
   });
 
   final bool isSpecialOffer;
@@ -21,6 +22,7 @@ class MenuItemCard extends StatelessWidget {
   final String priceText;
   final String subtitle;
   final String? offerLabel;
+  final VoidCallback? onEditTap;
 
   @override
   Widget build(BuildContext context) {
@@ -130,11 +132,14 @@ class MenuItemCard extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    Image.asset(
-                      AppImages.editfood,
-                      width: 24,
-                      height: 24,
-                      fit: BoxFit.contain,
+                    InkWell(
+                      onTap: onEditTap,
+                      child: Image.asset(
+                        AppImages.editfood,
+                        width: 24,
+                        height: 24,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ],
                 ),

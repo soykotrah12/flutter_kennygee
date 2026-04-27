@@ -66,48 +66,95 @@ class OwnerEventCard extends StatelessWidget {
                     color: const Color(0xFFF2ECE5),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(
-                    Icons.edit_outlined,
-                    color: AppColors.primaryGreen,
-                  ),
+                  child: Center(
+                    child: Image.asset(
+                      AppImages.editfood,
+                      width: 24,
+                      height: 24,
+                    ),
+                  )
                 ),
               ),
             ],
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(14, 12, 14, 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'FRI, MAR 26    6:00PM - 8:00PM',
-                  style: TextStyle(
-                    color: AppColors.textGrey,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  'Chef\'s Special Tasting Night',
-                  style: TextStyle(
-                    color: AppColors.textBlack,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'The Gilded Fork, Downtown',
-                  style: TextStyle(
-                    color: AppColors.textGrey,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+          Padding(
+  padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Image.asset(
+            AppImages.date, 
+            width: 14,
+            height: 14,
+          ),
+          const SizedBox(width: 4),
+          const Text(
+            'FRI, MAR 26',
+            style: TextStyle(
+              color: AppColors.textGrey,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
+          const SizedBox(width: 10),
+
+          Image.asset(
+            AppImages.clock,
+            width: 14,
+            height: 14,
+          ),
+          const SizedBox(width: 4),
+          const Text(
+            '6:00PM - 8:00PM',
+            style: TextStyle(
+              color: AppColors.textGrey,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+
+      const SizedBox(height: 6),
+
+      const Text(
+        'Chef\'s Special Tasting Night',
+        style: TextStyle(
+          color: AppColors.textBlack,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+
+      const SizedBox(height: 8),
+
+      Row(
+        children: [
+          Image.asset(
+            AppImages.location, // 👈 already correct
+            width: 14,
+            height: 14,
+          ),
+          const SizedBox(width: 4),
+          const Expanded(
+            child: Text(
+              'The Gilded Fork, Downtown',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: AppColors.textGrey,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ],
+  ),
+)
         ],
       ),
     );

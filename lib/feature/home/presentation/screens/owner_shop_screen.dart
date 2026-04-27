@@ -118,9 +118,29 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
               ),
             ),
             const SizedBox(height: 22),
-            const MenuItemCard(isSpecialOffer: true),
+            MenuItemCard(
+              isSpecialOffer: true,
+              onEditTap: () {
+                // Placeholder - these are demo cards without real menu data
+                Get.snackbar(
+                  'Info',
+                  'Click "See All" to view and edit menu items',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              },
+            ),
             const SizedBox(height: 10),
-            const MenuItemCard(isSpecialOffer: false),
+            MenuItemCard(
+              isSpecialOffer: false,
+              onEditTap: () {
+                // Placeholder - these are demo cards without real menu data
+                Get.snackbar(
+                  'Info',
+                  'Click "See All" to view and edit menu items',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              },
+            ),
             const SizedBox(height: 10),
             Center(
               child: TextButton(

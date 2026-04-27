@@ -19,6 +19,9 @@ class ShopMenuItemApiModel {
     required this.images,
     required this.price,
     required this.category,
+    this.description = '',
+    this.specialOffer = false,
+    this.offerText = '',
   });
 
   factory ShopMenuItemApiModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +37,9 @@ class ShopMenuItemApiModel {
           .toList(),
       price: _toDouble(json['price']),
       category: (json['category'] ?? '').toString(),
+      description: (json['description'] ?? '').toString(),
+      specialOffer: (json['specialOffer'] ?? false) as bool,
+      offerText: (json['offerText'] ?? '').toString(),
     );
   }
 
@@ -42,6 +48,9 @@ class ShopMenuItemApiModel {
   final List<ShopMenuImageApiModel> images;
   final double price;
   final String category;
+  final String description;
+  final bool specialOffer;
+  final String offerText;
 }
 
 double _toDouble(dynamic value) {

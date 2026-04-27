@@ -6,6 +6,8 @@ import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../controller/owner_food_list_controller.dart';
 import '../widgets/menu_item_card.dart';
+import '../../data/model/update_menu_response_model.dart';
+import '../screens/owner_update_menu_screen.dart';
 
 class OwnerFoodListScreen extends StatefulWidget {
   const OwnerFoodListScreen({super.key, required this.shopId});
@@ -100,14 +102,24 @@ class _OwnerFoodListScreenState extends State<OwnerFoodListScreen> {
                 : item.price.toStringAsFixed(0);
 
             return MenuItemCard(
-              isSpecialOffer: false,
+              isSpecialOffer: item.specialOffer,
               imagePath: item.image.isNotEmpty ? item.image : AppImages.food,
               dishName: item.name.isNotEmpty ? item.name : 'Unnamed item',
               priceText: '\$$formattedPrice',
               subtitle: item.description.isNotEmpty
                   ? item.description
                   : 'Food item',
-              offerLabel: 'Regular',
+              offerLabel: item.specialOffer ? item.offerText : 'Regular',
+              onEditTap: () {
+                final menuData =
+                    UpdateMenuResponseModel.fromFoodModel(item);
+                Get.to(
+                  () => OwnerUpdateMenuScreen(
+                    menuId: item.id,
+                    menuData: menuData,
+                  ),
+                );
+              },
             );
           },
         );
