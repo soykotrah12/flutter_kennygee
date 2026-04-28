@@ -64,6 +64,45 @@ class HomeFoodRepository {
     );
   }
 
+  NetworkResult<UpdateMenuResponseModel> fetchMenuById({
+    required String menuId,
+  }) {
+    return _apiClient.get<UpdateMenuResponseModel>(
+      ApiConstants.menu.fetchMenuDetails(menuId),
+      fromJsonT: (json) => UpdateMenuResponseModel.fromJson(_asMap(json)),
+    );
+  }
+
+  NetworkResult<UpdateMenuResponseModel> createMenu({
+    required String shopId,
+    required String dishName,
+    required String description,
+    required String category,
+    required double basePrice,
+    required bool specialOffer,
+    required String offerText,
+    String? imagePath,
+  }) {
+    final FormData formData = _buildCreateMenuFormData(
+      shopId: shopId,
+      dishName: dishName,
+      description: description,
+      category: category,
+      basePrice: basePrice,
+      specialOffer: specialOffer,
+      offerText: offerText,
+      imagePath: imagePath,
+    );
+
+    return _apiClient.post<UpdateMenuResponseModel>(
+      ApiConstants.menu.createMenu,
+      formData: formData,
+      isFormData: true,
+      options: Options(contentType: 'multipart/form-data'),
+      fromJsonT: (json) => UpdateMenuResponseModel.fromJson(_asMap(json)),
+    );
+  }
+
   NetworkResult<UpdateMenuResponseModel> updateMenu({
     required String menuId,
     required UpdateMenuRequestModel request,
@@ -133,6 +172,44 @@ class HomeFoodRepository {
         }
       } catch (e) {
         // If file cannot be read, continue without the image
+      }
+    }
+
+    return FormData.fromMap(map);
+  }
+
+  FormData _buildCreateMenuFormData({
+    required String shopId,
+    required String dishName,
+    required String description,
+    required String category,
+    required double basePrice,
+    required bool specialOffer,
+    required String offerText,
+    String? imagePath,
+  }) {
+    final Map<String, dynamic> map = <String, dynamic>{
+      'shopId': shopId,
+      'dishName': dishName,
+      'description': description,
+      'category': category,
+      'basePrice': basePrice.toString(),
+      'specialOffer': specialOffer.toString(),
+      'offerText': offerText,
+    };
+
+    final String? trimmedImagePath = imagePath?.trim();
+    if (trimmedImagePath != null && trimmedImagePath.isNotEmpty) {
+      try {
+        final File file = File(trimmedImagePath);
+        if (file.existsSync()) {
+          map['images'] = MultipartFile.fromFileSync(
+            trimmedImagePath,
+            filename: trimmedImagePath.split('/').last,
+          );
+        }
+      } catch (_) {
+        // Continue without an image if the file cannot be read.
       }
     }
 

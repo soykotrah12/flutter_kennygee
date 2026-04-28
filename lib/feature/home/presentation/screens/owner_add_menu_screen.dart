@@ -7,10 +7,15 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../controller/owner_shop_controller.dart';
+import '../../data/repo/home_food_repo.dart';
 
 class OwnerAddMenuScreen extends StatefulWidget {
-  const OwnerAddMenuScreen({super.key});
+  const OwnerAddMenuScreen({super.key, this.shopId});
+
+  final String? shopId;
 
   @override
   State<OwnerAddMenuScreen> createState() => _OwnerAddMenuScreenState();
@@ -18,6 +23,9 @@ class OwnerAddMenuScreen extends StatefulWidget {
 
 class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
   final ImagePicker _imagePicker = ImagePicker();
+
+  late final OwnerShopController _shopController;
+  late final HomeFoodRepository _repository;
 
   final TextEditingController _dishNameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -34,6 +42,14 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
   String _selectedCategory = 'appetizer';
   bool _isSpecialOffer = true;
   String? _selectedImagePath;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _shopController = ensureOwnerShopController();
+    _repository = HomeFoodRepository(apiClient: Get.find<ApiClient>());
+  }
 
   @override
   void dispose() {
@@ -57,6 +73,104 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
     });
   }
 
+  Future<String?> _resolveShopId() async {
+    if (widget.shopId != null && widget.shopId!.trim().isNotEmpty) {
+      return widget.shopId!.trim();
+    }
+
+    final String cachedShopId =
+        _shopController.ownerShop.value?.shopId.trim() ?? '';
+    if (cachedShopId.isNotEmpty) {
+      return cachedShopId;
+    }
+
+    await _shopController.refreshShop();
+    final String shopId = _shopController.ownerShop.value?.shopId.trim() ?? '';
+    return shopId.isNotEmpty ? shopId : null;
+  }
+
+  Future<void> _submitMenu() async {
+    if (_isSubmitting) return;
+
+    final String dishName = _dishNameController.text.trim();
+    final String description = _descriptionController.text.trim();
+    final String priceText = _basePriceController.text.trim();
+    final String offerText = _discountController.text.trim();
+
+    if (dishName.isEmpty || description.isEmpty || priceText.isEmpty) {
+      Get.snackbar(
+        'Validation',
+        'Please fill all required menu fields.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.white,
+        margin: const EdgeInsets.all(12),
+      );
+      return;
+    }
+
+    final double? basePrice = double.tryParse(priceText);
+    if (basePrice == null) {
+      Get.snackbar(
+        'Validation',
+        'Please enter a valid base price.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.white,
+        margin: const EdgeInsets.all(12),
+      );
+      return;
+    }
+
+    final String? shopId = await _resolveShopId();
+    if (shopId == null || shopId.isEmpty) {
+      Get.snackbar(
+        'Validation',
+        'Please create a shop before adding menu items.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.white,
+        margin: const EdgeInsets.all(12),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final result = await _repository.createMenu(
+      shopId: shopId,
+      dishName: dishName,
+      description: description,
+      category: _selectedCategory,
+      basePrice: basePrice,
+      specialOffer: _isSpecialOffer,
+      offerText: offerText,
+      imagePath: _selectedImagePath,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        Get.snackbar(
+          'Add Failed',
+          failure.message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.white,
+          margin: const EdgeInsets.all(12),
+        );
+      },
+      (success) {
+        Get.back(result: true);
+      },
+    );
+
+    if (mounted) {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -76,25 +190,34 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
           SizedBox(
             width: double.infinity,
             child: TextButton(
-              onPressed: () {
-                Get.back();
-              },
+              onPressed: _isSubmitting ? null : _submitMenu,
               style: TextButton.styleFrom(
-                backgroundColor: AppColors.primaryGreen,
+                backgroundColor: _isSubmitting
+                    ? AppColors.primaryGreen.withValues(alpha: 0.6)
+                    : AppColors.primaryGreen,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              child: const Text(
-                'Save Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text(
+                      'Save Menu',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -194,7 +317,6 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
                 ),
               ),
               Switch(
-                
                 value: _isSpecialOffer,
                 onChanged: (value) {
                   setState(() {
@@ -251,11 +373,7 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
             color: Color(0xFFDCE5E2),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
-            Icons.add,
-            color: AppColors.primaryGreen,
-            size: 28,
-          ),
+          child: const Icon(Icons.add, color: AppColors.primaryGreen, size: 28),
         ),
         const SizedBox(height: 10),
         const Text(
@@ -348,10 +466,8 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
         ),
         items: _categories
             .map(
-              (item) => DropdownMenuItem<String>(
-                value: item,
-                child: Text(item),
-              ),
+              (item) =>
+                  DropdownMenuItem<String>(value: item, child: Text(item)),
             )
             .toList(),
         onChanged: (value) {

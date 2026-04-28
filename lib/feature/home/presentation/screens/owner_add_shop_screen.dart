@@ -92,6 +92,60 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: const TimeOfDay(hour: 9, minute: 0),
+      builder: (BuildContext dialogContext, Widget? child) {
+        return Theme(
+          data: Theme.of(dialogContext).copyWith(
+            timePickerTheme: TimePickerThemeData(
+              dayPeriodColor: WidgetStateColor.resolveWith((
+                Set<WidgetState> states,
+              ) {
+                return states.contains(WidgetState.selected)
+                    ? AppColors.primaryGreen
+                    : Colors.transparent;
+              }),
+              dayPeriodTextColor: WidgetStateColor.resolveWith((
+                Set<WidgetState> states,
+              ) {
+                return states.contains(WidgetState.selected)
+                    ? Colors.white
+                    : AppColors.textBlack;
+              }),
+            ),
+          ),
+          child: Stack(
+            children: [
+              if (child != null) child,
+              Positioned(
+                top: 12,
+                right: 16,
+                child: TextButton(
+                  onPressed: () {
+                    if (mounted) {
+                      setState(() {
+                        field.isClosed = true;
+                      });
+                    }
+                    Navigator.of(dialogContext).pop();
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primaryGreen,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
 
     if (pickedTime == null) return;
@@ -161,7 +215,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
-      appBarTitle:'Add Your Shop',
+      appBarTitle: 'Add Your Shop',
       body: Obx(
         () => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +300,22 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
             SizedBox(
               width: double.infinity,
               child: TextButton.icon(
-                onPressed: () => Get.to(() => const OwnerAddMenuScreen()),
+                onPressed: () async {
+                  final bool? created = await Get.to<bool>(
+                    () => const OwnerAddMenuScreen(),
+                  );
+
+                  if (created == true && mounted) {
+                    Get.snackbar(
+                      'Success',
+                      'Menu item added successfully',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: AppColors.primaryGreen,
+                      colorText: Colors.white,
+                      margin: const EdgeInsets.all(12),
+                    );
+                  }
+                },
                 icon: const Icon(Icons.add, color: Colors.white, size: 26),
                 label: const Text(
                   'Add Food Item',

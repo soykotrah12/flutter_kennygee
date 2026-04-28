@@ -129,6 +129,8 @@ class ShopEndpoints {
   final String fetchRecommendedShops = '$_base/recommended';
   final String createShop = '$_base/create';
 
+  String fetchShopByUser(String userId) => '$_base/user/$userId';
+
   String fetchShopDetails(String shopId) => '$_base/$shopId';
 
   String updateShop(String shopId) => '$_base/$shopId';
@@ -138,6 +140,8 @@ class MenuEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/menu';
 
   final String fetchNearbyMenus = '$_base/nearby';
+
+  final String createMenu = '$_base/';
 
   String fetchMenuDetails(String menuId) => '$_base/$menuId';
 

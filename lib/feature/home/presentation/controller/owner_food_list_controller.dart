@@ -64,4 +64,21 @@ class OwnerFoodListController extends GetxController {
 
     isLoading.value = false;
   }
+
+  Future<bool> toggleSpecialOffer(String menuId) async {
+    final result = await _repository.toggleSpecialOffer(menuId: menuId);
+
+    var succeeded = false;
+    result.fold(
+      (failure) {
+        error.value = failure.message;
+      },
+      (success) {
+        error.value = '';
+        succeeded = true;
+      },
+    );
+
+    return succeeded;
+  }
 }

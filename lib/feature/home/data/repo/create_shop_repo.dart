@@ -27,6 +27,20 @@ class CreateShopRepository {
     );
   }
 
+  NetworkResult<List<CreateShopResponseModel>> fetchShopsByUserId({
+    required String userId,
+  }) {
+    return _apiClient.get<List<CreateShopResponseModel>>(
+      ApiConstants.shop.fetchShopByUser(userId),
+      fromJsonT: (json) {
+        final List<dynamic> raw = json is List ? json : <dynamic>[];
+        return raw
+            .map((item) => CreateShopResponseModel.fromJson(_asMap(item)))
+            .toList();
+      },
+    );
+  }
+
   NetworkResult<CreateShopResponseModel> updateShop({
     required String shopId,
     required CreateShopRequestModel request,

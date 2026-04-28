@@ -5,6 +5,8 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../controller/owner_food_list_controller.dart';
+import '../controller/owner_shop_controller.dart';
+import '../../data/model/food_model.dart';
 import '../widgets/menu_item_card.dart';
 import '../../data/model/update_menu_response_model.dart';
 import '../screens/owner_update_menu_screen.dart';
@@ -35,6 +37,52 @@ class _OwnerFoodListScreenState extends State<OwnerFoodListScreen> {
       Get.delete<OwnerFoodListController>(tag: _tag);
     }
     super.dispose();
+  }
+
+  Future<void> _openMenuEditor(FoodModel item) async {
+    final String? result = await Get.to<String>(
+      () => OwnerUpdateMenuScreen(
+        menuId: item.id,
+        menuData: UpdateMenuResponseModel.fromFoodModel(item),
+      ),
+    );
+
+    if (result == null || !mounted) return;
+
+    await _controller.fetchShopFoods();
+    final OwnerShopController shopController = ensureOwnerShopController();
+    await shopController.refreshShop();
+
+    Get.snackbar(
+      'Success',
+      result == 'deleted'
+          ? 'Menu item deleted successfully'
+          : 'Menu item updated successfully',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.primaryGreen,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+    );
+  }
+
+  Future<bool> _toggleSpecialOffer(FoodModel item) async {
+    final bool success = await _controller.toggleSpecialOffer(item.id);
+    if (!success || !mounted) return false;
+
+    await _controller.fetchShopFoods();
+    final OwnerShopController shopController = ensureOwnerShopController();
+    await shopController.refreshShop();
+
+    Get.snackbar(
+      'Success',
+      item.specialOffer ? 'Special offer disabled' : 'Special offer enabled',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.primaryGreen,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+    );
+
+    return true;
   }
 
   @override
@@ -110,15 +158,9 @@ class _OwnerFoodListScreenState extends State<OwnerFoodListScreen> {
                   ? item.description
                   : 'Food item',
               offerLabel: item.specialOffer ? item.offerText : 'Regular',
+              onOfferToggle: (value) => _toggleSpecialOffer(item),
               onEditTap: () {
-                final menuData =
-                    UpdateMenuResponseModel.fromFoodModel(item);
-                Get.to(
-                  () => OwnerUpdateMenuScreen(
-                    menuId: item.id,
-                    menuData: menuData,
-                  ),
-                );
+                _openMenuEditor(item);
               },
             );
           },

@@ -46,6 +46,7 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
   late String _selectedCategory;
   late bool _isSpecialOffer;
   String? _selectedImagePath;
+  bool _menuLoaded = false;
 
   @override
   void initState() {
@@ -58,17 +59,46 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
 
     // Initialize with menu data
     _dishNameController = TextEditingController(text: widget.menuData.dishName);
-    _descriptionController =
-        TextEditingController(text: widget.menuData.description);
-    _basePriceController =
-        TextEditingController(text: widget.menuData.basePrice.toString());
-    _discountController = TextEditingController(text: widget.menuData.offerText);
+    _descriptionController = TextEditingController(
+      text: widget.menuData.description,
+    );
+    _basePriceController = TextEditingController(
+      text: widget.menuData.basePrice.toString(),
+    );
+    _discountController = TextEditingController(
+      text: widget.menuData.offerText,
+    );
 
     // Validate category - ensure it matches one of the available options
-    _selectedCategory = _categories.contains(widget.menuData.category.toLowerCase().trim())
+    _selectedCategory =
+        _categories.contains(widget.menuData.category.toLowerCase().trim())
         ? widget.menuData.category.toLowerCase().trim()
         : _categories.first;
     _isSpecialOffer = widget.menuData.specialOffer;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadFreshMenuData();
+    });
+  }
+
+  Future<void> _loadFreshMenuData() async {
+    if (_menuLoaded) return;
+    _menuLoaded = true;
+
+    final UpdateMenuResponseModel? fresh = await _controller.refreshMenuData();
+    if (!mounted || fresh == null) return;
+
+    setState(() {
+      _dishNameController.text = fresh.dishName;
+      _descriptionController.text = fresh.description;
+      _basePriceController.text = fresh.basePrice.toString();
+      _discountController.text = fresh.offerText;
+      _selectedCategory =
+          _categories.contains(fresh.category.toLowerCase().trim())
+          ? fresh.category.toLowerCase().trim()
+          : _categories.first;
+      _isSpecialOffer = fresh.specialOffer;
+    });
   }
 
   @override
@@ -97,7 +127,7 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
   }
 
   Future<void> _submitUpdate() async {
-    await _controller.submitUpdate(
+    final bool success = await _controller.submitUpdate(
       dishName: _dishNameController.text.trim(),
       description: _descriptionController.text.trim(),
       category: _selectedCategory,
@@ -106,6 +136,17 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
       offerText: _discountController.text.trim(),
       imagePath: _selectedImagePath,
     );
+
+    if (success && mounted) {
+      Get.back(result: 'updated');
+    }
+  }
+
+  Future<void> _deleteMenuItem() async {
+    final bool success = await _controller.deleteMenu();
+    if (success && mounted) {
+      Get.back(result: 'deleted');
+    }
   }
 
   @override
@@ -126,7 +167,9 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
             return SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: _controller.isSubmitting.value ? null : _submitUpdate,
+                onPressed: _controller.isSubmitting.value
+                    ? null
+                    : _submitUpdate,
                 style: TextButton.styleFrom(
                   backgroundColor: _controller.isSubmitting.value
                       ? AppColors.primaryGreen.withValues(alpha: 0.5)
@@ -164,7 +207,7 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
               child: TextButton(
                 onPressed: _controller.isDeleting.value
                     ? null
-                    : _controller.deleteMenu,
+                    : _deleteMenuItem,
                 style: TextButton.styleFrom(
                   backgroundColor: _controller.isDeleting.value
                       ? Colors.red.withValues(alpha: 0.5)
@@ -195,6 +238,7 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
               ),
             );
           }),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -296,7 +340,11 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
                   value: _isSpecialOffer,
                   onChanged: _controller.isTogglingOffer.value
                       ? null
-                      : (value) {
+                      : (value) async {
+                          final bool success = await _controller
+                              .toggleSpecialOffer();
+                          if (!success || !mounted) return;
+
                           setState(() {
                             _isSpecialOffer = value;
                           });
@@ -371,11 +419,7 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
             color: Color(0xFFDCE5E2),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
-            Icons.add,
-            color: AppColors.primaryGreen,
-            size: 28,
-          ),
+          child: const Icon(Icons.add, color: AppColors.primaryGreen, size: 28),
         ),
         const SizedBox(height: 10),
         const Text(
@@ -468,10 +512,8 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
         ),
         items: _categories
             .map(
-              (item) => DropdownMenuItem<String>(
-                value: item,
-                child: Text(item),
-              ),
+              (item) =>
+                  DropdownMenuItem<String>(value: item, child: Text(item)),
             )
             .toList(),
         onChanged: (value) {

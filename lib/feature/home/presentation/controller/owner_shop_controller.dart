@@ -94,8 +94,42 @@ class OwnerShopController extends GetxController {
 
     isLoading.value = true;
     await _loadUserId();
-    ownerShop.value = await _localStore.getShop();
+
+    final CreateShopResponseModel? cachedShop = await _localStore.getShop();
+    ownerShop.value = cachedShop;
+
+    if (_userId.isNotEmpty) {
+      await _refreshShopFromApi();
+    }
+
     isLoading.value = false;
+  }
+
+  Future<void> _refreshShopFromApi() async {
+    final result = await _repository.fetchShopsByUserId(userId: _userId);
+
+    CreateShopResponseModel? fetchedShop;
+    bool apiSucceeded = false;
+
+    result.fold(
+      (failure) {
+        if (ownerShop.value == null) {
+          _showError('Error', failure.message);
+        }
+      },
+      (success) {
+        apiSucceeded = true;
+        fetchedShop = success.data.isNotEmpty ? success.data.first : null;
+      },
+    );
+
+    if (fetchedShop != null) {
+      ownerShop.value = fetchedShop;
+      await _localStore.saveShop(fetchedShop!);
+    } else if (apiSucceeded) {
+      ownerShop.value = null;
+      await _localStore.clearShop();
+    }
   }
 
   Future<void> _loadUserId() async {
@@ -106,6 +140,16 @@ class OwnerShopController extends GetxController {
     final CreateShopResponseModel? shop = ownerShop.value;
     if (shop == null) return false;
     return shop.shopId.trim().isNotEmpty;
+  }
+
+  Future<void> refreshShop() async {
+    if (_userId.isEmpty) {
+      await _loadUserId();
+    }
+
+    if (_userId.isEmpty) return;
+
+    await _refreshShopFromApi();
   }
 
   Map<String, ShopDayFormValue> getInitialOperatingHours() {

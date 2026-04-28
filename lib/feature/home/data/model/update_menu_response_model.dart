@@ -24,7 +24,7 @@ class UpdateMenuResponseModel {
       dishName: (json['dishName'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       category: (json['category'] ?? '').toString(),
-      basePrice: _toDouble(json['basePrice']),
+      basePrice: _toDouble(json['basePrice'] ?? json['price']),
       specialOffer: (json['specialOffer'] ?? false) as bool,
       offerText: (json['offerText'] ?? '').toString(),
       images: rawImages
@@ -55,13 +55,7 @@ class UpdateMenuResponseModel {
     final List<String> imageUrls = foodModel.images ?? <String>[];
 
     final List<UpdateMenuImageModel> images = imageUrls
-        .map(
-          (url) => UpdateMenuImageModel(
-            publicId: '',
-            url: url,
-            id: '',
-          ),
-        )
+        .map((url) => UpdateMenuImageModel(publicId: '', url: url, id: ''))
         .toList();
 
     return UpdateMenuResponseModel(
@@ -76,6 +70,34 @@ class UpdateMenuResponseModel {
       images: images,
       createdAt: '',
       updatedAt: '',
+    );
+  }
+
+  UpdateMenuResponseModel copyWith({
+    String? menuId,
+    String? shopId,
+    String? dishName,
+    String? description,
+    String? category,
+    double? basePrice,
+    bool? specialOffer,
+    String? offerText,
+    List<UpdateMenuImageModel>? images,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return UpdateMenuResponseModel(
+      menuId: menuId ?? this.menuId,
+      shopId: shopId ?? this.shopId,
+      dishName: dishName ?? this.dishName,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      basePrice: basePrice ?? this.basePrice,
+      specialOffer: specialOffer ?? this.specialOffer,
+      offerText: offerText ?? this.offerText,
+      images: images ?? this.images,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 

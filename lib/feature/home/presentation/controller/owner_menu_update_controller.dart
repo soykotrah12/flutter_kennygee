@@ -43,12 +43,12 @@ class OwnerMenuUpdateController extends GetxController {
     required String menuId,
     required UpdateMenuResponseModel menuData,
     required HomeFoodRepository repository,
-  })  : _menuId = menuId,
-        _menuData = menuData,
-        _repository = repository;
+  }) : _menuId = menuId,
+       _menuData = menuData,
+       _repository = repository;
 
   final String _menuId;
-  final UpdateMenuResponseModel _menuData;
+  UpdateMenuResponseModel _menuData;
   final HomeFoodRepository _repository;
 
   final RxBool isSubmitting = false.obs;
@@ -61,8 +61,22 @@ class OwnerMenuUpdateController extends GetxController {
   double get basePrice => _menuData.basePrice;
   bool get specialOffer => _menuData.specialOffer;
   String get offerText => _menuData.offerText;
-  List<String> get imageUrls =>
-      _menuData.images.map((img) => img.url).toList();
+  List<String> get imageUrls => _menuData.images.map((img) => img.url).toList();
+
+  Future<UpdateMenuResponseModel?> refreshMenuData() async {
+    final result = await _repository.fetchMenuById(menuId: _menuId);
+
+    UpdateMenuResponseModel? fetchedMenu;
+    result.fold((failure) {}, (success) {
+      fetchedMenu = success.data;
+    });
+
+    if (fetchedMenu != null) {
+      _menuData = fetchedMenu!;
+    }
+
+    return fetchedMenu;
+  }
 
   Future<bool> submitUpdate({
     required String dishName,
@@ -100,17 +114,6 @@ class OwnerMenuUpdateController extends GetxController {
       },
       (success) {
         succeeded = true;
-        Get.snackbar(
-          'Success',
-          'Menu item updated successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.primaryGreen,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(12),
-        );
-        Future.delayed(const Duration(milliseconds: 500), () {
-          Get.back(result: true);
-        });
       },
     );
 
@@ -118,8 +121,8 @@ class OwnerMenuUpdateController extends GetxController {
     return succeeded;
   }
 
-  Future<void> deleteMenu() async {
-    if (isDeleting.value) return;
+  Future<bool> deleteMenu() async {
+    if (isDeleting.value) return false;
 
     final bool? confirmDelete = await Get.dialog<bool>(
       AlertDialog(
@@ -163,7 +166,7 @@ class OwnerMenuUpdateController extends GetxController {
       ),
     );
 
-    if (confirmDelete != true) return;
+    if (confirmDelete != true) return false;
 
     isDeleting.value = true;
 
@@ -174,38 +177,34 @@ class OwnerMenuUpdateController extends GetxController {
         _showError('Delete Failed', failure.message);
       },
       (success) {
-        Get.snackbar(
-          'Success',
-          'Menu item deleted successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.primaryGreen,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(12),
-        );
-        Future.delayed(const Duration(milliseconds: 500), () {
-          Get.back(result: 'deleted');
-        });
+        // Screen handles route pop and success messaging after this returns.
       },
     );
 
     isDeleting.value = false;
+    return result.isRight();
   }
 
-  Future<void> toggleSpecialOffer() async {
-    if (isTogglingOffer.value) return;
+  Future<bool> toggleSpecialOffer() async {
+    if (isTogglingOffer.value) return false;
 
     isTogglingOffer.value = true;
+    final bool nextSpecialOffer = !specialOffer;
 
     final result = await _repository.toggleSpecialOffer(menuId: _menuId);
+
+    var succeeded = false;
 
     result.fold(
       (failure) {
         _showError('Toggle Failed', failure.message);
       },
       (success) {
-        final message = specialOffer
-            ? 'Special offer disabled'
-            : 'Special offer enabled';
+        succeeded = true;
+        _menuData = _menuData.copyWith(specialOffer: nextSpecialOffer);
+        final message = nextSpecialOffer
+            ? 'Special offer enabled'
+            : 'Special offer disabled';
         Get.snackbar(
           'Success',
           message,
@@ -218,6 +217,7 @@ class OwnerMenuUpdateController extends GetxController {
     );
 
     isTogglingOffer.value = false;
+    return succeeded;
   }
 
   void _showError(String title, String message) {

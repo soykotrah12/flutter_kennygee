@@ -35,7 +35,7 @@ class ShopMenuItemApiModel {
       images: rawImages
           .map((item) => ShopMenuImageApiModel.fromJson(_asMap(item)))
           .toList(),
-      price: _toDouble(json['price']),
+      price: _toDouble(json['price'] ?? json['basePrice']),
       category: (json['category'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       specialOffer: (json['specialOffer'] ?? false) as bool,
