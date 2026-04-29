@@ -122,7 +122,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       reviewsCount: restaurant.reviewsCount,
                       onReviewsTap: () {
                         Get.to(
-                          () => RestaurantReviewsScreen(restaurant: restaurant),
+                          () => RestaurantReviewsScreen(
+                            restaurant: restaurant,
+                            shopId: restaurant.id,
+                          ),
                         );
                       },
                     ),

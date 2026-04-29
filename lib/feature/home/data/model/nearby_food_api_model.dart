@@ -88,6 +88,8 @@ class NearbyFoodApiModel {
   String get restaurantName =>
       (shop['restaurantName'] ?? 'Restaurant').toString();
 
+  String get shopId => (shop['shopId'] ?? shop['_id'] ?? '').toString();
+
   String get address => (shop['address'] ?? '').toString();
 
   double get rating {
@@ -100,8 +102,7 @@ class NearbyFoodApiModel {
     if (hasReviewCount) return reviewCount;
     if (reviewsLength > 0) return reviewsLength;
 
-    final dynamic shopReviewCount =
-        shop['reviewCount'] ?? shop['reviewsCount'];
+    final dynamic shopReviewCount = shop['reviewCount'] ?? shop['reviewsCount'];
     return _toInt(shopReviewCount);
   }
 

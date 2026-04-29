@@ -1,6 +1,6 @@
 class ApiConstants {
-  static const String baseDomain = 'http://10.10.5.81:5006';
-  // static const String baseDomain = 'https://backendkennygee.onrender.com';
+  // static const String baseDomain = 'http://10.10.5.81:5006';
+  static const String baseDomain = 'https://backendkennygee.onrender.com';
   static const String baseUrl = '$baseDomain/api/v1';
 
   static Map<String, String> get defaultHeaders => {
@@ -34,6 +34,7 @@ class ApiConstants {
 
   static ShopEndpoints get shop => ShopEndpoints();
   static MenuEndpoints get menu => MenuEndpoints();
+  static ReviewEndpoints get review => ReviewEndpoints();
   static EventEndpoints get event => EventEndpoints();
   static AnalyticsEndpoints get analytics => AnalyticsEndpoints();
   static WishlistEndpoints get wishlist => WishlistEndpoints();
@@ -169,6 +170,14 @@ class EventEndpoints {
   String fetchGoingStatus(String eventId) => '$_base/$eventId/going';
 
   String toggleGoing(String eventId) => '$_base/$eventId/going';
+}
+
+class ReviewEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/review';
+
+  final String createReview = _base;
+
+  String fetchReviews(String id) => '$_base/$id';
 }
 
 class AnalyticsEndpoints {

@@ -132,6 +132,7 @@ class HomeShopRepository {
 
     return FoodModel(
       id: (json['menuId'] ?? json['_id'] ?? '').toString(),
+      shopId: shopId,
       name: (json['dishName'] ?? 'Food').toString(),
       image: image,
       price: _toDouble(json['price']),

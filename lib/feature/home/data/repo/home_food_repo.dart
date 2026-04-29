@@ -123,9 +123,7 @@ class HomeFoodRepository {
     );
   }
 
-  NetworkResult<MenuApiResponse<void>> deleteMenu({
-    required String menuId,
-  }) {
+  NetworkResult<MenuApiResponse<void>> deleteMenu({required String menuId}) {
     return _apiClient.delete<MenuApiResponse<void>>(
       ApiConstants.menu.deleteMenu(menuId),
       fromJsonT: (json) {
@@ -219,6 +217,7 @@ class HomeFoodRepository {
   FoodModel _toFoodModel(NearbyFoodApiModel food) {
     return FoodModel(
       id: food.menuId,
+      shopId: food.shopId,
       name: food.dishName,
       image: food.imageUrl,
       price: food.price,
@@ -241,6 +240,7 @@ class HomeFoodRepository {
 
     return FoodModel(
       id: food.menuId,
+      shopId: '',
       name: food.dishName,
       image: firstImageUrl,
       price: food.price,
@@ -259,9 +259,7 @@ class HomeFoodRepository {
     );
   }
 
-  UpdateMenuResponseModel toUpdateMenuResponseModel(
-    ShopMenuItemApiModel food,
-  ) {
+  UpdateMenuResponseModel toUpdateMenuResponseModel(ShopMenuItemApiModel food) {
     return UpdateMenuResponseModel(
       menuId: food.menuId,
       shopId: '',
@@ -272,11 +270,13 @@ class HomeFoodRepository {
       specialOffer: food.specialOffer,
       offerText: food.offerText,
       images: food.images
-          .map((img) => UpdateMenuImageModel(
-                publicId: img.publicId,
-                url: img.url,
-                id: '',
-              ))
+          .map(
+            (img) => UpdateMenuImageModel(
+              publicId: img.publicId,
+              url: img.url,
+              id: '',
+            ),
+          )
           .toList(),
       createdAt: '',
       updatedAt: '',

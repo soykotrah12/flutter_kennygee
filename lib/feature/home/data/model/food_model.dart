@@ -1,6 +1,7 @@
 class FoodModel {
   const FoodModel({
     required this.id,
+    this.shopId = '',
     required this.name,
     required this.image,
     required this.price,
@@ -19,6 +20,7 @@ class FoodModel {
   });
 
   final String id;
+  final String shopId;
   final String name;
   final String image;
   final double price;
@@ -39,16 +41,12 @@ class FoodModel {
   /// This creates a mock response based on available data
   dynamic toUpdateMenuResponseModel() {
     final List<dynamic> imagesList = images.asMap().entries.map((entry) {
-      return {
-        'publicId': '',
-        'url': entry.value,
-        'id': '',
-      };
+      return {'publicId': '', 'url': entry.value, 'id': ''};
     }).toList();
 
     return {
       'menuId': id,
-      'shopId': '',
+      'shopId': shopId,
       'dishName': name,
       'description': description,
       'category': category,

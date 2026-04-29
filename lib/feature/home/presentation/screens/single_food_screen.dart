@@ -103,7 +103,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
     final FoodModel food = _currentFood;
 
     return RestaurantModel(
-      id: 'food_rest_${food.id}',
+      id: food.shopId.trim().isNotEmpty ? food.shopId : 'food_rest_${food.id}',
       name: food.restaurantName,
       subtitle: 'Restaurant',
       image: food.image,
@@ -271,6 +271,8 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                     Get.to(
                                       () => RestaurantReviewsScreen(
                                         restaurant: _restaurantFromFood,
+                                        shopId: food.shopId,
+                                        menuId: food.id,
                                       ),
                                     );
                                   },
