@@ -95,7 +95,10 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
     final String dishName = _dishNameController.text.trim();
     final String description = _descriptionController.text.trim();
     final String priceText = _basePriceController.text.trim();
-    final String offerText = _discountController.text.trim();
+    final String offerText = _normalizeOfferText(
+      rawText: _discountController.text.trim(),
+      specialOfferEnabled: _isSpecialOffer,
+    );
 
     if (dishName.isEmpty || description.isEmpty || priceText.isEmpty) {
       Get.snackbar(
@@ -169,6 +172,38 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
         _isSubmitting = false;
       });
     }
+  }
+
+  String _normalizeOfferText({
+    required String rawText,
+    required bool specialOfferEnabled,
+  }) {
+    if (!specialOfferEnabled) return '';
+
+    final String value = rawText.trim();
+    if (value.isEmpty) return '';
+
+    final RegExp numberOnly = RegExp(r'^\d+(?:\.\d+)?$');
+    if (numberOnly.hasMatch(value)) {
+      final double? parsed = double.tryParse(value);
+      if (parsed == null) return value;
+      final bool isWhole = parsed % 1 == 0;
+      final String number = isWhole
+          ? parsed.toStringAsFixed(0)
+          : parsed
+                .toStringAsFixed(2)
+                .replaceFirst(RegExp(r'0+$'), '')
+                .replaceFirst(RegExp(r'\.$'), '');
+      return '$number% OFF';
+    }
+
+    final RegExp numberWithPercent = RegExp(r'^\d+(?:\.\d+)?\s*%$');
+    if (numberWithPercent.hasMatch(value)) {
+      final String number = value.replaceAll('%', '').trim();
+      return '$number% OFF';
+    }
+
+    return value;
   }
 
   @override

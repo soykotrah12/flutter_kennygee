@@ -133,7 +133,10 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
       category: _selectedCategory,
       basePrice: double.tryParse(_basePriceController.text) ?? 0,
       specialOffer: _isSpecialOffer,
-      offerText: _discountController.text.trim(),
+      offerText: _normalizeOfferText(
+        rawText: _discountController.text.trim(),
+        specialOfferEnabled: _isSpecialOffer,
+      ),
       imagePath: _selectedImagePath,
     );
 
@@ -147,6 +150,38 @@ class _OwnerUpdateMenuScreenState extends State<OwnerUpdateMenuScreen> {
     if (success && mounted) {
       Get.back(result: 'deleted');
     }
+  }
+
+  String _normalizeOfferText({
+    required String rawText,
+    required bool specialOfferEnabled,
+  }) {
+    if (!specialOfferEnabled) return '';
+
+    final String value = rawText.trim();
+    if (value.isEmpty) return '';
+
+    final RegExp numberOnly = RegExp(r'^\d+(?:\.\d+)?$');
+    if (numberOnly.hasMatch(value)) {
+      final double? parsed = double.tryParse(value);
+      if (parsed == null) return value;
+      final bool isWhole = parsed % 1 == 0;
+      final String number = isWhole
+          ? parsed.toStringAsFixed(0)
+          : parsed
+                .toStringAsFixed(2)
+                .replaceFirst(RegExp(r'0+$'), '')
+                .replaceFirst(RegExp(r'\.$'), '');
+      return '$number% OFF';
+    }
+
+    final RegExp numberWithPercent = RegExp(r'^\d+(?:\.\d+)?\s*%$');
+    if (numberWithPercent.hasMatch(value)) {
+      final String number = value.replaceAll('%', '').trim();
+      return '$number% OFF';
+    }
+
+    return value;
   }
 
   @override
