@@ -463,7 +463,7 @@ class _ReviewCard extends StatelessWidget {
               const Icon(
                 Icons.thumb_up_alt_outlined,
                 color: Color(0xFF9BA0B8),
-                size: 20,
+                size: 22,
               ),
               const SizedBox(width: 6),
               Text(
