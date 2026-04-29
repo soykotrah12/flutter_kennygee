@@ -11,9 +11,14 @@ import '../controller/home_food_details_controller.dart';
 import 'restaurant_reviews_screen.dart';
 
 class SingleFoodScreen extends StatefulWidget {
-  const SingleFoodScreen({required this.food, super.key});
+  const SingleFoodScreen({this.food, this.menuId, super.key})
+    : assert(
+        food != null || (menuId != null && menuId != ''),
+        'Either food or menuId must be provided',
+      );
 
-  final FoodModel food;
+  final FoodModel? food;
+  final String? menuId;
 
   @override
   State<SingleFoodScreen> createState() => _SingleFoodScreenState();
@@ -22,6 +27,8 @@ class SingleFoodScreen extends StatefulWidget {
 class _SingleFoodScreenState extends State<SingleFoodScreen> {
   late final HomeFoodDetailsController _detailsController;
   late final PageController _bannerController;
+  late final FoodModel _fallbackFood;
+  late final String _activeMenuId;
   late List<String> _bannerImages;
   late final Worker _detailsWorker;
   int _activeBannerIndex = 0;
@@ -29,11 +36,28 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
   @override
   void initState() {
     super.initState();
+    _activeMenuId = (widget.menuId ?? widget.food?.id ?? '').trim();
+    _fallbackFood =
+        widget.food ??
+        FoodModel(
+          id: _activeMenuId,
+          name: 'Food Item',
+          image: AppImages.homeRestaurant1,
+          price: 0,
+          rating: 0,
+          reviewsCount: 0,
+          description: '',
+          restaurantName: 'Restaurant',
+          distance: 'N/A',
+          address: '',
+          openingHours: 'Time unavailable',
+        );
+
     _detailsController = HomeFoodDetailsController.ensureInitialized(
-      widget.food.id,
+      _activeMenuId,
     );
     _bannerController = PageController();
-    _bannerImages = _resolveBannerImages(widget.food);
+    _bannerImages = _resolveBannerImages(_fallbackFood);
     _detailsWorker = ever<FoodModel?>(_detailsController.menu, (food) {
       if (food == null || !mounted) return;
 
@@ -47,7 +71,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
         _bannerController.jumpToPage(0);
       }
     });
-    _detailsController.fetchMenuDetails(menuId: widget.food.id);
+    _detailsController.fetchMenuDetails(menuId: _activeMenuId);
   }
 
   @override
@@ -57,7 +81,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
     super.dispose();
   }
 
-  FoodModel get _currentFood => _detailsController.menu.value ?? widget.food;
+  FoodModel get _currentFood => _detailsController.menu.value ?? _fallbackFood;
 
   List<String> _resolveBannerImages(FoodModel food) {
     final List<String> images = food.images

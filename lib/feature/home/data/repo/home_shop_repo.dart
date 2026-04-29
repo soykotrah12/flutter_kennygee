@@ -1,9 +1,11 @@
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/constants/api_constants.dart';
 import '../../../../core/network/network_result.dart';
-import '../model/shop_details_api_model.dart';
+import '../model/food_model.dart';
 import '../model/nearby_shop_api_model.dart';
+import '../model/recommended_shop_menu_response_model.dart';
 import '../model/restaurant_model.dart';
+import '../model/shop_details_api_model.dart';
 
 class HomeShopRepository {
   HomeShopRepository({required ApiClient apiClient}) : _apiClient = apiClient;
@@ -32,31 +34,42 @@ class HomeShopRepository {
     );
   }
 
-  NetworkResult<List<RestaurantModel>> fetchRecommendedShops({
-    required double lat,
-    required double lng,
-    required int radius,
-  }) {
-    return _apiClient.get<List<RestaurantModel>>(
+  NetworkResult<RecommendedShopMenuResponseModel> fetchRecommendedShops() {
+    return _apiClient.get<RecommendedShopMenuResponseModel>(
       ApiConstants.shop.fetchRecommendedShops,
-      queryParameters: <String, dynamic>{
-        'lat': lat,
-        'lng': lng,
-        'radius': radius,
-      },
       fromJsonT: (json) {
-        final List<dynamic> raw = json is List ? json : <dynamic>[];
-        return raw
+        final Map<String, dynamic> root = _asMap(json);
+
+        // New API shape: { shops: [], menus: [] }
+        // Backward fallback: direct list of shops.
+        final List<dynamic> rawShops = root['shops'] is List
+            ? root['shops'] as List<dynamic>
+            : json is List
+            ? json
+            : <dynamic>[];
+        final List<dynamic> rawMenus = root['menus'] is List
+            ? root['menus'] as List<dynamic>
+            : <dynamic>[];
+
+        final List<RestaurantModel> shops = rawShops
             .map((item) => NearbyShopApiModel.fromJson(_asMap(item)))
             .map(_toRestaurantModel)
             .toList();
+
+        final Map<String, RestaurantModel> shopMap = <String, RestaurantModel>{
+          for (final RestaurantModel shop in shops) shop.id: shop,
+        };
+
+        final List<FoodModel> menus = rawMenus
+            .map((item) => _toRecommendedFoodModel(_asMap(item), shopMap))
+            .toList();
+
+        return RecommendedShopMenuResponseModel(shops: shops, menus: menus);
       },
     );
   }
 
-  NetworkResult<RestaurantModel> fetchShopDetails({
-    required String shopId,
-  }) {
+  NetworkResult<RestaurantModel> fetchShopDetails({required String shopId}) {
     return _apiClient.get<RestaurantModel>(
       ApiConstants.shop.fetchShopDetails(shopId),
       fromJsonT: (json) {
@@ -86,6 +99,58 @@ class HomeShopRepository {
       openTime: shop.openTime,
       closeTime: shop.closeTime,
       isClosedToday: shop.isClosedToday,
+    );
+  }
+
+  FoodModel _toRecommendedFoodModel(
+    Map<String, dynamic> json,
+    Map<String, RestaurantModel> shopMap,
+  ) {
+    final String shopId = (json['shopId'] ?? '').toString();
+    final RestaurantModel? shop = shopMap[shopId];
+
+    final List<dynamic> rawImages = json['images'] is List
+        ? json['images'] as List<dynamic>
+        : <dynamic>[];
+    final List<String> imageUrls = rawImages
+        .map((item) => _asMap(item))
+        .map((img) => (img['url'] ?? '').toString())
+        .where((url) => url.trim().isNotEmpty)
+        .toList();
+
+    final String fallbackShopImage = shop?.image.trim().isNotEmpty == true
+        ? shop!.image
+        : '';
+
+    final String image = imageUrls.isNotEmpty
+        ? imageUrls.first
+        : fallbackShopImage;
+
+    final String openingHours = shop?.openingHours.trim().isNotEmpty == true
+        ? shop!.openingHours
+        : 'Time unavailable';
+
+    return FoodModel(
+      id: (json['menuId'] ?? json['_id'] ?? '').toString(),
+      name: (json['dishName'] ?? 'Food').toString(),
+      image: image,
+      price: _toDouble(json['price']),
+      rating: _toDouble(json['averageRating']),
+      reviewsCount: _toInt(json['totalReviews'] ?? json['reviewCount']),
+      description: (json['category'] ?? 'Food item').toString(),
+      restaurantName: shop?.name ?? 'Restaurant',
+      distance: shop?.distance.isNotEmpty == true ? shop!.distance : 'N/A',
+      address: shop?.address ?? '',
+      openingHours: openingHours,
+      images: imageUrls.isNotEmpty
+          ? imageUrls
+          : image.trim().isNotEmpty
+          ? <String>[image]
+          : const <String>[],
+      isLiked: false,
+      specialOffer: json['specialOffer'] == true,
+      offerText: (json['offerText'] ?? '').toString(),
+      category: (json['category'] ?? '').toString(),
     );
   }
 
@@ -161,4 +226,15 @@ Map<String, dynamic> _asMap(dynamic value) {
     return value.map((key, mapValue) => MapEntry(key.toString(), mapValue));
   }
   return <String, dynamic>{};
+}
+
+double _toDouble(dynamic value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+int _toInt(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '') ?? 0;
 }

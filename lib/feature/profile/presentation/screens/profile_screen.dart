@@ -299,8 +299,8 @@ class _OwnerProfileView extends StatelessWidget {
                       return Row(
                         children: [
                           Container(
-                            width: 34,
-                            height: 34,
+                            width: 56,
+                            height: 56,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
@@ -324,7 +324,7 @@ class _OwnerProfileView extends StatelessWidget {
                                     ),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,8 +337,8 @@ class _OwnerProfileView extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: AppColors.textBlack,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
                                     fontFamily: 'Montserrat',
                                   ),
                                 ),
@@ -351,8 +351,8 @@ class _OwnerProfileView extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: AppColors.textGrey,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
                                     fontFamily: 'Montserrat',
                                   ),
                                 ),
@@ -368,7 +368,7 @@ class _OwnerProfileView extends StatelessWidget {
                     'Settings',
                     style: TextStyle(
                       color: AppColors.textBlack,
-                      fontSize: 13,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
                     ),
@@ -425,27 +425,28 @@ class _OwnerProfileView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 70),
+                  
                   GestureDetector(
                     onTap: () => Get.to(() => const LogoutConfirmScreen()),
                     child: Container(
-                      height: 40,
+                      height: 51,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: AppColors.logoutRed,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.logout, size: 14, color: Colors.white),
+                          Icon(Icons.logout, size: 28, color: Colors.white),
                           SizedBox(width: 8),
                           Text(
                             'Log Out',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
                               fontFamily: 'Montserrat',
                             ),
                           ),
@@ -498,8 +499,8 @@ class _OwnerSettingsRow extends StatelessWidget {
         child: Row(
           children: [
             SizedBox(
-              width: 14,
-              height: 14,
+              width: 24,
+              height: 24,
               child: Image.asset(icon, fit: BoxFit.contain),
             ),
             const SizedBox(width: 8),
@@ -511,7 +512,7 @@ class _OwnerSettingsRow extends StatelessWidget {
                     title,
                     style: const TextStyle(
                       color: AppColors.textBlack,
-                      fontSize: 10,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
                     ),
@@ -521,8 +522,8 @@ class _OwnerSettingsRow extends StatelessWidget {
                     subtitle,
                     style: const TextStyle(
                       color: AppColors.textGrey,
-                      fontSize: 8.5,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
                       fontFamily: 'Montserrat',
                     ),
                   ),

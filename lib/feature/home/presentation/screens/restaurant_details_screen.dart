@@ -11,9 +11,14 @@ import '../controller/home_shop_details_controller.dart';
 import 'restaurant_reviews_screen.dart';
 
 class RestaurantDetailsScreen extends StatefulWidget {
-  const RestaurantDetailsScreen({required this.restaurant, super.key});
+  const RestaurantDetailsScreen({this.restaurant, this.shopId, super.key})
+    : assert(
+        restaurant != null || (shopId != null && shopId != ''),
+        'Either restaurant or shopId must be provided',
+      );
 
-  final RestaurantModel restaurant;
+  final RestaurantModel? restaurant;
+  final String? shopId;
 
   @override
   State<RestaurantDetailsScreen> createState() =>
@@ -22,20 +27,36 @@ class RestaurantDetailsScreen extends StatefulWidget {
 
 class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   late final HomeShopDetailsController _detailsController;
+  late final RestaurantModel _fallbackRestaurant;
+  late final String _activeShopId;
 
   int selectedDishIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    _activeShopId = (widget.shopId ?? widget.restaurant?.id ?? '').trim();
+    _fallbackRestaurant =
+        widget.restaurant ??
+        RestaurantModel(
+          id: _activeShopId,
+          name: 'Restaurant',
+          image: AppImages.homeRestaurant1,
+          rating: 0,
+          reviewsCount: 0,
+          distance: 'N/A',
+          address: '',
+          openingHours: 'Time unavailable',
+        );
+
     _detailsController = HomeShopDetailsController.ensureInitialized(
-      widget.restaurant.id,
+      _activeShopId,
     );
-    _detailsController.fetchShopDetails(shopId: widget.restaurant.id);
+    _detailsController.fetchShopDetails(shopId: _activeShopId);
   }
 
   RestaurantModel get _currentRestaurant =>
-      _detailsController.restaurant.value ?? widget.restaurant;
+      _detailsController.restaurant.value ?? _fallbackRestaurant;
 
   @override
   Widget build(BuildContext context) {
@@ -562,9 +583,7 @@ class _OpeningHoursDayRow extends StatelessWidget {
                                   ),
                                   _OpeningHoursChip(label: entry.close),
                                 ]
-                              : <Widget>[
-                                  _OpeningHoursChip(label: singleLabel),
-                                ],
+                              : <Widget>[_OpeningHoursChip(label: singleLabel)],
                         ),
                 ),
               ),
@@ -577,10 +596,7 @@ class _OpeningHoursDayRow extends StatelessWidget {
 }
 
 class _OpeningHoursChip extends StatelessWidget {
-  const _OpeningHoursChip({
-    required this.label,
-    this.textColor,
-  });
+  const _OpeningHoursChip({required this.label, this.textColor});
 
   final String label;
   final Color? textColor;

@@ -11,6 +11,7 @@ import '../../data/model/restaurant_model.dart';
 import '../controller/home_shop_controller.dart';
 import '../navigation/home_navigation.dart';
 import 'food_list_screen.dart';
+import 'recommended_list_screen.dart';
 import 'restaurant_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -68,19 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
           (item.food?.description.toLowerCase().contains(query) ?? false) ||
           (item.food?.restaurantName.toLowerCase().contains(query) ?? false);
     }).toList();
-  }
-
-  HomeRecommendationItemModel _toRecommendationItem(RestaurantModel shop) {
-    return HomeRecommendationItemModel(
-      id: shop.id,
-      type: 'restaurant',
-      title: shop.name,
-      image: shop.image.isNotEmpty ? shop.image : AppImages.homeRestaurant1,
-      rating: shop.rating,
-      distance: shop.distance,
-      openingHours: shop.openingHours,
-      restaurant: shop,
-    );
   }
 
   @override
@@ -178,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: Theme(
-                         data: Theme.of(context).copyWith(
+                        data: Theme.of(context).copyWith(
                           inputDecorationTheme: const InputDecorationTheme(
                             border: InputBorder.none,
                           ),
@@ -199,13 +187,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontFamily: 'Montserrat',
                           ),
                           decoration: const InputDecoration(
-                           isCollapsed: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
+                            isCollapsed: true,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
                             hintText: 'Search Restaurant, dishes...',
                             hintStyle: TextStyle(
                               color: AppColors.textGrey,
@@ -334,21 +322,27 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }),
             const SizedBox(height: 18),
-            const _OnlyTitleHeader(title: 'Recommended for you'),
+            _OnlyTitleHeader(
+              title: 'Recommended for you',
+              onSeeAll: _openRecommendedList,
+            ),
             const SizedBox(height: 10),
             Obx(() {
               final bool isRecommendedLoading =
                   shopController.isRecommendedLoading.value;
               final String recommendedError =
                   shopController.recommendedError.value;
-
               final List<HomeRecommendationItemModel> recommendedItems =
-                  shopController.recommendedShops
-                      .map(_toRecommendationItem)
-                      .toList();
+                  shopController.recommendedItems;
 
               final List<HomeRecommendationItemModel> filteredRecommended =
                   _filterRecommended(recommendedItems);
+
+              final bool hasSearch = _searchQuery.trim().isNotEmpty;
+              final List<HomeRecommendationItemModel> displayRecommended =
+                  hasSearch
+                  ? filteredRecommended
+                  : filteredRecommended.take(5).toList();
 
               if (isRecommendedLoading && recommendedItems.isEmpty) {
                 return const Padding(
@@ -395,25 +389,19 @@ class _HomeScreenState extends State<HomeScreen> {
               }
 
               return Column(
-                children: List<Widget>.generate(filteredRecommended.length, (
+                children: List<Widget>.generate(displayRecommended.length, (
                   index,
                 ) {
                   final HomeRecommendationItemModel item =
-                      filteredRecommended[index];
-                  final RestaurantModel? restaurant = item.restaurant;
+                      displayRecommended[index];
 
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom: index == filteredRecommended.length - 1 ? 0 : 10,
+                      bottom: index == displayRecommended.length - 1 ? 0 : 10,
                     ),
                     child: _RecommendedItem(
                       item: item,
-                      onTap: restaurant == null
-                          ? null
-                          : () =>
-                                HomeNavigation.openRestaurantDetails(
-                                  restaurant,
-                                ),
+                      onTap: () => _openRecommendedItem(item),
                     ),
                   );
                 }),
@@ -431,6 +419,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openFoodList() {
     Get.to(() => const FoodListScreen());
+  }
+
+  void _openRecommendedList() {
+    Get.to(() => const RecommendedListScreen());
+  }
+
+  void _openRecommendedItem(HomeRecommendationItemModel item) {
+    if (item.type == 'shop' && item.restaurant != null) {
+      HomeNavigation.openRestaurantDetailsById(item.restaurant!.id);
+      return;
+    }
+
+    if (item.type == 'menu' && item.food != null) {
+      HomeNavigation.openFoodDetailsById(item.food!.id);
+    }
   }
 }
 
@@ -540,9 +543,10 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _OnlyTitleHeader extends StatelessWidget {
-  const _OnlyTitleHeader({required this.title});
+  const _OnlyTitleHeader({required this.title, this.onSeeAll});
 
   final String title;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
@@ -560,13 +564,16 @@ class _OnlyTitleHeader extends StatelessWidget {
             ),
           ),
         ),
-        const Text(
-          'See all',
-          style: TextStyle(
-            color: AppColors.primaryGreen,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'Montserrat',
+        GestureDetector(
+          onTap: onSeeAll,
+          child: const Text(
+            'See all',
+            style: TextStyle(
+              color: AppColors.primaryGreen,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Montserrat',
+            ),
           ),
         ),
       ],
@@ -744,6 +751,10 @@ class _RecommendedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String imagePath = item.image.trim().isNotEmpty
+        ? item.image
+        : AppImages.homeRestaurant1;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
@@ -752,7 +763,7 @@ class _RecommendedItem extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: AdaptiveImage(
-              path: item.image,
+              path: imagePath,
               width: 90,
               height: 90,
               fit: BoxFit.cover,

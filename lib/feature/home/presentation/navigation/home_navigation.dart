@@ -15,8 +15,16 @@ class HomeNavigation {
     Get.to(() => RestaurantDetailsScreen(restaurant: restaurant));
   }
 
+  static void openRestaurantDetailsById(String shopId) {
+    Get.to(() => RestaurantDetailsScreen(shopId: shopId));
+  }
+
   static void openFoodDetails(FoodModel food) {
     Get.to(() => SingleFoodScreen(food: food));
+  }
+
+  static void openFoodDetailsById(String menuId) {
+    Get.to(() => SingleFoodScreen(menuId: menuId));
   }
 
   static void openEvents() {

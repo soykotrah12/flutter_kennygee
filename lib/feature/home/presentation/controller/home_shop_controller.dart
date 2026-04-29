@@ -1,6 +1,11 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 
+import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/network/api_client.dart';
+import '../../data/model/food_model.dart';
+import '../../data/model/home_recommendation_item_model.dart';
 import '../../data/model/restaurant_model.dart';
 import '../../data/repo/home_shop_repo.dart';
 
@@ -10,7 +15,13 @@ class HomeShopController extends GetxController {
   final HomeShopRepository _repository;
 
   final RxList<RestaurantModel> shops = <RestaurantModel>[].obs;
+
+  // Recommended section data (cached in controller)
   final RxList<RestaurantModel> recommendedShops = <RestaurantModel>[].obs;
+  final RxList<FoodModel> recommendedMenus = <FoodModel>[].obs;
+  final RxList<HomeRecommendationItemModel> recommendedItems =
+      <HomeRecommendationItemModel>[].obs;
+
   final RxBool isLoading = false.obs;
   final RxBool isRecommendedLoading = false.obs;
   final RxString error = ''.obs;
@@ -29,7 +40,9 @@ class HomeShopController extends GetxController {
     }
 
     if (!Get.isRegistered<HomeShopController>()) {
-      Get.put<HomeShopController>(HomeShopController(Get.find<HomeShopRepository>()));
+      Get.put<HomeShopController>(
+        HomeShopController(Get.find<HomeShopRepository>()),
+      );
     }
 
     return Get.find<HomeShopController>();
@@ -73,22 +86,93 @@ class HomeShopController extends GetxController {
     isRecommendedLoading.value = true;
     recommendedError.value = '';
 
-    final result = await _repository.fetchRecommendedShops(
-      lat: 23.8103,
-      lng: 90.4125,
-      radius: 5000,
-    );
+    final result = await _repository.fetchRecommendedShops();
 
     result.fold(
       (failure) {
         recommendedError.value = failure.message;
         recommendedShops.clear();
+        recommendedMenus.clear();
+        recommendedItems.clear();
       },
       (success) {
-        recommendedShops.assignAll(success.data);
+        recommendedShops.assignAll(success.data.shops);
+        recommendedMenus.assignAll(success.data.menus);
+
+        final List<HomeRecommendationItemModel> mixed = _buildShuffledMixedList(
+          shops: success.data.shops,
+          menus: success.data.menus,
+        );
+        recommendedItems.assignAll(mixed);
       },
     );
 
     isRecommendedLoading.value = false;
+  }
+
+  List<HomeRecommendationItemModel> _buildShuffledMixedList({
+    required List<RestaurantModel> shops,
+    required List<FoodModel> menus,
+  }) {
+    final Random random = Random();
+
+    final List<RestaurantModel> shuffledShops = List<RestaurantModel>.from(
+      shops,
+    )..shuffle(random);
+    final List<FoodModel> shuffledMenus = List<FoodModel>.from(menus)
+      ..shuffle(random);
+
+    final List<HomeRecommendationItemModel> mixed =
+        <HomeRecommendationItemModel>[];
+
+    int shopIndex = 0;
+    int menuIndex = 0;
+    bool addShopNext = random.nextBool();
+
+    while (shopIndex < shuffledShops.length ||
+        menuIndex < shuffledMenus.length) {
+      if ((addShopNext && shopIndex < shuffledShops.length) ||
+          menuIndex >= shuffledMenus.length) {
+        mixed.add(_toRecommendationFromShop(shuffledShops[shopIndex]));
+        shopIndex++;
+      } else if (menuIndex < shuffledMenus.length) {
+        mixed.add(_toRecommendationFromMenu(shuffledMenus[menuIndex]));
+        menuIndex++;
+      }
+
+      addShopNext = !addShopNext;
+    }
+
+    return mixed;
+  }
+
+  HomeRecommendationItemModel _toRecommendationFromShop(RestaurantModel shop) {
+    return HomeRecommendationItemModel(
+      id: shop.id,
+      type: 'shop',
+      title: shop.name,
+      image: shop.image.trim().isNotEmpty
+          ? shop.image
+          : AppImages.homeRestaurant1,
+      rating: shop.rating,
+      distance: shop.distance,
+      openingHours: shop.openingHours,
+      restaurant: shop,
+    );
+  }
+
+  HomeRecommendationItemModel _toRecommendationFromMenu(FoodModel menu) {
+    return HomeRecommendationItemModel(
+      id: menu.id,
+      type: 'menu',
+      title: menu.name,
+      image: menu.image.trim().isNotEmpty
+          ? menu.image
+          : AppImages.homeRestaurant1,
+      rating: menu.rating,
+      distance: menu.distance,
+      openingHours: menu.openingHours,
+      food: menu,
+    );
   }
 }
