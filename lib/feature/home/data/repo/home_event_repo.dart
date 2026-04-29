@@ -27,6 +27,20 @@ class HomeEventRepository {
     );
   }
 
+  NetworkResult<List<EventModel>> fetchEventsByUserId(String userId) {
+    return _apiClient.get<List<EventModel>>(
+      ApiConstants.event.fetchEventsByUser(userId),
+      fromJsonT: (json) {
+        final List<dynamic> raw = json is List ? json : <dynamic>[];
+
+        return raw
+            .map((item) => EventApiModel.fromJson(_asMap(item)))
+            .map(_toEventModel)
+            .toList();
+      },
+    );
+  }
+
   NetworkResult<EventModel> fetchEventDetails(String eventId) {
     return _apiClient.get<EventModel>(
       ApiConstants.event.fetchEventById(eventId),

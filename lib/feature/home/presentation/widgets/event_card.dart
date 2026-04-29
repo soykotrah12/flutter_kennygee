@@ -3,12 +3,83 @@ import 'package:flutter/material.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/model/event_model.dart';
 
 class OwnerEventCard extends StatelessWidget {
-  const OwnerEventCard({super.key});
+  const OwnerEventCard({
+    required this.event,
+    this.isLoading = false,
+    this.errorMessage = '',
+    this.onRetry,
+    super.key,
+  });
+
+  final EventModel? event;
+  final bool isLoading;
+  final String errorMessage;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading && event == null) {
+      return Container(
+        width: double.infinity,
+        height: 190,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x16000000),
+              blurRadius: 10,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(color: AppColors.primaryGreen),
+        ),
+      );
+    }
+
+    if (event == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x16000000),
+              blurRadius: 10,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              errorMessage.isNotEmpty ? errorMessage : 'No events found',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textGrey,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: 8),
+              TextButton(onPressed: onRetry, child: const Text('Retry')),
+            ],
+          ],
+        ),
+      );
+    }
+
+    final EventModel activeEvent = event!;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -28,8 +99,8 @@ class OwnerEventCard extends StatelessWidget {
         children: [
           Stack(
             children: [
-              const AdaptiveImage(
-                path: AppImages.homeRestaurant2,
+              AdaptiveImage(
+                path: activeEvent.image,
                 width: double.infinity,
                 height: 190,
                 fit: BoxFit.cover,
@@ -46,9 +117,9 @@ class OwnerEventCard extends StatelessWidget {
                     color: const Color(0xFFF2ECE5),
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Text(
-                    '\$10.00',
-                    style: TextStyle(
+                  child: Text(
+                    activeEvent.fee,
+                    style: const TextStyle(
                       color: AppColors.primaryGreen,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -72,89 +143,76 @@ class OwnerEventCard extends StatelessWidget {
                       width: 24,
                       height: 24,
                     ),
-                  )
+                  ),
                 ),
               ),
             ],
           ),
           Padding(
-  padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Image.asset(
-            AppImages.date, 
-            width: 14,
-            height: 14,
-          ),
-          const SizedBox(width: 4),
-          const Text(
-            'FRI, MAR 26',
-            style: TextStyle(
-              color: AppColors.textGrey,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Image.asset(AppImages.date, width: 14, height: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      activeEvent.date,
+                      style: const TextStyle(
+                        color: AppColors.textGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Image.asset(AppImages.clock, width: 14, height: 14),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        activeEvent.time,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  activeEvent.title,
+                  style: const TextStyle(
+                    color: AppColors.textBlack,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Image.asset(AppImages.location, width: 14, height: 14),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        activeEvent.location,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 10),
-
-          Image.asset(
-            AppImages.clock,
-            width: 14,
-            height: 14,
-          ),
-          const SizedBox(width: 4),
-          const Text(
-            '6:00PM - 8:00PM',
-            style: TextStyle(
-              color: AppColors.textGrey,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-
-      const SizedBox(height: 6),
-
-      const Text(
-        'Chef\'s Special Tasting Night',
-        style: TextStyle(
-          color: AppColors.textBlack,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-
-      const SizedBox(height: 8),
-
-      Row(
-        children: [
-          Image.asset(
-            AppImages.location, // 👈 already correct
-            width: 14,
-            height: 14,
-          ),
-          const SizedBox(width: 4),
-          const Expanded(
-            child: Text(
-              'The Gilded Fork, Downtown',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: AppColors.textGrey,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ],
-  ),
-)
         ],
       ),
     );

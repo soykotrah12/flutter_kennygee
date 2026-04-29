@@ -6,6 +6,7 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../controller/owner_shop_controller.dart';
 import '../controller/owner_food_list_controller.dart';
+import '../controller/owner_shop_event_controller.dart';
 import '../../data/model/food_model.dart';
 import '../../data/model/update_menu_response_model.dart';
 import '../widgets/event_card.dart';
@@ -27,11 +28,13 @@ class OwnerShopScreen extends StatefulWidget {
 
 class _OwnerShopScreenState extends State<OwnerShopScreen> {
   late final OwnerShopController _controller;
+  late final OwnerShopEventController _ownerEventController;
 
   @override
   void initState() {
     super.initState();
     _controller = ensureOwnerShopController();
+    _ownerEventController = ensureOwnerShopEventController();
   }
 
   Future<void> _openAddOrEditShop() async {
@@ -314,7 +317,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                               dishName: item.name.isNotEmpty
                                   ? item.name
                                   : 'Unnamed item',
-                              priceText: '\$${formattedPrice}',
+                              priceText: '\$$formattedPrice',
                               subtitle: item.description.isNotEmpty
                                   ? item.description
                                   : 'Food item',
@@ -359,9 +362,21 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            const OwnerEventCard(),
+            Obx(() {
+              final events = _ownerEventController.events;
+              final event = events.isNotEmpty ? events.first : null;
+
+              return OwnerEventCard(
+                event: event,
+                isLoading: _ownerEventController.isLoading.value,
+                errorMessage: _ownerEventController.error.value,
+                onRetry: _ownerEventController.fetchOwnerEvents,
+              );
+            }),
             const SizedBox(height: 18),
-            const HostExperienceCard(),
+            HostExperienceCard(
+              onCreated: _ownerEventController.fetchOwnerEvents,
+            ),
           ],
         );
       }),

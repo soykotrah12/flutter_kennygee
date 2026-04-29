@@ -5,7 +5,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../create_event/presentation/screens/create_event_screen.dart';
 
 class HostExperienceCard extends StatelessWidget {
-  const HostExperienceCard({super.key});
+  const HostExperienceCard({this.onCreated, super.key});
+
+  final Future<void> Function()? onCreated;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,10 @@ class HostExperienceCard extends StatelessWidget {
           SizedBox(
             width: 204,
             child: TextButton(
-              onPressed: () => Get.to(() => const CreateEventScreen()),
+              onPressed: () async {
+                await Get.to(() => const CreateEventScreen());
+                await onCreated?.call();
+              },
               style: TextButton.styleFrom(
                 backgroundColor: AppColors.primaryGreen,
                 foregroundColor: Colors.white,

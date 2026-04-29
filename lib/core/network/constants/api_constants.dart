@@ -151,7 +151,8 @@ class MenuEndpoints {
 
   String deleteMenu(String menuId) => '$_base/$menuId';
 
-  String toggleSpecialOffer(String menuId) => '$_base/menu/$menuId/specialOffer';
+  String toggleSpecialOffer(String menuId) =>
+      '$_base/menu/$menuId/specialOffer';
 }
 
 class EventEndpoints {
@@ -159,6 +160,8 @@ class EventEndpoints {
 
   final String fetchEvents = _base;
   final String createEvent = '$_base/create';
+
+  String fetchEventsByUser(String userId) => '$_base/user/$userId';
 
   String fetchEventById(String eventId) => '$_base/$eventId';
 

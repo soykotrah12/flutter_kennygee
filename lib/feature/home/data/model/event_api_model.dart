@@ -15,14 +15,19 @@ class EventApiModel {
 
   factory EventApiModel.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic> image = _asMap(json['image']);
+    final Map<String, dynamic> shop = _asMap(json['shop']);
+    final Map<String, dynamic> shopImage = _asMap(shop['image']);
+
+    final String eventImageUrl = (image['url'] ?? '').toString();
+    final String shopImageUrl = (shopImage['url'] ?? '').toString();
 
     return EventApiModel(
-      eventId: (json['eventId'] ?? '').toString(),
-      shopName: (json['shopName'] ?? '').toString(),
-      shopAddress: (json['shopAddress'] ?? '').toString(),
+      eventId: (json['eventId'] ?? json['_id'] ?? '').toString(),
+      shopName: (json['shopName'] ?? shop['restaurantName'] ?? '').toString(),
+      shopAddress: (json['shopAddress'] ?? shop['address'] ?? '').toString(),
       title: (json['title'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
-      imageUrl: (image['url'] ?? '').toString(),
+      imageUrl: eventImageUrl.isNotEmpty ? eventImageUrl : shopImageUrl,
       date: (json['date'] ?? '').toString(),
       time: (json['time'] ?? '').toString(),
       entryFee: _toDouble(json['entryFee']),
