@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../../feature/auth/presentation/controller/auth_flow_controller.dart';
 import '../../../../../feature/home/presentation/screens/favorite_screen.dart';
 import '../../../../../feature/home/presentation/screens/home_screen.dart';
+import '../../../../../feature/home/presentation/screens/owner_analytics_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_shop_screen.dart';
 import '../../../../../feature/profile/presentation/screens/profile_screen.dart';
@@ -41,14 +42,10 @@ class BottomNavController extends GetxController {
             screen: OwnerShopScreen(),
           ),
           const DashboardTabItem(
-            label: 'Reports',
+            label: 'Analytics',
             icon: Icons.bar_chart_outlined,
             activeIcon: Icons.bar_chart,
-            screen: DashboardPlaceholderView(
-              title: 'Business Reports',
-              subtitle: 'Track performance and growth metrics.',
-              icon: Icons.insights_outlined,
-            ),
+            screen: OwnerAnalyticsScreen(),
           ),
         ]
       : [

@@ -35,6 +35,7 @@ class ApiConstants {
   static ShopEndpoints get shop => ShopEndpoints();
   static MenuEndpoints get menu => MenuEndpoints();
   static EventEndpoints get event => EventEndpoints();
+  static AnalyticsEndpoints get analytics => AnalyticsEndpoints();
   static WishlistEndpoints get wishlist => WishlistEndpoints();
 }
 
@@ -168,6 +169,12 @@ class EventEndpoints {
   String fetchGoingStatus(String eventId) => '$_base/$eventId/going';
 
   String toggleGoing(String eventId) => '$_base/$eventId/going';
+}
+
+class AnalyticsEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/analytics';
+
+  final String fetchRestaurantOwnerAnalytics = '$_base/restaurant-owner';
 }
 
 class WishlistEndpoints {
