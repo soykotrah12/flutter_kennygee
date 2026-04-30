@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
     return SystemNavBarHandler(
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Kenezee',
+        title: 'Renbite',
         theme: AppTheme.light,
         home: SplashScreen(),
       ),
