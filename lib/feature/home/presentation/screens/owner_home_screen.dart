@@ -13,6 +13,7 @@ import '../../create_event/presentation/screens/create_event_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../controller/owner_home_reviews_controller.dart';
 import '../controller/owner_shop_controller.dart';
+import 'owner_upgrade_plan_screen.dart';
 
 class OwnerHomeScreen extends StatefulWidget {
   const OwnerHomeScreen({super.key});
@@ -229,7 +230,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 SecondaryButton(
-                  onPressed: () {},
+                  onPressed: () => Get.to(() => const OwnerUpgradePlanScreen()),
                   text: 'Upgrade Plan',
                   height: 48,
                   borderRadius: 8,
