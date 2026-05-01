@@ -69,10 +69,10 @@ class OwnerEventCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            if (onRetry != null) ...[
-              const SizedBox(height: 8),
-              TextButton(onPressed: onRetry, child: const Text('Retry')),
-            ],
+            // if (onRetry != null) ...[
+            //   const SizedBox(height: 8),
+            //   TextButton(onPressed: onRetry, child: const Text('Retry')),
+            // ],
           ],
         ),
       );

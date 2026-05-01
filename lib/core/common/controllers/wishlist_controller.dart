@@ -130,6 +130,28 @@ class WishlistController extends GetxController {
     wishlistItems.addAll(fetchedKeys);
   }
 
+  void setWishlisted({
+    required String type,
+    required String itemId,
+    required bool isWishlisted,
+    bool bumpVersion = true,
+  }) {
+    final String? key = _safeKey(type, itemId);
+    if (key == null) {
+      return;
+    }
+
+    if (isWishlisted) {
+      wishlistItems.add(key);
+    } else {
+      wishlistItems.remove(key);
+    }
+
+    if (bumpVersion) {
+      changeVersion.value++;
+    }
+  }
+
   String _key(String type, String itemId) {
     return '${type.trim().toLowerCase()}_${itemId.trim()}';
   }

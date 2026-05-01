@@ -15,19 +15,25 @@ class NearbyShopApiModel {
   factory NearbyShopApiModel.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic> image = _asMap(json['image']);
     final Map<String, dynamic> operatingToday = _asMap(json['operatingToday']);
+    final Map<String, dynamic> operatingHours = _asMap(json['operatingHours']);
+    final _OperatingSlot slot = _resolveOperatingSlot(
+      operatingToday: operatingToday,
+      operatingHours: operatingHours,
+    );
+    final Map<String, dynamic> location = _asMap(json['location']);
     final String rawDistance = (json['distance'] ?? '').toString();
 
     return NearbyShopApiModel(
       shopId: (json['shopId'] ?? json['_id'] ?? json['id'] ?? '').toString(),
       restaurantName: (json['restaurantName'] ?? 'Restaurant').toString(),
       imageUrl: (image['url'] ?? '').toString(),
-      address: (json['address'] ?? '').toString(),
+      address: (json['address'] ?? location['address'] ?? '').toString(),
       rating: _toDouble(json['rating']),
       reviewCount: _toInt(json['reviewCount'] ?? json['reviewsCount']),
       distance: rawDistance.toLowerCase() == 'null' ? '' : rawDistance,
-      openTime: (operatingToday['open'] ?? '').toString(),
-      closeTime: (operatingToday['close'] ?? '').toString(),
-      isClosedToday: operatingToday['closed'] == true,
+      openTime: slot.open,
+      closeTime: slot.close,
+      isClosedToday: slot.closed,
     );
   }
 
@@ -41,6 +47,72 @@ class NearbyShopApiModel {
   final String openTime;
   final String closeTime;
   final bool isClosedToday;
+}
+
+class _OperatingSlot {
+  const _OperatingSlot({
+    required this.open,
+    required this.close,
+    required this.closed,
+  });
+
+  final String open;
+  final String close;
+  final bool closed;
+}
+
+_OperatingSlot _resolveOperatingSlot({
+  required Map<String, dynamic> operatingToday,
+  required Map<String, dynamic> operatingHours,
+}) {
+  final bool hasTodayOpen = (operatingToday['open'] ?? '')
+      .toString()
+      .trim()
+      .isNotEmpty;
+  final bool hasTodayClose = (operatingToday['close'] ?? '')
+      .toString()
+      .trim()
+      .isNotEmpty;
+  final bool hasTodayClosedFlag = operatingToday['closed'] == true;
+
+  if (hasTodayOpen || hasTodayClose || hasTodayClosedFlag) {
+    return _OperatingSlot(
+      open: (operatingToday['open'] ?? '').toString(),
+      close: (operatingToday['close'] ?? '').toString(),
+      closed: operatingToday['closed'] == true,
+    );
+  }
+
+  final String dayKey = _weekdayKey(DateTime.now().weekday);
+  final Map<String, dynamic> daySlot = _asMap(operatingHours[dayKey]);
+  if (daySlot.isNotEmpty) {
+    return _OperatingSlot(
+      open: (daySlot['open'] ?? '').toString(),
+      close: (daySlot['close'] ?? '').toString(),
+      closed: daySlot['closed'] == true,
+    );
+  }
+
+  return const _OperatingSlot(open: '', close: '', closed: false);
+}
+
+String _weekdayKey(int weekday) {
+  switch (weekday) {
+    case DateTime.monday:
+      return 'monday';
+    case DateTime.tuesday:
+      return 'tuesday';
+    case DateTime.wednesday:
+      return 'wednesday';
+    case DateTime.thursday:
+      return 'thursday';
+    case DateTime.friday:
+      return 'friday';
+    case DateTime.saturday:
+      return 'saturday';
+    default:
+      return 'sunday';
+  }
 }
 
 double _toDouble(dynamic value) {

@@ -162,7 +162,30 @@ class HomeShopRepository {
       isClosedToday: shop.isClosedToday,
     );
 
-    final List<RestaurantMenuItemModel> menuItems = shop.popularDishes
+    final List<RestaurantMenuCategoryModel> menuCategories = shop
+        .foodsByCategory
+        .map(
+          (category) => RestaurantMenuCategoryModel(
+            name: category.category,
+            items: category.items
+                .map(
+                  (dish) => RestaurantMenuItemModel(
+                    id: dish.menuId,
+                    name: dish.dishName,
+                    price: dish.price,
+                    image: shop.imageUrl,
+                    isLiked: false,
+                  ),
+                )
+                .toList(),
+          ),
+        )
+        .where((category) => category.items.isNotEmpty)
+        .toList();
+    final List<RestaurantMenuItemModel> menuItems = menuCategories
+        .expand((category) => category.items)
+        .toList();
+    final List<RestaurantMenuItemModel> fallbackMenuItems = shop.popularDishes
         .map(
           (dish) => RestaurantMenuItemModel(
             id: dish.menuId,
@@ -172,6 +195,13 @@ class HomeShopRepository {
             isLiked: false,
           ),
         )
+        .toList();
+    final List<RestaurantMenuItemModel> resolvedMenuItems = menuItems.isNotEmpty
+        ? menuItems
+        : fallbackMenuItems;
+    final List<String> categoryNames = menuCategories
+        .map((category) => category.name)
+        .where((name) => name.trim().isNotEmpty)
         .toList();
 
     return RestaurantModel(
@@ -185,11 +215,24 @@ class HomeShopRepository {
       address: shop.address,
       openingHours: opening,
       isLiked: false,
-      popularDishes: shop.popularDishes.map((dish) => dish.dishName).toList(),
-      menuItems: menuItems,
+      popularDishes: categoryNames.isNotEmpty
+          ? categoryNames
+          : shop.popularDishes.map((dish) => dish.dishName).toList(),
+      menuItems: resolvedMenuItems,
+      menuCategories: menuCategories,
       openTime: shop.openTime,
       closeTime: shop.closeTime,
       isClosedToday: shop.isClosedToday,
+      operatingHours: shop.operatingHours
+          .map(
+            (item) => RestaurantOperatingHoursEntryModel(
+              day: item.dayLabel,
+              open: item.open,
+              close: item.close,
+              isClosed: item.closed,
+            ),
+          )
+          .toList(),
     );
   }
 

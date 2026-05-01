@@ -14,6 +14,27 @@ class RestaurantMenuItemModel {
   final bool isLiked;
 }
 
+class RestaurantMenuCategoryModel {
+  const RestaurantMenuCategoryModel({required this.name, required this.items});
+
+  final String name;
+  final List<RestaurantMenuItemModel> items;
+}
+
+class RestaurantOperatingHoursEntryModel {
+  const RestaurantOperatingHoursEntryModel({
+    required this.day,
+    required this.open,
+    required this.close,
+    required this.isClosed,
+  });
+
+  final String day;
+  final String open;
+  final String close;
+  final bool isClosed;
+}
+
 class RestaurantModel {
   const RestaurantModel({
     required this.id,
@@ -29,9 +50,11 @@ class RestaurantModel {
     this.type = 'restaurant',
     this.popularDishes = const <String>[],
     this.menuItems = const <RestaurantMenuItemModel>[],
+    this.menuCategories = const <RestaurantMenuCategoryModel>[],
     this.openTime = '',
     this.closeTime = '',
     this.isClosedToday = false,
+    this.operatingHours = const <RestaurantOperatingHoursEntryModel>[],
   });
 
   final String id;
@@ -47,7 +70,9 @@ class RestaurantModel {
   final String type;
   final List<String> popularDishes;
   final List<RestaurantMenuItemModel> menuItems;
+  final List<RestaurantMenuCategoryModel> menuCategories;
   final String openTime;
   final String closeTime;
   final bool isClosedToday;
+  final List<RestaurantOperatingHoursEntryModel> operatingHours;
 }

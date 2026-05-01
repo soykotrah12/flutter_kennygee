@@ -278,13 +278,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        Center(
-                          child: TextButton(
-                            onPressed: ownerFoodCtrl.fetchShopFoods,
-                            child: const Text('Retry'),
-                          ),
-                        ),
+                        
                       ],
                     );
                   }

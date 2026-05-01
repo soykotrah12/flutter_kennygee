@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:async';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/home_recommendation_item_model.dart';
 import '../../data/model/restaurant_model.dart';
 import '../controller/home_shop_controller.dart';
-import '../navigation/home_navigation.dart';
+import 'events_screen.dart';
 import 'food_list_screen.dart';
 import 'recommended_list_screen.dart';
+import 'restaurant_details_screen.dart';
 import 'restaurant_list_screen.dart';
+import 'single_food_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,18 +25,47 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late final TextEditingController _searchController;
+  late final HomeShopController _shopController;
+  StreamSubscription<ApiMutationEvent>? _mutationSubscription;
   String _searchQuery = '';
+  bool _isRefreshingHomeData = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _searchController = TextEditingController();
+    _shopController = HomeShopController.ensureInitialized();
+    _mutationSubscription = ApiClient.mutationStream.listen((_) {
+      if (!mounted) return;
+      _refreshHomeData();
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshHomeData();
+    }
+  }
+
+  Future<void> _refreshHomeData() async {
+    if (_isRefreshingHomeData) return;
+
+    _isRefreshingHomeData = true;
+    await Future.wait<void>([
+      _shopController.fetchNearbyShops(),
+      _shopController.fetchRecommendedShops(),
+    ]);
+    _isRefreshingHomeData = false;
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _mutationSubscription?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -73,9 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final HomeShopController shopController =
-        HomeShopController.ensureInitialized();
-
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -108,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 10),
                 InkWell(
-                  onTap: HomeNavigation.openEvents,
+                  onTap: _openEvents,
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
                     height: 44,
@@ -262,9 +292,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 10),
             Obx(() {
-              final bool isLoading = shopController.isLoading.value;
-              final String error = shopController.error.value;
-              final List<RestaurantModel> source = shopController.shops
+              final bool isLoading = _shopController.isLoading.value;
+              final String error = _shopController.error.value;
+              final List<RestaurantModel> source = _shopController.shops
                   .take(3)
                   .toList();
               final List<RestaurantModel> filteredRestaurants =
@@ -313,9 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               filteredRestaurants[index];
                           return _NearbyCard(
                             restaurant: restaurant,
-                            onTap: () => HomeNavigation.openRestaurantDetails(
-                              restaurant,
-                            ),
+                            onTap: () => _openRestaurantDetails(restaurant),
                           );
                         },
                       ),
@@ -329,11 +357,11 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             Obx(() {
               final bool isRecommendedLoading =
-                  shopController.isRecommendedLoading.value;
+                  _shopController.isRecommendedLoading.value;
               final String recommendedError =
-                  shopController.recommendedError.value;
+                  _shopController.recommendedError.value;
               final List<HomeRecommendationItemModel> recommendedItems =
-                  shopController.recommendedItems;
+                  _shopController.recommendedItems;
 
               final List<HomeRecommendationItemModel> filteredRecommended =
                   _filterRecommended(recommendedItems);
@@ -413,26 +441,50 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _openRestaurantList() {
-    Get.to(() => const RestaurantListScreen());
+  Future<void> _openRestaurantList() async {
+    await Get.to(() => const RestaurantListScreen());
+    if (!mounted) return;
+    _refreshHomeData();
   }
 
-  void _openFoodList() {
-    Get.to(() => const FoodListScreen());
+  Future<void> _openFoodList() async {
+    await Get.to(() => const FoodListScreen());
+    if (!mounted) return;
+    _refreshHomeData();
   }
 
-  void _openRecommendedList() {
-    Get.to(() => const RecommendedListScreen());
+  Future<void> _openRecommendedList() async {
+    await Get.to(() => const RecommendedListScreen());
+    if (!mounted) return;
+    _refreshHomeData();
   }
 
-  void _openRecommendedItem(HomeRecommendationItemModel item) {
+  Future<void> _openEvents() async {
+    await Get.to(() => const EventsScreen());
+    if (!mounted) return;
+    _refreshHomeData();
+  }
+
+  Future<void> _openRestaurantDetails(RestaurantModel restaurant) async {
+    await Get.to(() => RestaurantDetailsScreen(restaurant: restaurant));
+    if (!mounted) return;
+    _refreshHomeData();
+  }
+
+  Future<void> _openRecommendedItem(HomeRecommendationItemModel item) async {
     if (item.type == 'shop' && item.restaurant != null) {
-      HomeNavigation.openRestaurantDetailsById(item.restaurant!.id);
+      await Get.to(
+        () => RestaurantDetailsScreen(shopId: item.restaurant!.id),
+      );
+      if (!mounted) return;
+      _refreshHomeData();
       return;
     }
 
     if (item.type == 'menu' && item.food != null) {
-      HomeNavigation.openFoodDetailsById(item.food!.id);
+      await Get.to(() => SingleFoodScreen(menuId: item.food!.id));
+      if (!mounted) return;
+      _refreshHomeData();
     }
   }
 }

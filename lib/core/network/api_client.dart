@@ -18,6 +18,22 @@ import 'services/secure_store_services.dart';
 
 import '/core/network/models/network_success.dart';
 
+class ApiMutationEvent {
+  const ApiMutationEvent({
+    required this.method,
+    required this.endpoint,
+    this.data,
+    this.queryParameters,
+    required this.timestamp,
+  });
+
+  final String method;
+  final String endpoint;
+  final dynamic data;
+  final Map<String, dynamic>? queryParameters;
+  final DateTime timestamp;
+}
+
 class ApiClient {
   late final Dio _dio;
   CustomCacheInterceptor? _cacheInterceptor;
@@ -26,10 +42,15 @@ class ApiClient {
 
   bool _isRefreshing = false;
   final List<Completer<void>> _pendingRequests = [];
+  static final StreamController<ApiMutationEvent> _mutationController =
+      StreamController<ApiMutationEvent>.broadcast();
 
   // Singleton instance
   static ApiClient? _instance;
   final SecureStoreServices _secureStoreServices = SecureStoreServices();
+
+  static Stream<ApiMutationEvent> get mutationStream =>
+      _mutationController.stream;
 
   factory ApiClient() {
     _instance ??= ApiClient._internal();
@@ -245,6 +266,18 @@ class ApiClient {
       // Ensure message and statusCode are non-null
       final message = baseResponse.message;
       final statusCode = response.statusCode ?? 0;
+      final String normalizedMethod = method.toUpperCase();
+      if (normalizedMethod != 'GET') {
+        _mutationController.add(
+          ApiMutationEvent(
+            method: normalizedMethod,
+            endpoint: endpoint,
+            data: requestData,
+            queryParameters: queryParameters,
+            timestamp: DateTime.now(),
+          ),
+        );
+      }
 
       return Right(
         NetworkSuccess<T>(

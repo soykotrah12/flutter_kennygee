@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/constants/api_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../profile/presentation/controller/profile_controller.dart';
 import '../../data/model/restaurant_model.dart';
@@ -30,20 +33,36 @@ class RestaurantReviewsScreen extends StatefulWidget {
       _RestaurantReviewsScreenState();
 }
 
-class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen> {
+class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
+    with WidgetsBindingObserver {
   late final String _targetId;
   late final HomeReviewController _reviewController;
   late final ProfileController _profileController;
+  late final ApiClient _apiClient;
+  late final WishlistController _wishlistController;
+  bool _isBookmarkLoading = false;
 
   bool get _isMenuReview =>
       widget.menuId != null && widget.menuId!.trim().isNotEmpty;
+  bool get _showShopBookmark => !_isMenuReview;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _targetId = _resolveTargetId();
-    _reviewController = HomeReviewController.ensureInitialized(_targetId);
+    _reviewController = HomeReviewController.ensureInitialized(
+      targetId: _targetId,
+      isMenuReview: _isMenuReview,
+    );
     _profileController = ensureProfileController();
+    _apiClient = ApiClient();
+    _wishlistController = Get.find<WishlistController>();
+    _wishlistController.seedWishlist(
+      type: 'shop',
+      itemId: (widget.shopId ?? widget.restaurant.id).trim(),
+      isWishlisted: widget.restaurant.isLiked,
+    );
 
     if (_profileController.profile.value == null) {
       _profileController.fetchProfile(showLoader: false);
@@ -52,11 +71,22 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen> {
 
   @override
   void dispose() {
-    final String tag = HomeReviewController.tagFor(_targetId);
+    WidgetsBinding.instance.removeObserver(this);
+    final String tag = HomeReviewController.tagFor(
+      targetId: _targetId,
+      isMenuReview: _isMenuReview,
+    );
     if (Get.isRegistered<HomeReviewController>(tag: tag)) {
       Get.delete<HomeReviewController>(tag: tag);
     }
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _reviewController.fetchReviews();
+    }
   }
 
   String _resolveTargetId() {
@@ -67,6 +97,68 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen> {
     if (shopId.isNotEmpty) return shopId;
 
     return widget.restaurant.id;
+  }
+
+  Future<void> _toggleShopBookmark() async {
+    if (!_showShopBookmark || _isBookmarkLoading) return;
+
+    final String shopId = (widget.shopId ?? widget.restaurant.id).trim();
+    if (shopId.isEmpty) return;
+
+    final bool previous = _wishlistController.isWishlisted('shop', shopId);
+    setState(() {
+      _isBookmarkLoading = true;
+    });
+    _wishlistController.setWishlisted(
+      type: 'shop',
+      itemId: shopId,
+      isWishlisted: !previous,
+      bumpVersion: false,
+    );
+
+    final result = await _apiClient.post<Map<String, dynamic>>(
+      ApiConstants.bookmark.toggleBookmark,
+      data: <String, dynamic>{'shopId': shopId},
+      fromJsonT: _asMap,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        _wishlistController.setWishlisted(
+          type: 'shop',
+          itemId: shopId,
+          isWishlisted: previous,
+        );
+        setState(() {
+          _isBookmarkLoading = false;
+        });
+        Get.snackbar(
+          'Bookmark Failed',
+          failure.message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.white,
+        );
+      },
+      (success) {
+        final String message = success.message.toLowerCase();
+        bool resolvedState = !previous;
+        if (message.contains('remove') || message.contains('unbookmark')) {
+          resolvedState = false;
+        } else if (message.contains('bookmark') || message.contains('add')) {
+          resolvedState = true;
+        }
+        _wishlistController.setWishlisted(
+          type: 'shop',
+          itemId: shopId,
+          isWishlisted: resolvedState,
+        );
+        setState(() {
+          _isBookmarkLoading = false;
+        });
+      },
+    );
   }
 
   @override
@@ -110,9 +202,24 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen> {
         body: Obx(() {
           final List<ReviewModel> reviews = _reviewController.reviews;
           final bool isLoading = _reviewController.isLoading.value;
-          final int reviewCount = reviews.isNotEmpty
+          final int reviewCount = _reviewController.totalReviews.value > 0
+              ? _reviewController.totalReviews.value
+              : reviews.isNotEmpty
               ? reviews.length
               : widget.restaurant.reviewsCount;
+          final double averageRating = _reviewController.averageRating.value > 0
+              ? _reviewController.averageRating.value
+              : widget.restaurant.rating;
+          final String shopId = (widget.shopId ?? widget.restaurant.id).trim();
+          final bool isShopBookmarked = _wishlistController.isWishlisted(
+            'shop',
+            shopId,
+          );
+          _wishlistController.seedWishlist(
+            type: 'shop',
+            itemId: shopId,
+            isWishlisted: widget.restaurant.isLiked,
+          );
 
           return Column(
             children: [
@@ -125,26 +232,43 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen> {
                     Row(
                       children: [
                         _ReviewRatingPill(
-                          rating: widget.restaurant.rating,
+                          rating: averageRating,
                           reviewsCount: reviewCount,
                         ),
-                        const Spacer(),
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.primaryGreen,
-                              width: 2,
+                        if (_showShopBookmark) ...[
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: _isBookmarkLoading
+                                ? null
+                                : _toggleShopBookmark,
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.primaryGreen,
+                                  width: 2,
+                                ),
+                              ),
+                              child: _isBookmarkLoading
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.primaryGreen,
+                                      ),
+                                    )
+                                  : Icon(
+                                      isShopBookmarked
+                                          ? Icons.bookmark
+                                          : Icons.bookmark_border,
+                                      color: AppColors.primaryGreen,
+                                      size: 20,
+                                    ),
                             ),
                           ),
-                          child: const Icon(
-                            Icons.bookmark,
-                            color: AppColors.primaryGreen,
-                            size: 20,
-                          ),
-                        ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 18),
@@ -173,7 +297,12 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen> {
                         ),
                       )
                     else
-                      ...reviews.map((item) => _ReviewCard(item: item)),
+                      ...reviews.map(
+                        (item) => _ReviewCard(
+                          item: item,
+                          reviewController: _reviewController,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -377,9 +506,10 @@ class _ReviewRatingPill extends StatelessWidget {
 }
 
 class _ReviewCard extends StatelessWidget {
-  const _ReviewCard({required this.item});
+  const _ReviewCard({required this.item, required this.reviewController});
 
   final ReviewModel item;
+  final HomeReviewController reviewController;
 
   @override
   Widget build(BuildContext context) {
@@ -458,41 +588,47 @@ class _ReviewCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          Row(
-            children: [
-              const Icon(
-                Icons.thumb_up_alt_outlined,
-                color: Color(0xFF9BA0B8),
-                size: 22,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '${item.likes}',
-                style: const TextStyle(
-                  color: Color(0xFF9BA0B8),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Montserrat',
+          Obx(() {
+            final int liveIndex = reviewController.reviews.indexWhere(
+              (review) => review.id.trim() == item.id.trim(),
+            );
+            final ReviewModel liveItem = liveIndex >= 0
+                ? reviewController.reviews[liveIndex]
+                : item;
+            final bool isLiked = reviewController.isReviewLiked(liveItem.id);
+            final bool isLikeLoading = reviewController.isReviewLikeLoading(
+              liveItem.id,
+            );
+
+            return IgnorePointer(
+              ignoring: isLikeLoading,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => reviewController.toggleReviewLike(liveItem.id),
+                child: Row(
+                  children: [
+                    Icon(
+                      isLiked
+                          ? Icons.thumb_up_alt
+                          : Icons.thumb_up_alt_outlined,
+                      color: const Color(0xFF9BA0B8),
+                      size: 22,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${liveItem.likes}',
+                      style: const TextStyle(
+                        color: Color(0xFF9BA0B8),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 20),
-              const Icon(
-                Icons.mode_comment_outlined,
-                color: Color(0xFF9BA0B8),
-                size: 22,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '${item.comments}',
-                style: const TextStyle(
-                  color: Color(0xFF9BA0B8),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Montserrat',
-                ),
-              ),
-            ],
-          ),
+            );
+          }),
         ],
       ),
     );
@@ -772,4 +908,12 @@ String _timeAgo(String rawDate) {
 
   final int years = (months / 12).floor();
   return '$years years ago';
+}
+
+Map<String, dynamic> _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) {
+    return value.map((key, mapValue) => MapEntry(key.toString(), mapValue));
+  }
+  return <String, dynamic>{};
 }

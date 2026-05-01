@@ -1,23 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:async';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/food_model.dart';
 import '../controller/home_food_controller.dart';
 import '../navigation/home_navigation.dart';
 
-class FoodListScreen extends StatelessWidget {
+class FoodListScreen extends StatefulWidget {
   const FoodListScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final HomeFoodController foodController =
-        HomeFoodController.ensureInitialized();
+  State<FoodListScreen> createState() => _FoodListScreenState();
+}
 
+class _FoodListScreenState extends State<FoodListScreen>
+    with WidgetsBindingObserver {
+  late final HomeFoodController _foodController;
+  StreamSubscription<ApiMutationEvent>? _mutationSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _foodController = HomeFoodController.ensureInitialized();
+    _mutationSubscription = ApiClient.mutationStream.listen((_) {
+      if (!mounted) return;
+      _foodController.fetchNearbyFoods();
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _foodController.fetchNearbyFoods();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _mutationSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -66,9 +99,9 @@ class FoodListScreen extends StatelessWidget {
           children: [
             Expanded(
               child: Obx(() {
-                final List<FoodModel> items = foodController.foods;
+                final List<FoodModel> items = _foodController.foods;
 
-                if (foodController.isLoading.value && items.isEmpty) {
+                if (_foodController.isLoading.value && items.isEmpty) {
                   return const Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryGreen,
@@ -76,7 +109,7 @@ class FoodListScreen extends StatelessWidget {
                   );
                 }
 
-                if (foodController.error.value.isNotEmpty && items.isEmpty) {
+                if (_foodController.error.value.isNotEmpty && items.isEmpty) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -84,7 +117,7 @@ class FoodListScreen extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            foodController.error.value,
+                            _foodController.error.value,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: AppColors.textGrey,
@@ -95,7 +128,7 @@ class FoodListScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           TextButton(
-                            onPressed: foodController.fetchNearbyFoods,
+                            onPressed: _foodController.fetchNearbyFoods,
                             child: const Text(
                               'Try again',
                               style: TextStyle(

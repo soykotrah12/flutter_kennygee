@@ -29,8 +29,6 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
-  final Map<String, _DaySlotField> _dayFields = <String, _DaySlotField>{};
-
   String? _selectedImagePath;
   String? _remoteImageUrl;
 
@@ -44,18 +42,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     _descriptionController.text = shop?.description ?? '';
     _locationController.text = shop?.location.address ?? '123 Culinary Way';
     _remoteImageUrl = shop?.image.url;
-
-    final initialHours = _controller.getInitialOperatingHours();
-    for (final String day in OwnerShopController.dayKeys) {
-      final slot =
-          initialHours[day] ??
-          const ShopDayFormValue(open: '', close: '', closed: false);
-      _dayFields[day] = _DaySlotField(
-        openController: TextEditingController(text: slot.open),
-        closeController: TextEditingController(text: slot.close),
-        isClosed: slot.closed,
-      );
-    }
+    _controller.resetOperatingHoursFromShop(force: true);
   }
 
   @override
@@ -63,12 +50,6 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     _restaurantNameController.dispose();
     _descriptionController.dispose();
     _locationController.dispose();
-
-    for (final _DaySlotField field in _dayFields.values) {
-      field.openController.dispose();
-      field.closeController.dispose();
-    }
-
     super.dispose();
   }
 
@@ -85,13 +66,45 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     });
   }
 
-  Future<void> _pickTime({
-    required bool isOpen,
-    required _DaySlotField field,
+  Future<void> _pickTime({required String day, required bool isOpen}) async {
+    final String currentValue = isOpen
+        ? _controller.getDayValue(day).open
+        : _controller.getDayValue(day).close;
+    final _TimeSelectionResult result = await _showOperatingTimeDialog(
+      initialTime: _parseTimeOfDay(currentValue),
+    );
+
+    if (!mounted) return;
+
+    if (result.isClosed) {
+      _controller.markDayClosed(day);
+      return;
+    }
+
+    final TimeOfDay? pickedTime = result.time;
+    if (pickedTime == null) return;
+
+    final int hour = pickedTime.hourOfPeriod == 0
+        ? 12
+        : pickedTime.hourOfPeriod;
+    final String minute = pickedTime.minute.toString().padLeft(2, '0');
+    final String period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
+    final String value = '$hour:$minute $period';
+
+    if (isOpen) {
+      _controller.setOpenTime(day, value);
+    } else {
+      _controller.setCloseTime(day, value);
+    }
+  }
+
+  Future<_TimeSelectionResult> _showOperatingTimeDialog({
+    required TimeOfDay initialTime,
   }) async {
+    bool isClosedAction = false;
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: const TimeOfDay(hour: 9, minute: 0),
+      initialTime: initialTime,
       builder: (BuildContext dialogContext, Widget? child) {
         return Theme(
           data: Theme.of(dialogContext).copyWith(
@@ -116,28 +129,28 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
             children: [
               if (child != null) child,
               Positioned(
-                top: 12,
-                right: 16,
+                left: 16,
+                bottom: 10,
                 child: TextButton(
                   onPressed: () {
-                    if (mounted) {
-                      setState(() {
-                        field.isClosed = true;
-                      });
-                    }
+                    isClosedAction = true;
                     Navigator.of(dialogContext).pop();
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primaryGreen,
+                    foregroundColor: AppColors.logoutRed,
+                    backgroundColor: const Color(0xFFF9E8E8),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
+                      horizontal: 12,
                       vertical: 4,
                     ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
                   child: const Text(
-                    'Close',
+                    'Closed',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -148,22 +161,32 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
       },
     );
 
-    if (pickedTime == null) return;
+    if (isClosedAction) {
+      return const _TimeSelectionResult(isClosed: true);
+    }
 
-    final int hour = pickedTime.hourOfPeriod == 0
-        ? 12
-        : pickedTime.hourOfPeriod;
-    final String minute = pickedTime.minute.toString().padLeft(2, '0');
-    final String period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
-    final String value = '$hour:$minute $period';
+    return _TimeSelectionResult(time: pickedTime, isClosed: false);
+  }
 
-    setState(() {
-      if (isOpen) {
-        field.openController.text = value;
-      } else {
-        field.closeController.text = value;
-      }
-    });
+  TimeOfDay _parseTimeOfDay(String raw) {
+    final RegExpMatch? match = RegExp(
+      r'^(\d{1,2}):(\d{2})\s*([aApP][mM])$',
+    ).firstMatch(raw.trim());
+
+    if (match == null) {
+      return const TimeOfDay(hour: 9, minute: 0);
+    }
+
+    final int hour12 = int.tryParse(match.group(1) ?? '') ?? 9;
+    final int minute = int.tryParse(match.group(2) ?? '') ?? 0;
+    final String period = (match.group(3) ?? 'AM').toUpperCase();
+
+    int hour24 = hour12 % 12;
+    if (period == 'PM') {
+      hour24 += 12;
+    }
+
+    return TimeOfDay(hour: hour24, minute: minute.clamp(0, 59));
   }
 
   Future<void> _submit() async {
@@ -182,25 +205,12 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
       return;
     }
 
-    final Map<String, ShopDayFormValue> operating =
-        <String, ShopDayFormValue>{};
-
-    for (final String day in OwnerShopController.dayKeys) {
-      final _DaySlotField field = _dayFields[day]!;
-      operating[day] = ShopDayFormValue(
-        open: field.openController.text,
-        close: field.closeController.text,
-        closed: field.isClosed,
-      );
-    }
-
     final bool success = await _controller.submitShop(
       restaurantName: name,
       description: description,
       address: location,
       latitude: 23.8103,
       longitude: 90.4125,
-      operatingHours: operating,
       imagePath: _selectedImagePath,
     );
 
@@ -291,7 +301,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
             ...OwnerShopController.dayKeys.map(
               (day) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: _operatingHourRow(day, _dayFields[day]!),
+                child: _operatingHourRow(day),
               ),
             ),
             const SizedBox(height: 14),
@@ -479,8 +489,9 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     );
   }
 
-  Widget _operatingHourRow(String day, _DaySlotField field) {
+  Widget _operatingHourRow(String day) {
     final String dayLabel = '${day[0].toUpperCase()}${day.substring(1)}';
+    final bool isClosed = _controller.isDayClosed(day);
 
     return Container(
       width: double.infinity,
@@ -510,15 +521,11 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
             ),
           ),
           Expanded(
-            child: field.isClosed
+            child: isClosed
                 ? Align(
                     alignment: Alignment.centerRight,
                     child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          field.isClosed = false;
-                        });
-                      },
+                      onTap: () => _pickTime(day: day, isOpen: true),
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -544,8 +551,8 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                     children: [
                       Expanded(
                         child: _timeBox(
-                          controller: field.openController,
-                          onTap: () => _pickTime(isOpen: true, field: field),
+                          text: _controller.getDayOpenLabel(day),
+                          onTap: () => _pickTime(day: day, isOpen: true),
                         ),
                       ),
                       const Padding(
@@ -561,8 +568,8 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                       ),
                       Expanded(
                         child: _timeBox(
-                          controller: field.closeController,
-                          onTap: () => _pickTime(isOpen: false, field: field),
+                          text: _controller.getDayCloseLabel(day),
+                          onTap: () => _pickTime(day: day, isOpen: false),
                         ),
                       ),
                     ],
@@ -573,10 +580,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     );
   }
 
-  Widget _timeBox({
-    required TextEditingController controller,
-    required VoidCallback onTap,
-  }) {
+  Widget _timeBox({required String text, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -588,7 +592,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          controller.text.isNotEmpty ? controller.text : '09:00 AM',
+          text,
           style: const TextStyle(
             color: AppColors.textBlack,
             fontSize: 16,
@@ -600,16 +604,11 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
   }
 }
 
-class _DaySlotField {
-  _DaySlotField({
-    required this.openController,
-    required this.closeController,
-    required this.isClosed,
-  });
+class _TimeSelectionResult {
+  const _TimeSelectionResult({this.time, required this.isClosed});
 
-  final TextEditingController openController;
-  final TextEditingController closeController;
-  bool isClosed;
+  final TimeOfDay? time;
+  final bool isClosed;
 }
 
 class _FoodPreviewCard extends StatelessWidget {

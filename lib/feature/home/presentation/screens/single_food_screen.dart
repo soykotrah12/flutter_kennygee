@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:async';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/food_model.dart';
 import '../../data/model/restaurant_model.dart';
@@ -24,18 +26,21 @@ class SingleFoodScreen extends StatefulWidget {
   State<SingleFoodScreen> createState() => _SingleFoodScreenState();
 }
 
-class _SingleFoodScreenState extends State<SingleFoodScreen> {
+class _SingleFoodScreenState extends State<SingleFoodScreen>
+    with WidgetsBindingObserver {
   late final HomeFoodDetailsController _detailsController;
   late final PageController _bannerController;
   late final FoodModel _fallbackFood;
   late final String _activeMenuId;
   late List<String> _bannerImages;
   late final Worker _detailsWorker;
+  StreamSubscription<ApiMutationEvent>? _mutationSubscription;
   int _activeBannerIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _activeMenuId = (widget.menuId ?? widget.food?.id ?? '').trim();
     _fallbackFood =
         widget.food ??
@@ -71,11 +76,24 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
         _bannerController.jumpToPage(0);
       }
     });
+    _mutationSubscription = ApiClient.mutationStream.listen((_) {
+      if (!mounted) return;
+      _detailsController.fetchMenuDetails(menuId: _activeMenuId);
+    });
     _detailsController.fetchMenuDetails(menuId: _activeMenuId);
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _detailsController.fetchMenuDetails(menuId: _activeMenuId);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _mutationSubscription?.cancel();
     _detailsWorker.dispose();
     _bannerController.dispose();
     super.dispose();
@@ -267,13 +285,17 @@ class _SingleFoodScreenState extends State<SingleFoodScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 GestureDetector(
-                                  onTap: () {
-                                    Get.to(
+                                  onTap: () async {
+                                    await Get.to(
                                       () => RestaurantReviewsScreen(
                                         restaurant: _restaurantFromFood,
                                         shopId: food.shopId,
                                         menuId: food.id,
                                       ),
+                                    );
+                                    if (!mounted) return;
+                                    _detailsController.fetchMenuDetails(
+                                      menuId: _activeMenuId,
                                     );
                                   },
                                   child: Text(

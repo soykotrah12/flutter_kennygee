@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/constants/api_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/restaurant_model.dart';
 import '../controller/home_shop_details_controller.dart';
@@ -25,16 +28,21 @@ class RestaurantDetailsScreen extends StatefulWidget {
       _RestaurantDetailsScreenState();
 }
 
-class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
+class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
+    with WidgetsBindingObserver {
   late final HomeShopDetailsController _detailsController;
   late final RestaurantModel _fallbackRestaurant;
   late final String _activeShopId;
+  late final ApiClient _apiClient;
+  late final WishlistController _wishlistController;
+  bool _isBookmarkLoading = false;
 
-  int selectedDishIndex = 0;
+  int selectedCategoryIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _activeShopId = (widget.shopId ?? widget.restaurant?.id ?? '').trim();
     _fallbackRestaurant =
         widget.restaurant ??
@@ -52,11 +60,96 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     _detailsController = HomeShopDetailsController.ensureInitialized(
       _activeShopId,
     );
+    _apiClient = ApiClient();
+    _wishlistController = Get.find<WishlistController>();
+    _wishlistController.seedWishlist(
+      type: 'shop',
+      itemId: _activeShopId,
+      isWishlisted: widget.restaurant?.isLiked ?? false,
+    );
     _detailsController.fetchShopDetails(shopId: _activeShopId);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    final String tag = HomeShopDetailsController.tagForShop(_activeShopId);
+    if (Get.isRegistered<HomeShopDetailsController>(tag: tag)) {
+      Get.delete<HomeShopDetailsController>(tag: tag);
+    }
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _detailsController.fetchShopDetails(shopId: _activeShopId, force: true);
+    }
   }
 
   RestaurantModel get _currentRestaurant =>
       _detailsController.restaurant.value ?? _fallbackRestaurant;
+
+  Future<void> _toggleShopBookmark() async {
+    if (_isBookmarkLoading) return;
+    final String shopId = _activeShopId.trim();
+    if (shopId.isEmpty) return;
+
+    final bool previous = _wishlistController.isWishlisted('shop', shopId);
+    setState(() {
+      _isBookmarkLoading = true;
+    });
+    _wishlistController.setWishlisted(
+      type: 'shop',
+      itemId: shopId,
+      isWishlisted: !previous,
+      bumpVersion: false,
+    );
+
+    final result = await _apiClient.post<Map<String, dynamic>>(
+      ApiConstants.bookmark.toggleBookmark,
+      data: <String, dynamic>{'shopId': shopId},
+      fromJsonT: _asMap,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        _wishlistController.setWishlisted(
+          type: 'shop',
+          itemId: shopId,
+          isWishlisted: previous,
+        );
+        setState(() {
+          _isBookmarkLoading = false;
+        });
+        Get.snackbar(
+          'Bookmark Failed',
+          failure.message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.white,
+        );
+      },
+      (success) {
+        final String message = success.message.toLowerCase();
+        bool resolvedState = !previous;
+        if (message.contains('remove') || message.contains('unbookmark')) {
+          resolvedState = false;
+        } else if (message.contains('bookmark') || message.contains('add')) {
+          resolvedState = true;
+        }
+        _wishlistController.setWishlisted(
+          type: 'shop',
+          itemId: shopId,
+          isWishlisted: resolvedState,
+        );
+        setState(() {
+          _isBookmarkLoading = false;
+        });
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +161,31 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
     return Obx(() {
       final RestaurantModel restaurant = _currentRestaurant;
-      final List<String> popularDishes = restaurant.popularDishes.isNotEmpty
+      final bool isShopBookmarked = _wishlistController.isWishlisted(
+        'shop',
+        _activeShopId,
+      );
+      _wishlistController.seedWishlist(
+        type: 'shop',
+        itemId: restaurant.id,
+        isWishlisted: restaurant.isLiked,
+      );
+      final List<RestaurantMenuCategoryModel> menuCategories = restaurant
+          .menuCategories
+          .where((category) => category.items.isNotEmpty)
+          .toList();
+      final List<String> popularDishes = menuCategories.isNotEmpty
+          ? menuCategories.map((category) => category.name).toList()
+          : restaurant.popularDishes.isNotEmpty
           ? restaurant.popularDishes
           : restaurant.menuItems.map((item) => item.name).toList();
+      final int safeSelectedIndex = popularDishes.isEmpty
+          ? 0
+          : selectedCategoryIndex.clamp(0, popularDishes.length - 1);
+      final List<RestaurantMenuItemModel> visibleMenuItems =
+          menuCategories.isNotEmpty
+          ? menuCategories[safeSelectedIndex].items
+          : restaurant.menuItems;
 
       return Container(
         color: const Color(0xFFF3F3F3),
@@ -120,30 +235,48 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     _RatingPill(
                       rating: restaurant.rating,
                       reviewsCount: restaurant.reviewsCount,
-                      onReviewsTap: () {
-                        Get.to(
+                      onReviewsTap: () async {
+                        await Get.to(
                           () => RestaurantReviewsScreen(
                             restaurant: restaurant,
                             shopId: restaurant.id,
                           ),
                         );
+                        if (!mounted) return;
+                        _detailsController.fetchShopDetails(
+                          shopId: _activeShopId,
+                          force: true,
+                        );
                       },
                     ),
                     const Spacer(),
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.primaryGreen,
-                          width: 2,
+                    GestureDetector(
+                      onTap: _isBookmarkLoading ? null : _toggleShopBookmark,
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.primaryGreen,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child: const Icon(
-                        Icons.bookmark,
-                        color: AppColors.primaryGreen,
-                        size: 20,
+                        child: _isBookmarkLoading
+                            ? const Padding(
+                                padding: EdgeInsets.all(10),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primaryGreen,
+                                ),
+                              )
+                            : Icon(
+                                isShopBookmarked
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border,
+                                color: AppColors.primaryGreen,
+                                size: 20,
+                              ),
                       ),
                     ),
                   ],
@@ -162,6 +295,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                   openTime: restaurant.openTime,
                   closeTime: restaurant.closeTime,
                   isClosedToday: restaurant.isClosedToday,
+                  operatingHours: restaurant.operatingHours,
                 ),
                 const SizedBox(height: 26),
                 const Text(
@@ -190,13 +324,13 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         return GestureDetector(
                           onTap: () {
                             setState(() {
-                              selectedDishIndex = index;
+                              selectedCategoryIndex = index;
                             });
                           },
                           child: _DishChip(
                             label: dish,
                             iconImage: iconImage,
-                            isActive: selectedDishIndex == index,
+                            isActive: safeSelectedIndex == index,
                           ),
                         );
                       },
@@ -212,10 +346,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     ),
                   ),
                 const SizedBox(height: 16),
-                if (restaurant.menuItems.isNotEmpty)
-                  ...restaurant.menuItems.map(
-                    (item) => _MenuItemTile(item: item),
-                  )
+                if (visibleMenuItems.isNotEmpty)
+                  ...visibleMenuItems.map((item) => _MenuItemTile(item: item))
                 else
                   const Text(
                     'No menu items available',
@@ -444,39 +576,40 @@ class _OpeningHoursSection extends StatelessWidget {
     required this.openTime,
     required this.closeTime,
     required this.isClosedToday,
+    required this.operatingHours,
   });
 
   final String openTime;
   final String closeTime;
   final bool isClosedToday;
+  final List<RestaurantOperatingHoursEntryModel> operatingHours;
 
   @override
   Widget build(BuildContext context) {
-    final List<_OperatingHoursEntry> entries = <_OperatingHoursEntry>[
-      _OperatingHoursEntry(
-        day: 'Today',
-        open: _formatTime(openTime),
-        close: _formatTime(closeTime),
-        isClosed: isClosedToday,
-      ),
-    ];
+    final List<RestaurantOperatingHoursEntryModel> entries =
+        operatingHours.isNotEmpty
+        ? operatingHours
+        : <RestaurantOperatingHoursEntryModel>[
+            RestaurantOperatingHoursEntryModel(
+              day: 'Today',
+              open: openTime,
+              close: closeTime,
+              isClosed: isClosedToday,
+            ),
+          ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Row(
           children: [
-            Icon(
-              Icons.access_time_outlined,
-              color: Color(0xFF2EA84A),
-              size: 26,
-            ),
+            Icon(Icons.access_time_rounded, color: Color(0xFF2EA84A), size: 24),
             SizedBox(width: 8),
             Text(
               'Operating Hours',
               style: TextStyle(
                 color: AppColors.textBlack,
-                fontSize: 18,
+                fontSize: 28,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Montserrat',
               ),
@@ -488,7 +621,7 @@ class _OpeningHoursSection extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
@@ -499,7 +632,7 @@ class _OpeningHoursSection extends StatelessWidget {
           ),
           child: Column(
             children: List<Widget>.generate(entries.length, (int index) {
-              final _OperatingHoursEntry entry = entries[index];
+              final RestaurantOperatingHoursEntryModel entry = entries[index];
               return Column(
                 children: [
                   _OpeningHoursDayRow(entry: entry),
@@ -524,7 +657,7 @@ class _OpeningHoursSection extends StatelessWidget {
 class _OpeningHoursDayRow extends StatelessWidget {
   const _OpeningHoursDayRow({required this.entry});
 
-  final _OperatingHoursEntry entry;
+  final RestaurantOperatingHoursEntryModel entry;
 
   @override
   Widget build(BuildContext context) {
@@ -536,13 +669,15 @@ class _OpeningHoursDayRow extends StatelessWidget {
         final bool hasOpen = entry.open.trim().isNotEmpty;
         final bool hasClose = entry.close.trim().isNotEmpty;
         final String singleLabel = hasOpen
-            ? entry.open
+            ? _formatTime(entry.open)
             : hasClose
-            ? entry.close
-            : 'Time unavailable';
+            ? _formatTime(entry.close)
+            : 'N/A';
+        final String openLabel = _formatTime(entry.open);
+        final String closeLabel = _formatTime(entry.close);
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -558,7 +693,7 @@ class _OpeningHoursDayRow extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
@@ -570,21 +705,21 @@ class _OpeningHoursDayRow extends StatelessWidget {
                       : Wrap(
                           alignment: WrapAlignment.end,
                           crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 10,
+                          spacing: 8,
                           runSpacing: 8,
                           children: hasOpen && hasClose
                               ? <Widget>[
-                                  _OpeningHoursChip(label: entry.open),
+                                  _OpeningHoursChip(label: openLabel),
                                   const Text(
-                                    '\u2014',
+                                    '\u2212',
                                     style: TextStyle(
                                       color: Color(0xFF13674F),
-                                      fontSize: 20,
+                                      fontSize: 22,
                                       fontWeight: FontWeight.w600,
                                       fontFamily: 'Montserrat',
                                     ),
                                   ),
-                                  _OpeningHoursChip(label: entry.close),
+                                  _OpeningHoursChip(label: closeLabel),
                                 ]
                               : <Widget>[_OpeningHoursChip(label: singleLabel)],
                         ),
@@ -607,11 +742,11 @@ class _OpeningHoursChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minWidth: 98),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      constraints: const BoxConstraints(minWidth: 74),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFFF3F3F3),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         label,
@@ -625,20 +760,6 @@ class _OpeningHoursChip extends StatelessWidget {
       ),
     );
   }
-}
-
-class _OperatingHoursEntry {
-  const _OperatingHoursEntry({
-    required this.day,
-    required this.isClosed,
-    this.open = '',
-    this.close = '',
-  });
-
-  final String day;
-  final bool isClosed;
-  final String open;
-  final String close;
 }
 
 String _formatTime(String value) {
@@ -801,4 +922,12 @@ class _MenuItemTile extends StatelessWidget {
       ),
     );
   }
+}
+
+Map<String, dynamic> _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) {
+    return value.map((key, mapValue) => MapEntry(key.toString(), mapValue));
+  }
+  return <String, dynamic>{};
 }

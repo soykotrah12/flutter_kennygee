@@ -8,6 +8,7 @@ class ReviewModel {
     required this.reviewText,
     required this.likes,
     required this.comments,
+    required this.isLiked,
     required this.createdAt,
   });
 
@@ -15,19 +16,31 @@ class ReviewModel {
     final Map<String, dynamic> reviewer = _asMap(
       json['reviewer'] ?? json['reviewerId'] ?? json['user'] ?? json['userId'],
     );
+    final Map<String, dynamic> reviewerImageMap = _asMap(json['reviewerImage']);
     final Map<String, dynamic> profileImage = _asMap(
       reviewer['profileImage'] ?? reviewer['avatar'],
     );
+    final String directReviewerName =
+        (json['reviewerName'] ?? json['name'] ?? '').toString().trim();
 
     return ReviewModel(
-      id: (json['_id'] ?? json['id'] ?? '').toString(),
-      reviewerName: _resolveReviewerName(reviewer),
+      id: (json['reviewId'] ?? json['_id'] ?? json['id'] ?? '').toString(),
+      reviewerName: directReviewerName.isNotEmpty
+          ? directReviewerName
+          : _resolveReviewerName(reviewer),
       reviewerRole: (reviewer['role'] ?? 'User').toString(),
-      reviewerImage: (profileImage['url'] ?? '').toString(),
+      reviewerImage: (reviewerImageMap['url'] ?? profileImage['url'] ?? '')
+          .toString(),
       rating: _toDouble(json['rating']),
       reviewText: (json['reviewText'] ?? '').toString(),
       likes: _toInt(json['likes']),
       comments: _toInt(json['comments']),
+      isLiked: _toBool(
+        json['isLiked'] ??
+            json['liked'] ??
+            json['isLikedByCurrentUser'] ??
+            json['likedByCurrentUser'],
+      ),
       createdAt: (json['createdAt'] ?? '').toString(),
     );
   }
@@ -40,6 +53,7 @@ class ReviewModel {
   final String reviewText;
   final int likes;
   final int comments;
+  final bool isLiked;
   final String createdAt;
 
   ReviewModel copyWith({
@@ -51,6 +65,7 @@ class ReviewModel {
     String? reviewText,
     int? likes,
     int? comments,
+    bool? isLiked,
     String? createdAt,
   }) {
     return ReviewModel(
@@ -62,9 +77,49 @@ class ReviewModel {
       reviewText: reviewText ?? this.reviewText,
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,
+      isLiked: isLiked ?? this.isLiked,
       createdAt: createdAt ?? this.createdAt,
     );
   }
+}
+
+class ReviewFetchResultModel {
+  const ReviewFetchResultModel({
+    required this.type,
+    required this.totalReviews,
+    required this.averageRating,
+    required this.reviews,
+  });
+
+  factory ReviewFetchResultModel.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> result = _asMap(
+      json['result'] is Map ? json['result'] : json,
+    );
+    final List<dynamic> rawReviews = _asList(result['reviews']);
+    final int mappedTotalReviews = _toInt(
+      result['totalReviews'] ??
+          result['reviewCount'] ??
+          result['reviewsCount'] ??
+          rawReviews.length,
+    );
+    final double mappedAverageRating = _toDouble(
+      result['averageRating'] ?? result['rating'],
+    );
+
+    return ReviewFetchResultModel(
+      type: (result['type'] ?? json['type'] ?? '').toString(),
+      totalReviews: mappedTotalReviews,
+      averageRating: mappedAverageRating,
+      reviews: rawReviews
+          .map((item) => ReviewModel.fromJson(_asMap(item)))
+          .toList(),
+    );
+  }
+
+  final String type;
+  final int totalReviews;
+  final double averageRating;
+  final List<ReviewModel> reviews;
 }
 
 String _resolveReviewerName(Map<String, dynamic> reviewer) {
@@ -95,4 +150,17 @@ double _toDouble(dynamic value) {
 int _toInt(dynamic value) {
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+bool _toBool(dynamic value) {
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  final String raw = (value ?? '').toString().trim().toLowerCase();
+  return raw == 'true' || raw == '1' || raw == 'yes';
+}
+
+List<dynamic> _asList(dynamic value) {
+  if (value is List<dynamic>) return value;
+  if (value is List) return List<dynamic>.from(value);
+  return <dynamic>[];
 }

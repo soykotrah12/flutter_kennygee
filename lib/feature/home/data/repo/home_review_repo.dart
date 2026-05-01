@@ -8,12 +8,22 @@ class HomeReviewRepository {
 
   final ApiClient _apiClient;
 
-  NetworkResult<List<ReviewModel>> fetchReviews({required String id}) {
-    return _apiClient.get<List<ReviewModel>>(
-      ApiConstants.review.fetchReviews(id),
+  NetworkResult<ReviewFetchResultModel> fetchReviews({
+    String? shopId,
+    String? menuId,
+  }) {
+    final Map<String, dynamic> queryParameters = <String, dynamic>{};
+    if (menuId != null && menuId.trim().isNotEmpty) {
+      queryParameters['menuId'] = menuId.trim();
+    } else if (shopId != null && shopId.trim().isNotEmpty) {
+      queryParameters['shopId'] = shopId.trim();
+    }
+
+    return _apiClient.get<ReviewFetchResultModel>(
+      ApiConstants.review.fetchReviews,
+      queryParameters: queryParameters,
       fromJsonT: (json) {
-        final List<dynamic> raw = _extractList(json);
-        return raw.map((item) => ReviewModel.fromJson(_asMap(item))).toList();
+        return ReviewFetchResultModel.fromJson(_asMap(json));
       },
     );
   }
@@ -44,19 +54,13 @@ class HomeReviewRepository {
     );
   }
 
-  List<dynamic> _extractList(dynamic json) {
-    if (json is List) return json;
-
-    final Map<String, dynamic> map = _asMap(json);
-    if (map['reviews'] is List) {
-      return map['reviews'] as List<dynamic>;
-    }
-
-    if (map['items'] is List) {
-      return map['items'] as List<dynamic>;
-    }
-
-    return <dynamic>[];
+  NetworkResult<Map<String, dynamic>> toggleReviewLike({
+    required String reviewId,
+  }) {
+    return _apiClient.post<Map<String, dynamic>>(
+      ApiConstants.review.toggleReviewLike(reviewId),
+      fromJsonT: _asMap,
+    );
   }
 }
 

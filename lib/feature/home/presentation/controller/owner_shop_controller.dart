@@ -52,6 +52,14 @@ class ShopDayFormValue {
   final String open;
   final String close;
   final bool closed;
+
+  ShopDayFormValue copyWith({String? open, String? close, bool? closed}) {
+    return ShopDayFormValue(
+      open: open ?? this.open,
+      close: close ?? this.close,
+      closed: closed ?? this.closed,
+    );
+  }
 }
 
 class OwnerShopController extends GetxController {
@@ -70,8 +78,11 @@ class OwnerShopController extends GetxController {
   final Rxn<CreateShopResponseModel> ownerShop = Rxn<CreateShopResponseModel>();
   final RxBool isSubmitting = false.obs;
   final RxBool isLoading = false.obs;
+  final RxMap<String, ShopDayFormValue> operatingHoursState =
+      <String, ShopDayFormValue>{}.obs;
 
   String _userId = '';
+  bool _operatingHoursTouched = false;
 
   static const List<String> dayKeys = <String>[
     'monday',
@@ -97,6 +108,7 @@ class OwnerShopController extends GetxController {
 
     final CreateShopResponseModel? cachedShop = await _localStore.getShop();
     ownerShop.value = cachedShop;
+    _resetOperatingHoursFromMap(cachedShop?.operatingHours);
 
     if (_userId.isNotEmpty) {
       await _refreshShopFromApi();
@@ -125,9 +137,11 @@ class OwnerShopController extends GetxController {
 
     if (fetchedShop != null) {
       ownerShop.value = fetchedShop;
+      _resetOperatingHoursFromMap(fetchedShop!.operatingHours);
       await _localStore.saveShop(fetchedShop!);
     } else if (apiSucceeded) {
       ownerShop.value = null;
+      _resetOperatingHoursFromMap(null, force: true);
       await _localStore.clearShop();
     }
   }
@@ -152,18 +166,111 @@ class OwnerShopController extends GetxController {
     await _refreshShopFromApi();
   }
 
+  void resetOperatingHoursFromShop({bool force = false}) {
+    _resetOperatingHoursFromMap(ownerShop.value?.operatingHours, force: force);
+  }
+
   Map<String, ShopDayFormValue> getInitialOperatingHours() {
+    if (operatingHoursState.isEmpty) {
+      resetOperatingHoursFromShop();
+    }
+
+    return Map<String, ShopDayFormValue>.from(operatingHoursState);
+  }
+
+  ShopDayFormValue getDayValue(String day) {
+    final String key = _normalizeDayKey(day);
+    return operatingHoursState[key] ??
+        const ShopDayFormValue(open: '', close: '', closed: false);
+  }
+
+  bool isDayClosed(String day) => getDayValue(day).closed;
+
+  String getDayOpenLabel(String day) {
+    final ShopDayFormValue value = getDayValue(day);
+    final String open = value.open.trim();
+    final String close = value.close.trim();
+    if (value.closed) return 'N/A';
+    if (open.isNotEmpty && close.isNotEmpty) return open;
+    return 'N/A';
+  }
+
+  String getDayCloseLabel(String day) {
+    final ShopDayFormValue value = getDayValue(day);
+    final String open = value.open.trim();
+    final String close = value.close.trim();
+    if (value.closed) return 'N/A';
+    if (open.isNotEmpty && close.isNotEmpty) return close;
+    return 'N/A';
+  }
+
+  String getDayDisplayText(String day) {
+    final ShopDayFormValue value = getDayValue(day);
+    if (value.closed) return 'Closed';
+
+    final String open = value.open.trim();
+    final String close = value.close.trim();
+    if (open.isNotEmpty && close.isNotEmpty) {
+      return '$open - $close';
+    }
+    return 'N/A';
+  }
+
+  void toggleDayClosed(String day) {
+    toggleClosed(day);
+  }
+
+  void toggleClosed(String day) {
+    final String key = _normalizeDayKey(day);
+    final ShopDayFormValue current = getDayValue(key);
+    if (current.closed) {
+      _setDayValue(key, current.copyWith(closed: false));
+      return;
+    }
+    _setDayValue(
+      key,
+      const ShopDayFormValue(open: '', close: '', closed: true),
+    );
+  }
+
+  void updateDayOpenTime(String day, String time) {
+    setOpenTime(day, time);
+  }
+
+  void setOpenTime(String day, String time) {
+    final String key = _normalizeDayKey(day);
+    final ShopDayFormValue current = getDayValue(key);
+    _setDayValue(key, current.copyWith(open: time.trim(), closed: false));
+  }
+
+  void updateDayCloseTime(String day, String time) {
+    setCloseTime(day, time);
+  }
+
+  void setCloseTime(String day, String time) {
+    final String key = _normalizeDayKey(day);
+    final ShopDayFormValue current = getDayValue(key);
+    _setDayValue(key, current.copyWith(close: time.trim(), closed: false));
+  }
+
+  void markDayClosed(String day) {
+    final String key = _normalizeDayKey(day);
+    _setDayValue(
+      key,
+      const ShopDayFormValue(open: '', close: '', closed: true),
+    );
+  }
+
+  Map<String, ShopDayFormValue> getOperatingHoursForPayload() {
     final Map<String, ShopDayFormValue> mapped = <String, ShopDayFormValue>{};
-    final Map<String, CreateShopOperatingDayModel> existing =
-        ownerShop.value?.operatingHours ??
-        <String, CreateShopOperatingDayModel>{};
 
     for (final String day in dayKeys) {
-      final CreateShopOperatingDayModel? slot = existing[day];
+      final ShopDayFormValue value = getDayValue(day);
+      final bool isClosed = value.closed;
       mapped[day] = ShopDayFormValue(
-        open: slot?.open ?? '',
-        close: slot?.close ?? '',
-        closed: slot?.closed ?? false,
+        open: isClosed ? '' : value.open.trim(),
+        close: isClosed ? '' : value.close.trim(),
+        closed: isClosed,
       );
     }
 
@@ -176,7 +283,7 @@ class OwnerShopController extends GetxController {
     required String address,
     required double latitude,
     required double longitude,
-    required Map<String, ShopDayFormValue> operatingHours,
+    Map<String, ShopDayFormValue>? operatingHours,
     String? imagePath,
   }) async {
     if (isSubmitting.value) return false;
@@ -199,15 +306,18 @@ class OwnerShopController extends GetxController {
 
     final Map<String, CreateShopOperatingDayRequestModel> requestHours =
         <String, CreateShopOperatingDayRequestModel>{};
+    final Map<String, ShopDayFormValue> sourceHours =
+        operatingHours ?? getOperatingHoursForPayload();
 
     for (final String day in dayKeys) {
       final ShopDayFormValue value =
-          operatingHours[day] ??
+          sourceHours[day] ??
           const ShopDayFormValue(open: '', close: '', closed: false);
+      final bool isClosed = value.closed;
       requestHours[day] = CreateShopOperatingDayRequestModel(
-        open: value.open,
-        close: value.close,
-        closed: value.closed,
+        open: isClosed ? '' : value.open,
+        close: isClosed ? '' : value.close,
+        closed: isClosed,
       );
     }
 
@@ -272,5 +382,41 @@ class OwnerShopController extends GetxController {
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(12),
     );
+  }
+
+  void _resetOperatingHoursFromMap(
+    Map<String, CreateShopOperatingDayModel>? existing, {
+    bool force = false,
+  }) {
+    if (_operatingHoursTouched && !force) return;
+
+    final Map<String, ShopDayFormValue> mapped = <String, ShopDayFormValue>{};
+    final Map<String, CreateShopOperatingDayModel> safe =
+        existing ?? <String, CreateShopOperatingDayModel>{};
+
+    for (final String day in dayKeys) {
+      final CreateShopOperatingDayModel? slot = safe[day];
+      mapped[day] = ShopDayFormValue(
+        open: (slot?.open ?? '').trim(),
+        close: (slot?.close ?? '').trim(),
+        closed: slot?.closed ?? false,
+      );
+    }
+
+    operatingHoursState.assignAll(mapped);
+    _operatingHoursTouched = false;
+  }
+
+  void _setDayValue(String day, ShopDayFormValue value) {
+    final String key = _normalizeDayKey(day);
+    operatingHoursState[key] = value;
+    operatingHoursState.refresh();
+    _operatingHoursTouched = true;
+  }
+
+  String _normalizeDayKey(String day) {
+    final String normalized = day.trim().toLowerCase();
+    if (dayKeys.contains(normalized)) return normalized;
+    return dayKeys.first;
   }
 }

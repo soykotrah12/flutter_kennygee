@@ -38,6 +38,7 @@ class ApiConstants {
   static EventEndpoints get event => EventEndpoints();
   static AnalyticsEndpoints get analytics => AnalyticsEndpoints();
   static WishlistEndpoints get wishlist => WishlistEndpoints();
+  static BookmarkEndpoints get bookmark => BookmarkEndpoints();
 }
 
 /// [Authentication Endpoints]
@@ -176,8 +177,8 @@ class ReviewEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/review';
 
   final String createReview = _base;
-
-  String fetchReviews(String id) => '$_base/$id';
+  final String fetchReviews = '$_base/reviews';
+  String toggleReviewLike(String reviewId) => '$_base/like/$reviewId';
 }
 
 class AnalyticsEndpoints {
@@ -191,4 +192,10 @@ class WishlistEndpoints {
 
   final String fetchMyWishlist = '$_base/my';
   final String toggleWishlist = '$_base/toggle';
+}
+
+class BookmarkEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/bookmark';
+
+  final String toggleBookmark = '$_base/toggle';
 }

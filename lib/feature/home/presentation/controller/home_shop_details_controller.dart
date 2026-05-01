@@ -1,17 +1,21 @@
 import 'package:get/get.dart';
+import 'dart:async';
 
 import '../../../../core/network/api_client.dart';
 import '../../data/model/restaurant_model.dart';
 import '../../data/repo/home_shop_repo.dart';
 
 class HomeShopDetailsController extends GetxController {
-  HomeShopDetailsController(this._repository);
+  HomeShopDetailsController(this._repository, {required this.shopId});
 
   final HomeShopRepository _repository;
+  final String shopId;
 
   final Rxn<RestaurantModel> restaurant = Rxn<RestaurantModel>();
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
+  StreamSubscription<ApiMutationEvent>? _mutationSubscription;
+  bool _queuedRefresh = false;
 
   static String tagForShop(String shopId) => 'shop_details_$shopId';
 
@@ -31,7 +35,10 @@ class HomeShopDetailsController extends GetxController {
 
     if (!Get.isRegistered<HomeShopDetailsController>(tag: tag)) {
       Get.put<HomeShopDetailsController>(
-        HomeShopDetailsController(Get.find<HomeShopRepository>()),
+        HomeShopDetailsController(
+          Get.find<HomeShopRepository>(),
+          shopId: shopId,
+        ),
         tag: tag,
       );
     }
@@ -41,15 +48,17 @@ class HomeShopDetailsController extends GetxController {
 
   Future<void> fetchShopDetails({
     required String shopId,
+    bool force = false,
   }) async {
-    if (isLoading.value) return;
+    if (isLoading.value) {
+      if (force) _queuedRefresh = true;
+      return;
+    }
 
     isLoading.value = true;
     error.value = '';
 
-    final result = await _repository.fetchShopDetails(
-      shopId: shopId,
-    );
+    final result = await _repository.fetchShopDetails(shopId: shopId);
 
     result.fold(
       (failure) {
@@ -61,5 +70,40 @@ class HomeShopDetailsController extends GetxController {
     );
 
     isLoading.value = false;
+    if (_queuedRefresh) {
+      _queuedRefresh = false;
+      fetchShopDetails(shopId: shopId);
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _mutationSubscription = ApiClient.mutationStream.listen((event) {
+      if (_shouldRefresh(event)) {
+        fetchShopDetails(shopId: shopId, force: true);
+      }
+    });
+  }
+
+  bool _shouldRefresh(ApiMutationEvent event) {
+    final String endpoint = event.endpoint.toLowerCase();
+    if (endpoint.contains('/review') || endpoint.contains('/shop/')) {
+      final dynamic rawData = event.data;
+      if (rawData is Map<String, dynamic>) {
+        final String eventShopId = (rawData['shopId'] ?? '').toString().trim();
+        if (eventShopId.isNotEmpty) {
+          return eventShopId == shopId;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  void onClose() {
+    _mutationSubscription?.cancel();
+    super.onClose();
   }
 }
