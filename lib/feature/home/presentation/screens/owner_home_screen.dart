@@ -4,14 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/model/review_model.dart';
 import '../../create_event/presentation/screens/create_event_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../controller/owner_home_reviews_controller.dart';
+import '../controller/owner_shop_controller.dart';
 
-class OwnerHomeScreen extends StatelessWidget {
+class OwnerHomeScreen extends StatefulWidget {
   const OwnerHomeScreen({super.key});
+
+  @override
+  State<OwnerHomeScreen> createState() => _OwnerHomeScreenState();
+}
+
+class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
+  late final OwnerHomeReviewsController _reviewsController;
+  late final OwnerShopController _ownerShopController;
+
+  @override
+  void initState() {
+    super.initState();
+    _reviewsController = ensureOwnerHomeReviewsController();
+    _ownerShopController = ensureOwnerShopController();
+  }
 
   void _showBoostNowDialog(BuildContext context) {
     showDialog(
@@ -232,24 +251,144 @@ class OwnerHomeScreen extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Spacer(),
-              Text(
-                'View all',
-                style: TextStyle(
-                  decoration: TextDecoration.underline,
-                  color: AppColors.primaryGreen,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              const Spacer(),
+              Obx(() {
+                final bool hasReviews = _reviewsController.reviews.isNotEmpty;
+                return InkWell(
+                  onTap: hasReviews
+                      ? () => Get.to(() => const OwnerAllReviewsScreen())
+                      : null,
+                  child: Text(
+                    'View all',
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      color: hasReviews
+                          ? AppColors.primaryGreen
+                          : AppColors.textGrey,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
           const SizedBox(height: 12),
-          const _ReviewCard(image: AppImages.homeRestaurant1),
-          const SizedBox(height: 14),
-          const _ReviewCard(image: AppImages.homeRestaurant2),
+          Obx(() {
+            final bool isLoading = _reviewsController.isLoading.value;
+            final String error = _reviewsController.error.value;
+            final List<ReviewModel> preview = _reviewsController.topTwoReviews;
+            final String shopImage =
+                (_ownerShopController.ownerShop.value?.image.url ?? '').trim();
+
+            if (isLoading && preview.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryGreen,
+                  ),
+                ),
+              );
+            }
+
+            if (preview.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  error.isNotEmpty ? error : 'No reviews yet',
+                  style: const TextStyle(
+                    color: AppColors.textGrey,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              );
+            }
+
+            return Column(
+              children: List<Widget>.generate(preview.length, (index) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: index == preview.length - 1 ? 0 : 14,
+                  ),
+                  child: _ReviewCard(
+                    item: preview[index],
+                    bannerImage: shopImage,
+                  ),
+                );
+              }),
+            );
+          }),
         ],
       ),
+    );
+  }
+}
+
+class OwnerAllReviewsScreen extends StatelessWidget {
+  const OwnerAllReviewsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final OwnerHomeReviewsController reviewsController =
+        ensureOwnerHomeReviewsController();
+    final OwnerShopController ownerShopController = ensureOwnerShopController();
+
+    return AppScaffold(
+      useSafeArea: true,
+      isScrollable: false,
+      backgroundColor: AppColors.appBackground,
+      customAppBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 72,
+        titleSpacing: 0,
+        automaticallyImplyLeading: true,
+        title: const Text(
+          'All Reviews',
+          style: TextStyle(
+            color: AppColors.textBlack,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      body: Obx(() {
+        final List<ReviewModel> reviews = reviewsController.reviews;
+        final bool isLoading = reviewsController.isLoading.value;
+        final String error = reviewsController.error.value;
+        final String shopImage =
+            (ownerShopController.ownerShop.value?.image.url ?? '').trim();
+
+        if (isLoading && reviews.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primaryGreen),
+          );
+        }
+
+        if (reviews.isEmpty) {
+          return Center(
+            child: Text(
+              error.isNotEmpty ? error : 'No reviews yet',
+              style: const TextStyle(
+                color: AppColors.textGrey,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          );
+        }
+
+        return ListView.separated(
+          physics: const BouncingScrollPhysics(),
+          itemCount: reviews.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 14),
+          itemBuilder: (_, index) =>
+              _ReviewCard(item: reviews[index], bannerImage: shopImage),
+        );
+      }),
     );
   }
 }
@@ -463,12 +602,20 @@ class _StatsCard extends StatelessWidget {
 }
 
 class _ReviewCard extends StatelessWidget {
-  const _ReviewCard({required this.image});
+  const _ReviewCard({required this.item, required this.bannerImage});
 
-  final String image;
+  final ReviewModel item;
+  final String bannerImage;
 
   @override
   Widget build(BuildContext context) {
+    final String topImage = bannerImage.isNotEmpty
+        ? bannerImage
+        : AppImages.homeRestaurant1;
+    final String profileImage = item.reviewerImage.trim().isNotEmpty
+        ? item.reviewerImage
+        : AppImages.ownerOnboarding1;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.primaryWhite,
@@ -486,8 +633,8 @@ class _ReviewCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: Image.asset(
-              image,
+            child: AdaptiveImage(
+              path: topImage,
               width: double.infinity,
               height: 180,
               fit: BoxFit.cover,
@@ -501,16 +648,16 @@ class _ReviewCard extends StatelessWidget {
                 Container(
                   width: 38,
                   height: 38,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: AssetImage(AppImages.ownerOnboarding1),
+                      image: _imageProvider(profileImage),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -519,10 +666,10 @@ class _ReviewCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'Rikan Bhart',
+                              item.reviewerName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: AppColors.textBlack,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -531,10 +678,10 @@ class _ReviewCard extends StatelessWidget {
                           ),
                           Flexible(
                             child: Text(
-                              '7 minute ago',
+                              _timeAgo(item.createdAt),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: AppColors.black,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w300,
@@ -543,20 +690,23 @@ class _ReviewCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Row(
-                        children: [
-                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
-                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
-                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
-                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
-                          Icon(Icons.star, size: 12, color: Colors.amberAccent),
-                        ],
+                        children: List<Widget>.generate(5, (int index) {
+                          final bool filled = index < item.rating.round();
+                          return Icon(
+                            filled ? Icons.star : Icons.star_border,
+                            size: 12,
+                            color: Colors.amberAccent,
+                          );
+                        }),
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
-                        'Great food, nice ambiance and friendly service. The dishes were fresh, flavorful and well presented.',
-                        style: TextStyle(
+                        item.reviewText,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
                           color: AppColors.textGrey,
                           fontSize: 10,
                           fontWeight: FontWeight.w400,
@@ -573,4 +723,28 @@ class _ReviewCard extends StatelessWidget {
       ),
     );
   }
+}
+
+ImageProvider _imageProvider(String path) {
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return NetworkImage(path);
+  }
+  return AssetImage(path);
+}
+
+String _timeAgo(String rawDate) {
+  final DateTime? parsed = DateTime.tryParse(rawDate);
+  if (parsed == null) return 'Just now';
+
+  final Duration diff = DateTime.now().difference(parsed);
+  if (diff.inMinutes < 1) return 'Just now';
+  if (diff.inHours < 1) return '${diff.inMinutes} min ago';
+  if (diff.inDays < 1) return '${diff.inHours} hours ago';
+  if (diff.inDays < 30) return '${diff.inDays} days ago';
+
+  final int months = (diff.inDays / 30).floor();
+  if (months < 12) return '$months months ago';
+
+  final int years = (months / 12).floor();
+  return '$years years ago';
 }
