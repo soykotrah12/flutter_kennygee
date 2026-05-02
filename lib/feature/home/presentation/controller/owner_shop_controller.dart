@@ -189,19 +189,15 @@ class OwnerShopController extends GetxController {
   String getDayOpenLabel(String day) {
     final ShopDayFormValue value = getDayValue(day);
     final String open = value.open.trim();
-    final String close = value.close.trim();
     if (value.closed) return 'N/A';
-    if (open.isNotEmpty && close.isNotEmpty) return open;
-    return 'N/A';
+    return open.isNotEmpty ? open : 'N/A';
   }
 
   String getDayCloseLabel(String day) {
     final ShopDayFormValue value = getDayValue(day);
-    final String open = value.open.trim();
     final String close = value.close.trim();
     if (value.closed) return 'N/A';
-    if (open.isNotEmpty && close.isNotEmpty) return close;
-    return 'N/A';
+    return close.isNotEmpty ? close : 'N/A';
   }
 
   String getDayDisplayText(String day) {
@@ -210,10 +206,9 @@ class OwnerShopController extends GetxController {
 
     final String open = value.open.trim();
     final String close = value.close.trim();
-    if (open.isNotEmpty && close.isNotEmpty) {
-      return '$open - $close';
-    }
-    return 'N/A';
+    final String openLabel = open.isNotEmpty ? open : 'N/A';
+    final String closeLabel = close.isNotEmpty ? close : 'N/A';
+    return '$openLabel - $closeLabel';
   }
 
   void toggleDayClosed(String day) {

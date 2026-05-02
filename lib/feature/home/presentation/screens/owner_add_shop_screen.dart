@@ -10,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/model/food_model.dart';
+import '../controller/owner_food_list_controller.dart';
 import '../controller/owner_shop_controller.dart';
 import 'owner_add_menu_screen.dart';
 
@@ -220,14 +222,19 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isEditing = _controller.hasShop;
-
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
       appBarTitle: 'Add Your Shop',
-      body: Obx(
-        () => Column(
+      body: Obx(() {
+        final existingShop = _controller.ownerShop.value;
+        final String resolvedShopId = (existingShop?.shopId ?? '').trim();
+        final String? shopId = resolvedShopId.isNotEmpty
+            ? resolvedShopId
+            : null;
+        final bool isEditMode = existingShop != null || shopId != null;
+
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
@@ -304,47 +311,12 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                 child: _operatingHourRow(day),
               ),
             ),
-            const SizedBox(height: 14),
-            const _FoodPreviewCard(),
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              child: TextButton.icon(
-                onPressed: () async {
-                  final bool? created = await Get.to<bool>(
-                    () => const OwnerAddMenuScreen(),
-                  );
-
-                  if (created == true && mounted) {
-                    Get.snackbar(
-                      'Success',
-                      'Menu item added successfully',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: AppColors.primaryGreen,
-                      colorText: Colors.white,
-                      margin: const EdgeInsets.all(12),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.add, color: Colors.white, size: 26),
-                label: const Text(
-                  'Add Food Item',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFFD1AE2F),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-            ),
+            if (isEditMode && shopId != null) ...[
+              const SizedBox(height: 14),
+              _menuPreviewSection(shopId),
+              const SizedBox(height: 14),
+              _addFoodItemButton(shopId),
+            ],
             const SizedBox(height: 35),
             SizedBox(
               width: double.infinity,
@@ -370,7 +342,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                         ),
                       )
                     : Text(
-                        isEditing ? 'Save Changes' : 'Save',
+                        isEditMode ? 'Save Changes' : 'Save',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -381,8 +353,8 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
             ),
             const SizedBox(height: 20),
           ],
-        ),
-      ),
+        );
+      }),
     );
   }
 
@@ -510,16 +482,22 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
       child: Row(
         children: [
           SizedBox(
-            width: 94,
-            child: Text(
-              dayLabel,
-              style: const TextStyle(
-                color: AppColors.textBlack,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+            width: 68,
+            child: Center(
+              child: Text(
+                dayLabel,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                softWrap: true,
+                style: const TextStyle(
+                  color: AppColors.textBlack,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
+          const SizedBox(width: 8),
           Expanded(
             child: isClosed
                 ? Align(
@@ -580,6 +558,80 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     );
   }
 
+  Widget _menuPreviewSection(String shopId) {
+    final OwnerFoodListController ownerFoodCtrl =
+        OwnerFoodListController.ensureInitialized(shopId);
+
+    return Obx(() {
+      if (ownerFoodCtrl.isLoading.value && ownerFoodCtrl.foods.isEmpty) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 6),
+          child: Center(
+            child: CircularProgressIndicator(color: AppColors.primaryGreen),
+          ),
+        );
+      }
+
+      if (ownerFoodCtrl.foods.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      final List<FoodModel> foods = ownerFoodCtrl.foods.take(2).toList();
+      return Column(
+        children: [
+          for (int i = 0; i < foods.length; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            _FoodPreviewCard(item: foods[i]),
+          ],
+        ],
+      );
+    });
+  }
+
+  Widget _addFoodItemButton(String shopId) {
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton.icon(
+        onPressed: () async {
+          final bool? created = await Get.to<bool>(
+            () => OwnerAddMenuScreen(shopId: shopId),
+          );
+
+          if (created == true && mounted) {
+            await OwnerFoodListController.ensureInitialized(
+              shopId,
+            ).fetchShopFoods();
+            Get.snackbar(
+              'Success',
+              'Menu item added successfully',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: AppColors.primaryGreen,
+              colorText: Colors.white,
+              margin: const EdgeInsets.all(12),
+            );
+          }
+        },
+        icon: const Icon(Icons.add, color: Colors.white, size: 26),
+        label: const Text(
+          'Add Food Item',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          backgroundColor: const Color(0xFFD1AE2F),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _timeBox({required String text, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
@@ -612,10 +664,26 @@ class _TimeSelectionResult {
 }
 
 class _FoodPreviewCard extends StatelessWidget {
-  const _FoodPreviewCard();
+  const _FoodPreviewCard({required this.item});
+
+  final FoodModel item;
 
   @override
   Widget build(BuildContext context) {
+    final bool hasFraction = item.price % 1 != 0;
+    final String formattedPrice = hasFraction
+        ? item.price.toStringAsFixed(2)
+        : item.price.toStringAsFixed(0);
+    final String imagePath = item.image.trim().isNotEmpty
+        ? item.image
+        : AppImages.food;
+    final String name = item.name.trim().isNotEmpty
+        ? item.name
+        : 'Unnamed item';
+    final String description = item.description.trim().isNotEmpty
+        ? item.description
+        : 'Food item';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(10),
@@ -636,34 +704,34 @@ class _FoodPreviewCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: const AdaptiveImage(
-              path: AppImages.food,
+            child: AdaptiveImage(
+              path: imagePath,
               width: 84,
               height: 84,
               fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Signature Avocad...',
+                  name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.textBlack,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Sourdough, poached eggs...',
+                  description,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.textGrey,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -673,9 +741,9 @@ class _FoodPreviewCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          const Text(
-            '\$18.90',
-            style: TextStyle(
+          Text(
+            '\$$formattedPrice',
+            style: const TextStyle(
               color: AppColors.primaryGreen,
               fontSize: 18,
               fontWeight: FontWeight.w700,
