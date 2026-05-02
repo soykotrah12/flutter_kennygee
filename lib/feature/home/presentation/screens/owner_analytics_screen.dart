@@ -31,40 +31,64 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
   Widget build(BuildContext context) {
     return AppScaffold(
       useSafeArea: true,
-      isScrollable: true,
+      isScrollable: false,
       backgroundColor: AppColors.appBackground,
       bodyPadding: const EdgeInsets.fromLTRB(16, 52, 16, 24),
       body: Obx(() {
         final OwnerAnalyticsModel? analytics = _controller.analytics.value;
 
         if (_controller.isLoading.value && analytics == null) {
-          return const Padding(
-            padding: EdgeInsets.only(top: 36),
-            child: Center(
-              child: CircularProgressIndicator(color: AppColors.primaryGreen),
+          return RefreshIndicator(
+            onRefresh: _controller.fetchAnalytics,
+            color: AppColors.primaryGreen,
+            child: ListView(
+              physics: AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 36),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGreen,
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         }
 
         if (_controller.error.value.isNotEmpty && analytics == null) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 32),
-            child: Column(
+          return RefreshIndicator(
+            onRefresh: _controller.fetchAnalytics,
+            color: AppColors.primaryGreen,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
               children: [
-                Text(
-                  _controller.error.value,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.textGrey,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Montserrat',
+                Padding(
+                  padding: const EdgeInsets.only(top: 32),
+                  child: Column(
+                    children: [
+                      Text(
+                        _controller.error.value,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextButton(
+                        onPressed: _controller.fetchAnalytics,
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: _controller.fetchAnalytics,
-                  child: const Text('Retry'),
                 ),
               ],
             ),
@@ -72,23 +96,43 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
         }
 
         if (analytics == null) {
-          return const Padding(
-            padding: EdgeInsets.only(top: 32),
-            child: Center(
-              child: Text(
-                'No analytics found',
-                style: TextStyle(
-                  color: AppColors.textGrey,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Montserrat',
-                ),
+          return RefreshIndicator(
+            onRefresh: _controller.fetchAnalytics,
+            color: AppColors.primaryGreen,
+            child: ListView(
+              physics: AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 32),
+                  child: Center(
+                    child: Text(
+                      'No analytics found',
+                      style: TextStyle(
+                        color: AppColors.textGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         }
 
-        return _AnalyticsBody(analytics: analytics);
+        return RefreshIndicator(
+          onRefresh: _controller.fetchAnalytics,
+          color: AppColors.primaryGreen,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            children: [_AnalyticsBody(analytics: analytics)],
+          ),
+        );
       }),
     );
   }
@@ -191,11 +235,7 @@ class _AnalyticsBody extends StatelessWidget {
                 ),
               ),
             ),
-            Image.asset(
-              AppImages.starIcon,
-              width: 18,
-              height: 18,
-            ),
+            Image.asset(AppImages.starIcon, width: 18, height: 18),
             const SizedBox(width: 10),
             Text(
               analytics.currentRating.toStringAsFixed(1),

@@ -8,6 +8,7 @@ import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/wishlist_item_model.dart';
 import '../controller/home_wishlist_controller.dart';
+import '../navigation/home_navigation.dart';
 import '../../../../core/common/controllers/wishlist_controller.dart';
 
 class FavoriteScreen extends StatefulWidget {
@@ -391,149 +392,166 @@ class _FavoriteGridCard extends StatelessWidget {
 
   final WishlistItemModel item;
 
+  void _openDetails() {
+    final String id = item.id.trim();
+    if (id.isEmpty) return;
+
+    if (item.type == WishlistItemType.restaurant) {
+      HomeNavigation.openRestaurantDetailsById(id);
+      return;
+    }
+
+    HomeNavigation.openFoodDetailsById(id);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            child: Stack(
-              children: [
-                AdaptiveImage(
-                  path: item.image.isNotEmpty
-                      ? item.image
-                      : AppImages.homeRestaurant1,
-                  width: double.infinity,
-                  height: 145,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Container(
-                    width: 26,
-                    height: 26,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: WishlistIcon(
-                        type: item.type.apiType,
-                        itemId: item.id,
-                        initiallyWishlisted: item.isLiked,
-                        color: AppColors.primaryOrange,
-                        size: 20,
+    return GestureDetector(
+      onTap: _openDetails,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+              child: Stack(
+                children: [
+                  AdaptiveImage(
+                    path: item.image.isNotEmpty
+                        ? item.image
+                        : AppImages.homeRestaurant1,
+                    width: double.infinity,
+                    height: 145,
+                    fit: BoxFit.cover,
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: WishlistIcon(
+                          type: item.type.apiType,
+                          itemId: item.id,
+                          initiallyWishlisted: item.isLiked,
+                          color: AppColors.primaryOrange,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    item.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
                     ),
                   ),
-                ),
-                const Icon(
-                  Icons.star,
-                  size: 12,
-                  color: AppColors.primaryOrange,
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  item.rating.toStringAsFixed(1),
-                  style: const TextStyle(
-                    color: AppColors.primaryGreen,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Montserrat',
+                  const Icon(
+                    Icons.star,
+                    size: 12,
+                    color: AppColors.primaryOrange,
                   ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
-            child: Row(
-              children: [
-                Image.asset(
-                  AppImages.location,
-                  width: 12,
-                  height: 12,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    item.distance,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 2),
+                  Text(
+                    item.rating.toStringAsFixed(1),
                     style: const TextStyle(
-                      color: AppColors.textBlack,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-            child: Row(
-              children: [
-                Image.asset(
-                  AppImages.clock,
-                  width: 12,
-                  height: 12,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    item.openingHours,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                      color: AppColors.primaryGreen,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+              child: Row(
+                children: [
+                  Image.asset(
+                    AppImages.location,
+                    width: 12,
+                    height: 12,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      item.distance,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+              child: Row(
+                children: [
+                  Image.asset(
+                    AppImages.clock,
+                    width: 12,
+                    height: 12,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      item.openingHours,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
