@@ -11,6 +11,7 @@ import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
 import 'help_support_screen.dart';
 import 'logout_confirm_screen.dart';
+import 'profile_bookmark_screen.dart';
 import 'privacy_policy_security_screen.dart';
 import 'terms_of_condition_screen.dart';
 
@@ -149,6 +150,8 @@ class ProfileScreen extends StatelessWidget {
                           title: 'Book Mark',
                           subtitle: 'See your Bookmark Resturent',
                           count: '12',
+                          onTap: () =>
+                              Get.to(() => const ProfileBookmarkScreen()),
                         ),
                       ],
                     ),

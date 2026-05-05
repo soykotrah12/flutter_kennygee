@@ -35,6 +35,8 @@ class RestaurantReviewsScreen extends StatefulWidget {
 
 class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
     with WidgetsBindingObserver {
+  static const String _bookmarkType = 'bookmark_shop';
+
   late final String _targetId;
   late final HomeReviewController _reviewController;
   late final ProfileController _profileController;
@@ -105,12 +107,15 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
     final String shopId = (widget.shopId ?? widget.restaurant.id).trim();
     if (shopId.isEmpty) return;
 
-    final bool previous = _wishlistController.isWishlisted('shop', shopId);
+    final bool previous = _wishlistController.isWishlisted(
+      _bookmarkType,
+      shopId,
+    );
     setState(() {
       _isBookmarkLoading = true;
     });
     _wishlistController.setWishlisted(
-      type: 'shop',
+      type: _bookmarkType,
       itemId: shopId,
       isWishlisted: !previous,
       bumpVersion: false,
@@ -127,9 +132,10 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
     result.fold(
       (failure) {
         _wishlistController.setWishlisted(
-          type: 'shop',
+          type: _bookmarkType,
           itemId: shopId,
           isWishlisted: previous,
+          bumpVersion: false,
         );
         setState(() {
           _isBookmarkLoading = false;
@@ -150,9 +156,10 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
           resolvedState = true;
         }
         _wishlistController.setWishlisted(
-          type: 'shop',
+          type: _bookmarkType,
           itemId: shopId,
           isWishlisted: resolvedState,
+          bumpVersion: false,
         );
         setState(() {
           _isBookmarkLoading = false;
@@ -212,7 +219,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
               : widget.restaurant.rating;
           final String shopId = (widget.shopId ?? widget.restaurant.id).trim();
           final bool isShopBookmarked = _wishlistController.isWishlisted(
-            'shop',
+            _bookmarkType,
             shopId,
           );
           _wishlistController.seedWishlist(

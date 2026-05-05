@@ -1,6 +1,6 @@
 class ApiConstants {
-  // static const String baseDomain = 'http://10.10.5.81:5006';
-  static const String baseDomain = 'https://backendkennygee.onrender.com';
+  static const String baseDomain = 'http://10.10.5.81:5006';
+  // static const String baseDomain = 'https://backendkennygee.onrender.com';
   static const String baseUrl = '$baseDomain/api/v1';
 
   static Map<String, String> get defaultHeaders => {
@@ -198,4 +198,5 @@ class BookmarkEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/bookmark';
 
   final String toggleBookmark = '$_base/toggle';
+  final String fetchMyBookmarks = '$_base/my-bookmarks';
 }

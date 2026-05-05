@@ -30,6 +30,8 @@ class RestaurantDetailsScreen extends StatefulWidget {
 
 class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
     with WidgetsBindingObserver {
+  static const String _bookmarkType = 'bookmark_shop';
+
   late final HomeShopDetailsController _detailsController;
   late final RestaurantModel _fallbackRestaurant;
   late final String _activeShopId;
@@ -95,12 +97,15 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
     final String shopId = _activeShopId.trim();
     if (shopId.isEmpty) return;
 
-    final bool previous = _wishlistController.isWishlisted('shop', shopId);
+    final bool previous = _wishlistController.isWishlisted(
+      _bookmarkType,
+      shopId,
+    );
     setState(() {
       _isBookmarkLoading = true;
     });
     _wishlistController.setWishlisted(
-      type: 'shop',
+      type: _bookmarkType,
       itemId: shopId,
       isWishlisted: !previous,
       bumpVersion: false,
@@ -117,9 +122,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
     result.fold(
       (failure) {
         _wishlistController.setWishlisted(
-          type: 'shop',
+          type: _bookmarkType,
           itemId: shopId,
           isWishlisted: previous,
+          bumpVersion: false,
         );
         setState(() {
           _isBookmarkLoading = false;
@@ -140,9 +146,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
           resolvedState = true;
         }
         _wishlistController.setWishlisted(
-          type: 'shop',
+          type: _bookmarkType,
           itemId: shopId,
           isWishlisted: resolvedState,
+          bumpVersion: false,
         );
         setState(() {
           _isBookmarkLoading = false;
@@ -162,7 +169,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
     return Obx(() {
       final RestaurantModel restaurant = _currentRestaurant;
       final bool isShopBookmarked = _wishlistController.isWishlisted(
-        'shop',
+        _bookmarkType,
         _activeShopId,
       );
       _wishlistController.seedWishlist(
