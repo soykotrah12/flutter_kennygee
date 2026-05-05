@@ -126,7 +126,8 @@ class ProfileScreen extends StatelessWidget {
                           iconColor: AppColors.primaryOrange,
                           title: 'Favorite Food & Restaurants',
                           subtitle: 'See your Favorite Restaurants',
-                          count: '12',
+                          count: profileController.totalWishlist.value
+                              .toString(),
                           onTap: () {
                             final AppUserRole role =
                                 flowController.selectedRole.value ??
@@ -149,7 +150,8 @@ class ProfileScreen extends StatelessWidget {
                           iconColor: AppColors.primaryOrange,
                           title: 'Book Mark',
                           subtitle: 'See your Bookmark Resturent',
-                          count: '12',
+                          count: profileController.totalBookmarks.value
+                              .toString(),
                           onTap: () =>
                               Get.to(() => const ProfileBookmarkScreen()),
                         ),
