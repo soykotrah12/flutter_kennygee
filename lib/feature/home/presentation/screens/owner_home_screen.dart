@@ -125,15 +125,15 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(
-                child: SecondaryButton(
-                  onPressed: () => _showBoostNowDialog(context),
-                  text: 'Boost Now',
-                  height: 51,
-                  borderRadius: 8,
-                ),
-              ),
-              const SizedBox(width: 12),
+              // Expanded(
+              //   child: SecondaryButton(
+              //     onPressed: () => _showBoostNowDialog(context),
+              //     text: 'Boost Now',
+              //     height: 51,
+              //     borderRadius: 8,
+              //   ),
+              // ),
+              // const SizedBox(width: 12),
               Expanded(
                 child: PrimaryButton(
                   onPressed: () => Get.to(() => const CreateEventScreen()),
