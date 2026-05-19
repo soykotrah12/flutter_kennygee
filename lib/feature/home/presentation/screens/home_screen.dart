@@ -130,13 +130,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   fit: BoxFit.contain,
                 ),
                 const Spacer(),
-                Image.asset(
-                  AppImages.ai,
-                  width: 30,
-                  height: 30,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 10),
                 InkWell(
                   onTap: _openEvents,
                   borderRadius: BorderRadius.circular(10),
@@ -473,9 +466,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _openRecommendedItem(HomeRecommendationItemModel item) async {
     if (item.type == 'shop' && item.restaurant != null) {
-      await Get.to(
-        () => RestaurantDetailsScreen(shopId: item.restaurant!.id),
-      );
+      await Get.to(() => RestaurantDetailsScreen(shopId: item.restaurant!.id));
       if (!mounted) return;
       _refreshHomeData();
       return;

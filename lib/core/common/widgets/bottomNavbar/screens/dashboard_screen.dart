@@ -73,6 +73,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: List.generate(_controller.tabs.length, (index) {
                   final tab = _controller.tabs[index];
                   final isActive = _controller.currentIndex.value == index;
+                  final isHighlighted = tab.isHighlighted;
+                  final double iconContainerSize = isHighlighted
+                      ? (isActive ? 38 : 46)
+                      : (isActive ? 34 : 42);
+                  final double iconSize = isHighlighted
+                      ? (isActive ? 22 : 26)
+                      : (isActive ? 20 : 24);
 
                   return GestureDetector(
                     onTap: () => _controller.changeIndex(index),
@@ -94,17 +101,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            width: isActive ? 34 : 42,
-                            height: isActive ? 34 : 42,
+                            width: iconContainerSize,
+                            height: iconContainerSize,
                             decoration: BoxDecoration(
                               color: isActive
                                   ? const Color(0xFFF2ECE5)
                                   : AppColors.primaryGreen,
                               shape: BoxShape.circle,
+                              border: isHighlighted && !isActive
+                                  ? Border.all(
+                                      color: const Color(0xFFF2ECE5),
+                                      width: 1.2,
+                                    )
+                                  : null,
                             ),
                             child: Icon(
                               isActive ? tab.activeIcon : tab.icon,
-                              size: isActive ? 20 : 24,
+                              size: iconSize,
                               color: isActive
                                   ? AppColors.primaryGreen
                                   : Colors.white,

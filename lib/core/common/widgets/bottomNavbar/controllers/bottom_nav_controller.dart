@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../feature/auth/presentation/controller/auth_flow_controller.dart';
+import '../../../../../feature/Ai/presentation/screens/ai_chat_screen.dart';
 import '../../../../../feature/home/presentation/screens/favorite_screen.dart';
 import '../../../../../feature/home/presentation/screens/home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_analytics_screen.dart';
@@ -66,7 +67,14 @@ class BottomNavController extends GetxController {
             ),
           ),
           const DashboardTabItem(
-            label: 'Favorite',
+            label: 'AI Chat',
+            icon: Icons.auto_awesome_outlined,
+            activeIcon: Icons.auto_awesome,
+            isHighlighted: true,
+            screen: AiChatScreen(),
+          ),
+          const DashboardTabItem(
+            label: 'Wishlist',
             icon: Icons.favorite_outline,
             activeIcon: Icons.favorite,
             screen: FavoriteScreen(),
@@ -114,12 +122,14 @@ class DashboardTabItem {
     required this.icon,
     required this.activeIcon,
     required this.screen,
+    this.isHighlighted = false,
   });
 
   final String label;
   final IconData icon;
   final IconData activeIcon;
   final Widget screen;
+  final bool isHighlighted;
 }
 
 class DashboardPlaceholderView extends StatelessWidget {

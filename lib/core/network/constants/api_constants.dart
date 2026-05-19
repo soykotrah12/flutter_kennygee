@@ -39,6 +39,7 @@ class ApiConstants {
   static AnalyticsEndpoints get analytics => AnalyticsEndpoints();
   static WishlistEndpoints get wishlist => WishlistEndpoints();
   static BookmarkEndpoints get bookmark => BookmarkEndpoints();
+  static ChatEndpoints get chat => ChatEndpoints();
 }
 
 /// [Authentication Endpoints]
@@ -199,4 +200,10 @@ class BookmarkEndpoints {
 
   final String toggleBookmark = '$_base/toggle';
   final String fetchMyBookmarks = '$_base/my-bookmarks';
+}
+
+class ChatEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/chat';
+
+  final String chats = '$_base/';
 }
