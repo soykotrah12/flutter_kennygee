@@ -53,10 +53,16 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
+                        // Image.asset(
+                        //   AppImages.appLogo,
+                        //   width: 32,
+                        //   height: 51,
+                        //   fit: BoxFit.contain,
+                        // ),
                         Image.asset(
                           AppImages.appLogo,
-                          width: 32,
-                          height: 51,
+                          width: 60,
+                          height: 60,
                           fit: BoxFit.contain,
                         ),
                         const Spacer(),

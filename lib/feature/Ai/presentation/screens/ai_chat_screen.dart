@@ -47,10 +47,16 @@ class _AiChatScreenState extends State<AiChatScreen> {
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
               child: Row(
                 children: [
+                  // Image.asset(
+                  //   AppImages.appLogo,
+                  //   width: 22,
+                  //   height: 36,
+                  //   fit: BoxFit.contain,
+                  // ),
                   Image.asset(
                     AppImages.appLogo,
-                    width: 22,
-                    height: 36,
+                    width: 60,
+                    height: 60,
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 7),

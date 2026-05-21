@@ -123,12 +123,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           children: [
             Row(
               children: [
+                // Image.asset(
+                //   AppImages.appLogo,
+                //   width: 32,
+                //   height: 51,
+                //   fit: BoxFit.contain,
+                // ),
                 Image.asset(
                   AppImages.appLogo,
-                  width: 32,
-                  height: 51,
+                  width: 60,
+                  height: 60,
                   fit: BoxFit.contain,
                 ),
+                // Image.asset(
+                //   AppImages.appicon,
+                //   width: 40,
+                //   height: 40,
+                //   fit: BoxFit.contain,
+                // ),
+                
                 const Spacer(),
                 InkWell(
                   onTap: _openEvents,
