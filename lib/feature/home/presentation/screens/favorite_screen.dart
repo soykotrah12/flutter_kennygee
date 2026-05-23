@@ -72,14 +72,17 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double cardAspectRatio = screenWidth < 370 ? 0.66 : 0.72;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(AppImages.rolebackground),
-          fit: BoxFit.cover,
-        ),
-      ),
+      decoration: isDark
+          ? BoxDecoration(color: AppColors.darkBackground)
+          : BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AppImages.rolebackground),
+                fit: BoxFit.cover,
+              ),
+            ),
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
@@ -115,13 +118,13 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               _searchQuery = value;
                             });
                           },
-                          style: const TextStyle(
-                            color: AppColors.textBlack,
+                          style: TextStyle(
+                            color: AppColors.primaryText(context),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat',
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             isCollapsed: true,
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
@@ -131,7 +134,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                             focusedErrorBorder: InputBorder.none,
                             hintText: 'Search Restaurant, dishes...',
                             hintStyle: TextStyle(
-                              color: AppColors.textGrey,
+                              color: AppColors.secondaryText(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               fontFamily: 'Montserrat',
@@ -152,7 +155,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     child: Container(
                       width: 56,
                       height: double.infinity,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.primaryGreen,
                         borderRadius: BorderRadius.horizontal(
                           right: Radius.circular(14),
@@ -214,12 +217,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               return AnimatedSwitcher(
                 duration: const Duration(milliseconds: 180),
                 child: isSyncing
-                    ? const Padding(
+                    ? Padding(
                         padding: EdgeInsets.only(bottom: 10),
                         child: LinearProgressIndicator(
                           minHeight: 2,
                           color: AppColors.primaryGreen,
-                          backgroundColor: Color(0xFFE8F3EA),
+                          backgroundColor: AppColors.softCardColor(context),
                         ),
                       )
                     : const SizedBox(height: 10),
@@ -233,7 +236,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 );
 
                 if (_wishlistController.isLoading.value && items.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryGreen,
                     ),
@@ -251,8 +254,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           Text(
                             _wishlistController.error.value,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.textGrey,
+                            style: TextStyle(
+                              color: AppColors.secondaryText(context),
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Montserrat',
@@ -261,7 +264,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           const SizedBox(height: 10),
                           TextButton(
                             onPressed: _wishlistController.refreshCurrentTab,
-                            child: const Text(
+                            child: Text(
                               'Try again',
                               style: TextStyle(
                                 color: AppColors.primaryGreen,
@@ -278,11 +281,11 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 }
 
                 if (items.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'No wishlist items found',
                       style: TextStyle(
-                        color: AppColors.textGrey,
+                        color: AppColors.secondaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
@@ -292,11 +295,11 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 }
 
                 if (filteredItems.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'No matching items found',
                       style: TextStyle(
-                        color: AppColors.textGrey,
+                        color: AppColors.secondaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
@@ -372,7 +375,7 @@ class _FavoriteFilterChip extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.visible,
                   style: TextStyle(
-                    color: isActive ? Colors.white : AppColors.textBlack,
+                    color: isActive ? Colors.white : AppColors.primaryText(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
@@ -410,7 +413,7 @@ class _FavoriteGridCard extends StatelessWidget {
       onTap: _openDetails,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardColor(context),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -443,8 +446,8 @@ class _FavoriteGridCard extends StatelessWidget {
                     child: Container(
                       width: 26,
                       height: 26,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: AppColors.cardColor(context),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -470,15 +473,15 @@ class _FavoriteGridCard extends StatelessWidget {
                       item.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.star,
                     size: 12,
                     color: AppColors.primaryOrange,
@@ -486,7 +489,7 @@ class _FavoriteGridCard extends StatelessWidget {
                   const SizedBox(width: 2),
                   Text(
                     item.rating.toStringAsFixed(1),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.primaryGreen,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -512,8 +515,8 @@ class _FavoriteGridCard extends StatelessWidget {
                       item.distance,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
@@ -539,8 +542,8 @@ class _FavoriteGridCard extends StatelessWidget {
                       item.openingHours,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Montserrat',

@@ -68,10 +68,10 @@ class _EventsScreenState extends State<EventsScreen> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Hungry? Discover\nWhat\'s nearby',
               style: TextStyle(
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 22,
                 height: 1.25,
                 fontWeight: FontWeight.w600,
@@ -97,13 +97,13 @@ class _EventsScreenState extends State<EventsScreen> {
                             _searchQuery = value;
                           });
                         },
-                        style: const TextStyle(
-                          color: AppColors.textBlack,
+                        style: TextStyle(
+                          color: AppColors.primaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                           fontFamily: 'Montserrat',
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           isCollapsed: true,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -113,7 +113,7 @@ class _EventsScreenState extends State<EventsScreen> {
                           focusedErrorBorder: InputBorder.none,
                           hintText: 'Search event name, price...',
                           hintStyle: TextStyle(
-                            color: AppColors.textGrey,
+                            color: AppColors.secondaryText(context),
                             fontSize: 14,
                             fontWeight: FontWeight.w300,
                             fontFamily: 'Montserrat',
@@ -153,7 +153,7 @@ class _EventsScreenState extends State<EventsScreen> {
               ),
             ),
             const SizedBox(height: 28),
-            const Text(
+            Text(
               'Limited Experiences',
               style: TextStyle(
                 color: AppColors.primaryGreen,
@@ -163,10 +163,10 @@ class _EventsScreenState extends State<EventsScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Upcoming Events Nearby',
               style: TextStyle(
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Montserrat',
@@ -178,7 +178,7 @@ class _EventsScreenState extends State<EventsScreen> {
               final List<EventModel> filteredEvents = _filterEvents(events);
 
               if (_eventController.isLoading.value && events.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
                   child: Center(
                     child: CircularProgressIndicator(
@@ -193,8 +193,8 @@ class _EventsScreenState extends State<EventsScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     _eventController.error.value,
-                    style: const TextStyle(
-                      color: AppColors.textGrey,
+                    style: TextStyle(
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -204,12 +204,12 @@ class _EventsScreenState extends State<EventsScreen> {
               }
 
               if (events.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     'No events found',
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -219,12 +219,12 @@ class _EventsScreenState extends State<EventsScreen> {
               }
 
               if (filteredEvents.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     'No matching events found',
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -269,11 +269,11 @@ class _EventCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardColor(context),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: AppColors.shadow(context),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -303,12 +303,12 @@ class _EventCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF2F2F2),
+                        color: AppColors.softCardColor(context),
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(
                         event.fee,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.primaryGreen,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -327,26 +327,26 @@ class _EventCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.calendar_today_outlined,
-                        color: AppColors.textGrey,
+                        color: AppColors.secondaryText(context),
                         size: 22,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           event.date,
-                          style: const TextStyle(
-                            color: AppColors.textGrey,
+                          style: TextStyle(
+                            color: AppColors.secondaryText(context),
                             fontSize: 20 / 2,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Montserrat',
                           ),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.access_time,
-                        color: AppColors.textGrey,
+                        color: AppColors.secondaryText(context),
                         size: 22,
                       ),
                       const SizedBox(width: 6),
@@ -355,8 +355,8 @@ class _EventCard extends StatelessWidget {
                           event.time,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.textGrey,
+                          style: TextStyle(
+                            color: AppColors.secondaryText(context),
                             fontSize: 20 / 2,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Montserrat',
@@ -368,8 +368,8 @@ class _EventCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     event.title,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
                       fontSize: 20 * 1.75 / 2,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
@@ -378,9 +378,9 @@ class _EventCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on_outlined,
-                        color: AppColors.textGrey,
+                        color: AppColors.secondaryText(context),
                         size: 24,
                       ),
                       const SizedBox(width: 6),
@@ -389,8 +389,8 @@ class _EventCard extends StatelessWidget {
                           event.location,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.textGrey,
+                          style: TextStyle(
+                            color: AppColors.secondaryText(context),
                             fontSize: 17 * 1.2 / 2,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat',

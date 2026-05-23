@@ -27,23 +27,23 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       barrierDismissible: true,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.cardColor(context),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          title: const Text(
+          title: Text(
             'Payment Confirmation',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 18,
               fontWeight: FontWeight.w700,
               fontFamily: 'Montserrat',
             ),
           ),
-          content: const Text(
+          content: Text(
             'Do you want to pay now and create this event?',
             style: TextStyle(
-              color: AppColors.textGrey,
+              color: AppColors.secondaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w500,
               fontFamily: 'Montserrat',
@@ -67,7 +67,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     onPressed: () => Navigator.of(context).pop(true),
                     height: 42,
                     borderRadius: 8,
-                    child: const Text(
+                    child: Text(
                       'Pay Now',
                       style: TextStyle(
                         color: Colors.white,
@@ -110,7 +110,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       appBarTitle: 'Create Event',
       centerTitle: false,
       bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -120,10 +120,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Fill event details and publish instantly.',
               style: TextStyle(
-                color: AppColors.textGrey,
+                color: AppColors.secondaryText(context),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Montserrat',
@@ -158,10 +158,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     hintText: 'MM/DD/YYYY',
                     readOnly: true,
                     onTap: () => _controller.pickDate(context),
-                    suffixIcon: const Icon(
+                    suffixIcon: Icon(
                       Icons.calendar_today_outlined,
                       size: 20,
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                     ),
                   ),
                 ),
@@ -173,10 +173,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     hintText: '6:00 PM',
                     readOnly: true,
                     onTap: () => _controller.pickTime(context),
-                    suffixIcon: const Icon(
+                    suffixIcon: Icon(
                       Icons.access_time_outlined,
                       size: 20,
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                     ),
                   ),
                 ),
@@ -207,13 +207,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF5F1),
+                  color: AppColors.softCardColor(context),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFCCE2DA)),
+                  border: Border.all(color: AppColors.divider(context)),
                 ),
                 child: Text(
                   'Synced from API • ${_controller.createdEvent.value!.eventId}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.primaryGreen,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -227,7 +227,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               height: 48,
               borderRadius: 10,
               isLoading: isSubmitting,
-              child: const Text(
+              child: Text(
                 'Create Event',
                 style: TextStyle(
                   color: Colors.white,

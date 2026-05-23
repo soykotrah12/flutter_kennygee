@@ -155,16 +155,16 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       appBarTitle: 'Help & Support',
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'User Email',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 16,
               fontWeight: FontWeight.w500,
               fontFamily: 'Montserrat',
@@ -172,8 +172,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           ),
           const SizedBox(height: 10),
           TextField(
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w400,
               fontFamily: 'Montserrat',
@@ -183,18 +183,18 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             enableInteractiveSelection: false,
             decoration: InputDecoration(
               hintText: 'Enter your Email',
-              hintStyle: const TextStyle(
+              hintStyle: TextStyle(
                 color: AppColors.textGrey,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Montserrat',
               ),
-              prefixIcon: const Padding(
+              prefixIcon: Padding(
                 padding: EdgeInsets.only(left: 14, right: 10),
                 child: Icon(
                   Icons.person_outline,
                   size: 26,
-                  color: AppColors.textBlack,
+                  color: AppColors.primaryText(context),
                 ),
               ),
               prefixIconConstraints: const BoxConstraints(minWidth: 48),
@@ -221,10 +221,10 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             ),
           ),
           const SizedBox(height: 18),
-          const Text(
+          Text(
             'Subject',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 16,
               fontWeight: FontWeight.w500,
               fontFamily: 'Montserrat',
@@ -232,8 +232,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           ),
           const SizedBox(height: 10),
           TextField(
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w400,
               fontFamily: 'Montserrat',
@@ -241,7 +241,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             controller: _subjectController,
             decoration: InputDecoration(
               hintText: 'Problem Heading',
-              hintStyle: const TextStyle(
+              hintStyle: TextStyle(
                 color: AppColors.textGrey,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -271,10 +271,10 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             ),
           ),
           const SizedBox(height: 18),
-          const Text(
+          Text(
             'Description',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w500,
               fontFamily: 'Montserrat',
@@ -285,15 +285,15 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             controller: _descriptionController,
             maxLength: 300,
             maxLines: 5,
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w400,
               fontFamily: 'Montserrat',
             ),
             decoration: InputDecoration(
               hintText: 'Description',
-              hintStyle: const TextStyle(
+              hintStyle: TextStyle(
                 color: AppColors.textGrey,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -328,7 +328,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               alignment: Alignment.centerRight,
               child: Text(
                 '${_descriptionController.text.length}/300',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textGrey,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -343,7 +343,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             isLoading: _isSending,
             height: 52,
             borderRadius: 8,
-            child: const Text(
+            child: Text(
               'Send',
               style: TextStyle(
                 color: Colors.white,

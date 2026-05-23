@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../data/model/restaurant_model.dart';
@@ -15,7 +16,10 @@ class HomeShopDetailsController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
   StreamSubscription<ApiMutationEvent>? _mutationSubscription;
+  Timer? _mutationRefreshDebounce;
   bool _queuedRefresh = false;
+  int _fetchCount = 0;
+  static int _initCount = 0;
 
   static String tagForShop(String shopId) => 'shop_details_$shopId';
 
@@ -55,6 +59,11 @@ class HomeShopDetailsController extends GetxController {
       return;
     }
 
+    _fetchCount++;
+    debugPrint(
+      '[HomeShopDetailsController] fetchShopDetails #$_fetchCount shopId=$shopId force=$force',
+    );
+
     isLoading.value = true;
     error.value = '';
 
@@ -79,9 +88,17 @@ class HomeShopDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _initCount++;
+    debugPrint(
+      '[HomeShopDetailsController] onInit count=$_initCount shopId=$shopId',
+    );
+
     _mutationSubscription = ApiClient.mutationStream.listen((event) {
       if (_shouldRefresh(event)) {
-        fetchShopDetails(shopId: shopId, force: true);
+        _mutationRefreshDebounce?.cancel();
+        _mutationRefreshDebounce = Timer(const Duration(milliseconds: 450), () {
+          fetchShopDetails(shopId: shopId, force: true);
+        });
       }
     });
   }
@@ -103,6 +120,7 @@ class HomeShopDetailsController extends GetxController {
 
   @override
   void onClose() {
+    _mutationRefreshDebounce?.cancel();
     _mutationSubscription?.cancel();
     super.onClose();
   }

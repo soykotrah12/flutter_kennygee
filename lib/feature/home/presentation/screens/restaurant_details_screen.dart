@@ -31,12 +31,14 @@ class RestaurantDetailsScreen extends StatefulWidget {
 class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
     with WidgetsBindingObserver {
   static const String _bookmarkType = 'bookmark_shop';
+  static int _buildCount = 0;
 
   late final HomeShopDetailsController _detailsController;
   late final RestaurantModel _fallbackRestaurant;
   late final String _activeShopId;
   late final ApiClient _apiClient;
   late final WishlistController _wishlistController;
+  Worker? _restaurantSeedWorker;
   bool _isBookmarkLoading = false;
 
   int selectedCategoryIndex = 0;
@@ -69,12 +71,24 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
       itemId: _activeShopId,
       isWishlisted: widget.restaurant?.isLiked ?? false,
     );
+    _restaurantSeedWorker = ever<RestaurantModel?>(
+      _detailsController.restaurant,
+      (RestaurantModel? value) {
+        if (value == null) return;
+        _wishlistController.seedWishlist(
+          type: 'shop',
+          itemId: value.id,
+          isWishlisted: value.isLiked,
+        );
+      },
+    );
     _detailsController.fetchShopDetails(shopId: _activeShopId);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _restaurantSeedWorker?.dispose();
     final String tag = HomeShopDetailsController.tagForShop(_activeShopId);
     if (Get.isRegistered<HomeShopDetailsController>(tag: tag)) {
       Get.delete<HomeShopDetailsController>(tag: tag);
@@ -134,7 +148,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
           'Bookmark Failed',
           failure.message,
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.cardColor(context),
         );
       },
       (success) {
@@ -160,6 +174,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    _buildCount++;
+    debugPrint('[RestaurantDetailsScreen] build count=$_buildCount');
+
     final List<String> dishIcons = [
       'assets/icons/pasta.png',
       'assets/icons/burger.png',
@@ -171,11 +188,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
       final bool isShopBookmarked = _wishlistController.isWishlisted(
         _bookmarkType,
         _activeShopId,
-      );
-      _wishlistController.seedWishlist(
-        type: 'shop',
-        itemId: restaurant.id,
-        isWishlisted: restaurant.isLiked,
       );
       final List<RestaurantMenuCategoryModel> menuCategories = restaurant
           .menuCategories
@@ -195,7 +207,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
           : restaurant.menuItems;
 
       return Container(
-        color: const Color(0xFFF3F3F3),
+        color: AppColors.background(context),
         child: AppScaffold(
           useSafeArea: true,
           isScrollable: false,
@@ -210,17 +222,17 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
             title: Text.rich(
               TextSpan(
                 text: 'Details ',
-                style: const TextStyle(
-                  color: AppColors.textBlack,
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Montserrat',
                 ),
-                children: const [
+                children: [
                   TextSpan(
                     text: '(within 10km Restaurant)',
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
@@ -270,7 +282,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
                           ),
                         ),
                         child: _isBookmarkLoading
-                            ? const Padding(
+                            ? Padding(
                                 padding: EdgeInsets.all(10),
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
@@ -305,10 +317,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
                   operatingHours: restaurant.operatingHours,
                 ),
                 const SizedBox(height: 26),
-                const Text(
+                Text(
                   'Popular Dishes',
                   style: TextStyle(
-                    color: AppColors.textBlack,
+                    color: AppColors.primaryText(context),
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Montserrat',
@@ -344,10 +356,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
                     ),
                   )
                 else
-                  const Text(
+                  Text(
                     'No popular dishes available',
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontFamily: 'Montserrat',
                     ),
@@ -356,10 +368,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
                 if (visibleMenuItems.isNotEmpty)
                   ...visibleMenuItems.map((item) => _MenuItemTile(item: item))
                 else
-                  const Text(
+                  Text(
                     'No menu items available',
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontFamily: 'Montserrat',
                     ),
@@ -419,7 +431,7 @@ class _HeroCard extends StatelessWidget {
                         restaurant.name.isNotEmpty
                             ? restaurant.name
                             : 'Restaurant',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -433,7 +445,7 @@ class _HeroCard extends StatelessWidget {
                         restaurant.subtitle.isNotEmpty
                             ? restaurant.subtitle
                             : 'Restaurant',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -449,7 +461,7 @@ class _HeroCard extends StatelessWidget {
                 Container(
                   width: 24,
                   height: 24,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
@@ -489,18 +501,18 @@ class _RatingPill extends StatelessWidget {
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAF8),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: AppColors.primaryGreen, width: 2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star, color: AppColors.primaryOrange, size: 16),
+          Icon(Icons.star, color: AppColors.primaryOrange, size: 16),
           const SizedBox(width: 8),
           Text(
             rating.toStringAsFixed(1),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primaryGreen,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -512,8 +524,8 @@ class _RatingPill extends StatelessWidget {
             onTap: onReviewsTap,
             child: Text(
               '($reviewsCount Reviews)',
-              style: const TextStyle(
-                color: AppColors.textBlack,
+              style: TextStyle(
+                color: AppColors.primaryText(context),
                 fontSize: 16,
                 decoration: TextDecoration.underline,
                 fontWeight: FontWeight.w500,
@@ -553,8 +565,8 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: AppColors.textBlack,
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Montserrat',
@@ -563,8 +575,8 @@ class _InfoRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
-                  color: AppColors.textBlack,
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Montserrat',
@@ -608,14 +620,18 @@ class _OpeningHoursSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.access_time_rounded, color: Color(0xFF2EA84A), size: 24),
+            Icon(
+              Icons.access_time_rounded,
+              color: AppColors.primaryGreen,
+              size: 24,
+            ),
             SizedBox(width: 8),
             Text(
               'Operating Hours',
               style: TextStyle(
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 28,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Montserrat',
@@ -627,7 +643,7 @@ class _OpeningHoursSection extends StatelessWidget {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.cardColor(context),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -644,10 +660,10 @@ class _OpeningHoursSection extends StatelessWidget {
                 children: [
                   _OpeningHoursDayRow(entry: entry),
                   if (index != entries.length - 1)
-                    const Divider(
+                    Divider(
                       height: 1,
                       thickness: 1,
-                      color: Color(0xFFF0F0F0),
+                      color: AppColors.softCardColor(context),
                       indent: 14,
                       endIndent: 14,
                     ),
@@ -692,8 +708,8 @@ class _OpeningHoursDayRow extends StatelessWidget {
                 width: dayColumnWidth,
                 child: Text(
                   entry.day,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
@@ -717,10 +733,10 @@ class _OpeningHoursDayRow extends StatelessWidget {
                           children: hasOpen && hasClose
                               ? <Widget>[
                                   _OpeningHoursChip(label: openLabel),
-                                  const Text(
+                                  Text(
                                     '\u2212',
                                     style: TextStyle(
-                                      color: Color(0xFF13674F),
+                                      color: AppColors.primaryGreen,
                                       fontSize: 22,
                                       fontWeight: FontWeight.w600,
                                       fontFamily: 'Montserrat',
@@ -752,14 +768,14 @@ class _OpeningHoursChip extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 74),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F3F3),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         label,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: textColor ?? AppColors.textBlack,
+          color: textColor ?? AppColors.primaryText(context),
           fontSize: 16,
           fontWeight: FontWeight.w500,
           fontFamily: 'Montserrat',
@@ -817,7 +833,7 @@ class _DishChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: isActive ? Colors.white : AppColors.textBlack,
+              color: isActive ? Colors.white : AppColors.primaryText(context),
               fontSize: 16,
               fontWeight: FontWeight.w500,
               fontFamily: 'Montserrat',
@@ -844,9 +860,9 @@ class _MenuItemTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE9C166), width: 1.5),
+        border: Border.all(color: AppColors.divider(context), width: 1.2),
       ),
       child: Row(
         children: [
@@ -866,8 +882,8 @@ class _MenuItemTile extends StatelessWidget {
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
@@ -877,8 +893,8 @@ class _MenuItemTile extends StatelessWidget {
                 Text.rich(
                   TextSpan(
                     text: 'Price ',
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
@@ -886,7 +902,7 @@ class _MenuItemTile extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '\$${item.price.toStringAsFixed(0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.primaryGreen,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -904,7 +920,7 @@ class _MenuItemTile extends StatelessWidget {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.cardColor(context),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(

@@ -105,7 +105,7 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
         'Validation',
         'Please fill all required menu fields.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardColor(context),
         margin: const EdgeInsets.all(12),
       );
       return;
@@ -117,7 +117,7 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
         'Validation',
         'Please enter a valid base price.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardColor(context),
         margin: const EdgeInsets.all(12),
       );
       return;
@@ -129,7 +129,7 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
         'Validation',
         'Please create a shop before adding menu items.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardColor(context),
         margin: const EdgeInsets.all(12),
       );
       return;
@@ -158,7 +158,7 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
           'Add Failed',
           failure.message,
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.cardColor(context),
           margin: const EdgeInsets.all(12),
         );
       },
@@ -245,7 +245,7 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Text(
+                  : Text(
                       'Save Menu',
                       style: TextStyle(
                         color: Colors.white,
@@ -264,11 +264,11 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: AppColors.shadow(context, light: 0.07, dark: 0.22),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -326,11 +326,11 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: AppColors.shadow(context, light: 0.07, dark: 0.22),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -341,11 +341,11 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Special Offer',
                   style: TextStyle(
-                    color: AppColors.textBlack,
+                    color: AppColors.primaryText(context),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -361,15 +361,15 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
                 activeThumbColor: Colors.white,
                 activeTrackColor: AppColors.primaryGreen,
                 inactiveThumbColor: Colors.white,
-                inactiveTrackColor: const Color(0xFFD4D4D4),
+                inactiveTrackColor: AppColors.divider(context),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Give offer to the client',
             style: TextStyle(
-              color: AppColors.textGrey,
+              color: AppColors.secondaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
@@ -404,14 +404,14 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
         Container(
           width: 40,
           height: 40,
-          decoration: const BoxDecoration(
-            color: Color(0xFFDCE5E2),
+          decoration: BoxDecoration(
+            color: AppColors.iconCircleSurface(context),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.add, color: AppColors.primaryGreen, size: 28),
+          child: Icon(Icons.add, color: AppColors.primaryGreen, size: 28),
         ),
         const SizedBox(height: 10),
-        const Text(
+        Text(
           'Add photo',
           style: TextStyle(
             color: AppColors.primaryGreen,
@@ -426,8 +426,8 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
   Widget _label(String label) {
     return Text(
       label,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
@@ -446,17 +446,17 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
       maxLines: maxLines,
       keyboardType: keyboardType,
       enabled: enabled,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color(0xFFE8E8E8),
+        fillColor: AppColors.mutedInput(context),
         hintText: hintText,
-        hintStyle: const TextStyle(
-          color: AppColors.textGrey,
+        hintStyle: TextStyle(
+          color: AppColors.secondaryText(context),
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
@@ -483,19 +483,22 @@ class _OwnerAddMenuScreenState extends State<OwnerAddMenuScreen> {
   Widget _categoryDropdown() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFE8E8E8),
+        color: AppColors.mutedInput(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: DropdownButtonFormField<String>(
         initialValue: _selectedCategory,
         borderRadius: BorderRadius.circular(12),
-        icon: const Icon(Icons.keyboard_arrow_down_rounded),
-        style: const TextStyle(
-          color: AppColors.textGrey,
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: AppColors.secondaryText(context),
+        ),
+        style: TextStyle(
+          color: AppColors.primaryText(context),
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),

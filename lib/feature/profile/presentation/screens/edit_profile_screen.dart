@@ -20,7 +20,7 @@ class EditProfileScreen extends StatelessWidget {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       appBarTitle: 'Edit Profile',
       body: Obx(() {
@@ -29,7 +29,7 @@ class EditProfileScreen extends StatelessWidget {
             profileController.profile.value == null;
 
         if (isInitialLoading) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: AppColors.primaryGreen),
           );
         }
@@ -112,13 +112,13 @@ class _OwnerEditProfileLayout extends StatelessWidget {
           _OwnerInputField(
             child: TextField(
               controller: profileController.nameController,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Color(0xFF6C6C6C),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Montserrat',
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Enter your name',
                 hintStyle: TextStyle(
                   color: Color(0xFF7A7A7A),
@@ -148,13 +148,13 @@ class _OwnerEditProfileLayout extends StatelessWidget {
               key: ValueKey('owner_email_${profile?.email ?? ''}'),
               initialValue: profile?.email ?? '',
               readOnly: true,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Color(0xFF7A7A7A),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Montserrat',
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 filled: false, 
                 fillColor: Colors.transparent,
                 border: InputBorder.none,
@@ -176,13 +176,13 @@ class _OwnerEditProfileLayout extends StatelessWidget {
               key: ValueKey('owner_phone_${profile?.phoneNumber ?? ''}'),
               initialValue: profile?.phoneNumber ?? '',
               readOnly: true,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Color(0xFF7A7A7A),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Montserrat',
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 filled: false,
                 fillColor: Colors.transparent,
                 border: InputBorder.none,
@@ -220,7 +220,7 @@ class _OwnerEditProfileLayout extends StatelessWidget {
                         color: Colors.white,
                       ),
                     )
-                  : const Text(
+                  : Text(
                       'Save',
                       style: TextStyle(
                         color: Colors.white,
@@ -300,10 +300,10 @@ class _DefaultEditProfileLayout extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Text(
+              Text(
                 'Name: ',
                 style: TextStyle(
-                  color: AppColors.textBlack,
+                  color: AppColors.primaryText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Montserrat',
@@ -312,13 +312,13 @@ class _DefaultEditProfileLayout extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: profileController.nameController,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Montserrat',
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Enter your name',
                     filled: false,
                     border: InputBorder.none,
@@ -359,7 +359,7 @@ class _DefaultEditProfileLayout extends StatelessWidget {
                       color: Colors.white,
                     ),
                   )
-                : const Text(
+                : Text(
                     'Save',
                     style: TextStyle(
                       color: Colors.white,
@@ -384,7 +384,7 @@ class _OwnerFieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         color: Colors.black,
         fontSize: 16,
         fontWeight: FontWeight.w500,

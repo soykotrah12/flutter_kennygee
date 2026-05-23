@@ -126,11 +126,11 @@ class OwnerMenuUpdateController extends GetxController {
 
     final bool? confirmDelete = await Get.dialog<bool>(
       AlertDialog(
-        backgroundColor: Colors.white,
-        title: const Text(
+        backgroundColor: AppColors.cardAdaptive,
+        title: Text(
           'Delete Menu Item?',
           style: TextStyle(
-            color: AppColors.textBlack,
+            color: AppColors.primaryTextAdaptive,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -225,7 +225,7 @@ class OwnerMenuUpdateController extends GetxController {
       title,
       message,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.cardAdaptive,
       margin: const EdgeInsets.all(12),
     );
   }

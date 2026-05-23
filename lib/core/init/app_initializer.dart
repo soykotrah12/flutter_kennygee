@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import '../di/service_locator.dart';
 import 'hive_intialization.dart';
+import '../theme/theme_controller.dart';
 
 
 
@@ -11,6 +12,7 @@ class AppInitializer {
     await HiveInitialization.initHive();
 
     setupServiceLocator();
+    await ensureThemeController().loadThemeMode();
 
     // StripeInitializer.intiStripe();
 

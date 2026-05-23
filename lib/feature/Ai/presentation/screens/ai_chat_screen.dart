@@ -29,13 +29,17 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(AppImages.rolebackground),
-          fit: BoxFit.cover,
-        ),
-      ),
+      decoration: isDark
+          ? BoxDecoration(color: AppColors.darkBackground)
+          : BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AppImages.rolebackground),
+                fit: BoxFit.cover,
+              ),
+            ),
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
@@ -60,10 +64,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 7),
-                  const Text(
+                  Text(
                     'AI Chat',
                     style: TextStyle(
-                      color: AppColors.textBlack,
+                      color: AppColors.primaryText(context),
                       fontSize: 19,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Montserrat',
@@ -72,7 +76,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 ],
               ),
             ),
-            const Text(
+            Text(
               '09:41 AM',
               style: TextStyle(
                 color: Color(0xFFB8BDC1),
@@ -85,14 +89,14 @@ class _AiChatScreenState extends State<AiChatScreen> {
             Expanded(
               child: Obx(() {
                 if (_controller.messages.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
                         'Ask anything and get recommendations instantly.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: AppColors.textGrey,
+                          color: AppColors.secondaryText(context),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Montserrat',

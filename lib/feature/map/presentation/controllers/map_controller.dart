@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../home/presentation/screens/restaurant_details_screen.dart';
 import '../../data/models/map_filter_model.dart';
 import '../../data/models/map_place_result_model.dart';
@@ -90,10 +91,17 @@ class MapFeatureController extends GetxController {
   CameraPosition currentCamera = fallbackCameraPosition;
 
   Timer? _searchDebounceTimer;
+  Timer? _mapRefreshDebounce;
   LocationPermission? _cachedPermission;
   bool _hasRequestedLocationPermission = false;
   bool _hasShownNoResultToast = false;
   int _searchSession = 0;
+  int _loadMapDataCount = 0;
+  int _externalSearchCount = 0;
+  static int _initCount = 0;
+  bool _isOverlayRefreshRunning = false;
+  bool _overlayRefreshPending = false;
+  String _mapLayerSignature = '';
 
   Set<Marker> _mapMarkers = <Marker>{};
   Set<Polyline> _mapPolylines = <Polyline>{};
@@ -113,6 +121,8 @@ class MapFeatureController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _initCount++;
+    debugPrint('[MapFeatureController] onInit count=$_initCount');
     _prepareMarkerIcons();
     loadMapData();
   }
@@ -120,11 +130,14 @@ class MapFeatureController extends GetxController {
   @override
   void onClose() {
     _searchDebounceTimer?.cancel();
+    _mapRefreshDebounce?.cancel();
     super.onClose();
   }
 
   Future<void> loadMapData() async {
     if (isLoading.value) return;
+    _loadMapDataCount++;
+    debugPrint('[MapFeatureController] loadMapData #$_loadMapDataCount');
     isLoading.value = true;
 
     final LatLng current = currentCamera.target;
@@ -162,7 +175,7 @@ class MapFeatureController extends GetxController {
         CameraPosition(target: current, zoom: 14.5),
       ),
     );
-    await refreshMarkerOverlays();
+    _scheduleMarkerOverlayRefresh();
   }
 
   Future<LatLng> _resolveUserLocation() async {
@@ -222,7 +235,7 @@ class MapFeatureController extends GetxController {
     debugPrint('onMapCreated called');
     googleMapController = mapController;
     _rebuildMapLayers();
-    refreshMarkerOverlays();
+    _scheduleMarkerOverlayRefresh();
   }
 
   void onCameraMove(CameraPosition position) {
@@ -230,7 +243,7 @@ class MapFeatureController extends GetxController {
   }
 
   Future<void> onCameraIdle() async {
-    await refreshMarkerOverlays();
+    _scheduleMarkerOverlayRefresh();
   }
 
   void onSearchChanged(String query) {
@@ -266,8 +279,8 @@ class MapFeatureController extends GetxController {
     selectedRestaurant.value = restaurant;
     routeModel.value = null;
     _rebuildMapLayers();
-    focusRestaurant(restaurant);
-    refreshMarkerOverlays();
+    unawaited(focusRestaurant(restaurant));
+    _scheduleMarkerOverlayRefresh();
   }
 
   Future<void> focusRestaurant(MapRestaurantModel restaurant) async {
@@ -280,14 +293,14 @@ class MapFeatureController extends GetxController {
         ),
       ),
     );
-    await refreshMarkerOverlays();
+    _scheduleMarkerOverlayRefresh();
   }
 
   void clearSelection() {
     selectedRestaurant.value = null;
     routeModel.value = null;
     _rebuildMapLayers();
-    refreshMarkerOverlays();
+    _scheduleMarkerOverlayRefresh();
   }
 
   void openRestaurantDetails() {
@@ -306,7 +319,7 @@ class MapFeatureController extends GetxController {
         'Location Required',
         locationMessage.value ?? 'Unable to get current location.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardAdaptive,
       );
       return;
     }
@@ -324,7 +337,7 @@ class MapFeatureController extends GetxController {
         'Route Unavailable',
         'Unable to fetch road-based direction right now.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardAdaptive,
       );
       return;
     }
@@ -337,7 +350,7 @@ class MapFeatureController extends GetxController {
       await googleMapController!.animateCamera(
         CameraUpdate.newLatLngBounds(bounds, 80),
       );
-      await refreshMarkerOverlays();
+      _scheduleMarkerOverlayRefresh();
     }
   }
 
@@ -353,7 +366,7 @@ class MapFeatureController extends GetxController {
         'Location',
         locationMessage.value ?? 'Unable to get current location.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardAdaptive,
       );
       return;
     }
@@ -366,7 +379,7 @@ class MapFeatureController extends GetxController {
     await googleMapController!.animateCamera(
       CameraUpdate.newLatLngZoom(current, 15),
     );
-    await refreshMarkerOverlays();
+    _scheduleMarkerOverlayRefresh();
   }
 
   Future<void> moveToCurrentLocation() {
@@ -439,6 +452,18 @@ class MapFeatureController extends GetxController {
   }
 
   void _rebuildMapLayers() {
+    final String signature =
+        '${visibleRestaurants.length}|'
+        '${selectedRestaurant.value?.shopId ?? ''}|'
+        '${routeModel.value != null}|'
+        '${searchedPlaceResult.value?.name ?? ''}|'
+        '${searchedPlaceResult.value?.position.latitude.toStringAsFixed(5) ?? ''}|'
+        '${searchedPlaceResult.value?.position.longitude.toStringAsFixed(5) ?? ''}|'
+        '${userLocation.value?.latitude.toStringAsFixed(5) ?? ''}|'
+        '${userLocation.value?.longitude.toStringAsFixed(5) ?? ''}';
+    if (signature == _mapLayerSignature) return;
+    _mapLayerSignature = signature;
+
     _mapMarkers = _buildMarkers();
     _mapPolylines = _buildPolylines();
     _mapCircles = _buildCircles();
@@ -446,9 +471,15 @@ class MapFeatureController extends GetxController {
   }
 
   Future<void> refreshMarkerOverlays() async {
+    if (_isOverlayRefreshRunning) {
+      _overlayRefreshPending = true;
+      return;
+    }
+
     final GoogleMapController? controller = googleMapController;
     if (controller == null) return;
 
+    _isOverlayRefreshRunning = true;
     final Map<String, Offset> projected = <String, Offset>{};
 
     for (final MapRestaurantModel restaurant in visibleRestaurants) {
@@ -464,6 +495,18 @@ class MapFeatureController extends GetxController {
     }
 
     markerOffsets.assignAll(projected);
+    _isOverlayRefreshRunning = false;
+    if (_overlayRefreshPending) {
+      _overlayRefreshPending = false;
+      _scheduleMarkerOverlayRefresh();
+    }
+  }
+
+  void _scheduleMarkerOverlayRefresh() {
+    _mapRefreshDebounce?.cancel();
+    _mapRefreshDebounce = Timer(const Duration(milliseconds: 120), () {
+      unawaited(refreshMarkerOverlays());
+    });
   }
 
   void _applySearchAndFilter() {
@@ -501,7 +544,9 @@ class MapFeatureController extends GetxController {
         ? filterScoped
         : (localQueryMatches.isNotEmpty ? localQueryMatches : filterScoped);
 
-    visibleRestaurants.assignAll(filtered);
+    if (!_sameRestaurantSequence(visibleRestaurants, filtered)) {
+      visibleRestaurants.assignAll(filtered);
+    }
 
     final MapRestaurantModel? selected = selectedRestaurant.value;
     if (selected != null &&
@@ -514,9 +559,13 @@ class MapFeatureController extends GetxController {
       _hasShownNoResultToast = false;
       noSearchResult.value = false;
       final MapRestaurantModel first = localQueryMatches.first;
+      final bool selectionChanged =
+          selectedRestaurant.value?.shopId != first.shopId;
       selectedRestaurant.value = first;
       searchedPlaceResult.value = null;
-      unawaited(focusRestaurant(first));
+      if (selectionChanged) {
+        unawaited(focusRestaurant(first));
+      }
     } else if (query.isNotEmpty && localQueryMatches.isEmpty) {
       noSearchResult.value = false;
       selectedRestaurant.value = null;
@@ -525,10 +574,25 @@ class MapFeatureController extends GetxController {
     }
 
     _rebuildMapLayers();
-    unawaited(refreshMarkerOverlays());
+    _scheduleMarkerOverlayRefresh();
+  }
+
+  bool _sameRestaurantSequence(
+    List<MapRestaurantModel> current,
+    List<MapRestaurantModel> next,
+  ) {
+    if (current.length != next.length) return false;
+    for (int i = 0; i < current.length; i++) {
+      if (current[i].shopId != next[i].shopId) return false;
+    }
+    return true;
   }
 
   Future<void> _searchExternalPlace(String query) async {
+    _externalSearchCount++;
+    debugPrint(
+      '[MapFeatureController] externalSearch #$_externalSearchCount q=$query',
+    );
     final int activeSession = ++_searchSession;
 
     final MapPlaceResultModel? result = await _placeSearchService.searchPlace(
@@ -546,7 +610,7 @@ class MapFeatureController extends GetxController {
           'No Results',
           'No restaurant found',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.cardAdaptive,
           duration: const Duration(seconds: 2),
         );
       }
@@ -563,7 +627,7 @@ class MapFeatureController extends GetxController {
       await googleMapController!.animateCamera(
         CameraUpdate.newLatLngZoom(result.position, 15),
       );
-      await refreshMarkerOverlays();
+      _scheduleMarkerOverlayRefresh();
     }
   }
 

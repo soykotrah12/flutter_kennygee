@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'feature/auth/presentation/screens/splash_screen.dart';
 import 'core/init/app_initializer.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_controller.dart';
 import 'core/common/widgets/system_nav_bar_handler.dart';
 
 void main() async {
@@ -24,11 +25,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeController = ensureThemeController();
+
     return SystemNavBarHandler(
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Renbite',
         theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: themeController.themeMode,
         home: SplashScreen(),
       ),
     );

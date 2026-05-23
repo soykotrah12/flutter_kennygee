@@ -139,7 +139,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
     final FoodModel food = _currentFood;
 
     return Scaffold(
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       body: Column(
         children: [
           Expanded(
@@ -225,8 +225,8 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                     offset: const Offset(0, -14),
                     child: Container(
                       width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: AppColors.appBackground,
+                      decoration: BoxDecoration(
+                        color: AppColors.background(context),
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(26),
                         ),
@@ -242,8 +242,8 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                 Expanded(
                                   child: Text(
                                     food.name,
-                                    style: const TextStyle(
-                                      color: AppColors.textBlack,
+                                    style: TextStyle(
+                                      color: AppColors.primaryText(context),
                                       fontSize: 24,
                                       fontWeight: FontWeight.w600,
                                       height: 1.05,
@@ -254,7 +254,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                 const SizedBox(width: 8),
                                 Text(
                                   '\$${food.price.toStringAsFixed(2)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppColors.primaryGreen,
                                     fontSize: 24,
                                     fontWeight: FontWeight.w600,
@@ -267,7 +267,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.star,
                                   color: AppColors.primaryOrange,
                                   size: 18,
@@ -275,7 +275,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                 const SizedBox(width: 2),
                                 Text(
                                   food.rating.toStringAsFixed(1),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppColors.primaryGreen,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -300,8 +300,8 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                   },
                                   child: Text(
                                     '(${food.reviewsCount} Reviews)',
-                                    style: const TextStyle(
-                                      color: AppColors.textBlack,
+                                    style: TextStyle(
+                                      color: AppColors.primaryText(context),
                                       fontSize: 12,
                                       decoration: TextDecoration.underline,
                                       fontWeight: FontWeight.w500,
@@ -312,10 +312,10 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                               ],
                             ),
                             const SizedBox(height: 18),
-                            const Text(
+                            Text(
                               'Description',
                               style: TextStyle(
-                                color: AppColors.textBlack,
+                                color: AppColors.primaryText(context),
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Montserrat',
@@ -324,7 +324,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                             const SizedBox(height: 10),
                             Text(
                               food.description,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Color(0xFF6E6E6E),
                                 fontSize: 14,
                                 height: 1.35,
@@ -342,7 +342,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                 14,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF5F5F5),
+                                color: AppColors.softCardColor(context),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Column(
@@ -367,8 +367,8 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                           children: [
                                             Text(
                                               food.restaurantName,
-                                              style: const TextStyle(
-                                                color: AppColors.textBlack,
+                                              style: TextStyle(
+                                                color: AppColors.primaryText(context),
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w600,
                                                 fontFamily: 'Montserrat',
@@ -377,7 +377,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                             const SizedBox(height: 4),
                                             Text(
                                               food.distance,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 color: AppColors.primaryGreen,
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
@@ -390,8 +390,8 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                       Container(
                                         width: 44,
                                         height: 44,
-                                        decoration: const BoxDecoration(
-                                          color: AppColors.appBackground,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.background(context),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
@@ -407,7 +407,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                   const SizedBox(height: 14),
                                   Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.location_on_outlined,
                                         size: 16,
                                         color: Color(0xFF777777),
@@ -416,7 +416,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                       Expanded(
                                         child: Text(
                                           food.address,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Color(0xFF6E6E6E),
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
@@ -429,7 +429,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.access_time,
                                         size: 16,
                                         color: Color(0xFF777777),
@@ -438,7 +438,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                       Expanded(
                                         child: Text(
                                           'Open - ${food.openingHours}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Color(0xFF6E6E6E),
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
@@ -557,7 +557,7 @@ class _BottomActionButton extends StatelessWidget {
         icon: Icon(icon, color: Colors.white, size: 24),
         label: Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w400,

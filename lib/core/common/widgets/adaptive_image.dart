@@ -20,12 +20,19 @@ class AdaptiveImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final int? cacheWidth = _resolveCacheSize(width, devicePixelRatio);
+    final int? cacheHeight = _resolveCacheSize(height, devicePixelRatio);
+
     if (_isNetwork) {
       return Image.network(
         path,
         width: width,
         height: height,
         fit: fit,
+        cacheWidth: cacheWidth,
+        cacheHeight: cacheHeight,
+        filterQuality: FilterQuality.low,
         errorBuilder: (_, __, ___) => _placeholder(),
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
@@ -39,8 +46,22 @@ class AdaptiveImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      cacheWidth: cacheWidth,
+      cacheHeight: cacheHeight,
+      filterQuality: FilterQuality.low,
       errorBuilder: (_, __, ___) => _placeholder(),
     );
+  }
+
+  int? _resolveCacheSize(double? logicalSize, double pixelRatio) {
+    if (logicalSize == null || !logicalSize.isFinite || logicalSize <= 0) {
+      return null;
+    }
+    final double scaled = logicalSize * pixelRatio;
+    if (!scaled.isFinite || scaled <= 0) {
+      return null;
+    }
+    return scaled.round();
   }
 
   Widget _placeholder() {

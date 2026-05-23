@@ -17,7 +17,7 @@ class TermsOfConditionScreen extends StatelessWidget {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       appBarTitle: 'Terms of Condition',
       body: Column(
@@ -58,8 +58,8 @@ class _TermsText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       paragraph,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 16,
         fontWeight: FontWeight.w400,
         fontFamily: 'Montserrat',

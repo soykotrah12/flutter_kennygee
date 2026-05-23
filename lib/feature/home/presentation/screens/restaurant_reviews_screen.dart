@@ -144,7 +144,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
           'Bookmark Failed',
           failure.message,
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.cardColor(context),
         );
       },
       (success) {
@@ -171,7 +171,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF3F3F3),
+      color: AppColors.softCardColor(context),
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
@@ -184,10 +184,10 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
           titleSpacing: 0,
           automaticallyImplyLeading: true,
           title: Text.rich(
-            const TextSpan(
+            TextSpan(
               text: 'Reviews ',
               style: TextStyle(
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Montserrat',
@@ -259,7 +259,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
                                 ),
                               ),
                               child: _isBookmarkLoading
-                                  ? const Padding(
+                                  ? Padding(
                                       padding: EdgeInsets.all(10),
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
@@ -280,7 +280,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
                     ),
                     const SizedBox(height: 18),
                     if (isLoading && reviews.isEmpty)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(vertical: 20),
                         child: Center(
                           child: CircularProgressIndicator(
@@ -295,7 +295,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
                           _reviewController.error.value.isNotEmpty
                               ? _reviewController.error.value
                               : 'No reviews yet',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textGrey,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -325,8 +325,8 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
                     ),
                     elevation: 0,
                   ),
-                  icon: const Icon(Icons.star, color: Colors.white, size: 24),
-                  label: const Text(
+                  icon: Icon(Icons.star, color: Colors.white, size: 24),
+                  label: Text(
                     'Add A Review',
                     style: TextStyle(
                       color: Colors.white,
@@ -417,7 +417,7 @@ class _ReviewHeroCard extends StatelessWidget {
                         restaurant.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -429,7 +429,7 @@ class _ReviewHeroCard extends StatelessWidget {
                         restaurant.subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -442,7 +442,7 @@ class _ReviewHeroCard extends StatelessWidget {
                 Container(
                   width: 42,
                   height: 42,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
@@ -477,18 +477,18 @@ class _ReviewRatingPill extends StatelessWidget {
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAF8),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: AppColors.primaryGreen, width: 2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star, color: AppColors.primaryOrange, size: 16),
+          Icon(Icons.star, color: AppColors.primaryOrange, size: 16),
           const SizedBox(width: 8),
           Text(
             rating.toStringAsFixed(1),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primaryGreen,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -498,8 +498,8 @@ class _ReviewRatingPill extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             '($reviewsCount Reviews)',
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 16,
               decoration: TextDecoration.underline,
               fontWeight: FontWeight.w500,
@@ -541,8 +541,8 @@ class _ReviewCard extends StatelessWidget {
                   children: [
                     Text(
                       item.reviewerName,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Montserrat',
@@ -551,8 +551,8 @@ class _ReviewCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       item.reviewerRole,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
@@ -563,7 +563,7 @@ class _ReviewCard extends StatelessWidget {
               ),
               Text(
                 _timeAgo(item.createdAt),
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(0xFF9BA0B8),
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
@@ -586,8 +586,8 @@ class _ReviewCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             item.reviewText,
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 15,
               height: 1.4,
               fontWeight: FontWeight.w500,
@@ -624,7 +624,7 @@ class _ReviewCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       '${liveItem.likes}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFF9BA0B8),
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -700,8 +700,8 @@ class _AddReviewDialogBodyState extends State<_AddReviewDialogBody> {
                 Expanded(
                   child: Text(
                     userName,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Montserrat',
@@ -732,7 +732,7 @@ class _AddReviewDialogBodyState extends State<_AddReviewDialogBody> {
             maxLines: 4,
             decoration: InputDecoration(
               hintText: 'Write a short review to help fellow food lovers...',
-              hintStyle: const TextStyle(
+              hintStyle: TextStyle(
                 color: Color(0xFF8F8F8F),
                 fontSize: 14,
                 fontFamily: 'Montserrat',
@@ -780,7 +780,7 @@ class _AddReviewDialogBodyState extends State<_AddReviewDialogBody> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
+                          : Text(
                               'Post',
                               style: TextStyle(
                                 color: Colors.white,
@@ -807,7 +807,7 @@ class _AddReviewDialogBodyState extends State<_AddReviewDialogBody> {
                           borderRadius: BorderRadius.circular(28),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Cancel',
                         style: TextStyle(
                           color: AppColors.primaryGreen,
@@ -843,7 +843,7 @@ class _AddReviewDialogBodyState extends State<_AddReviewDialogBody> {
         'Validation',
         'Please provide a rating.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardColor(context),
       );
       return;
     }
@@ -853,7 +853,7 @@ class _AddReviewDialogBodyState extends State<_AddReviewDialogBody> {
         'Validation',
         'Please write a review.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardColor(context),
       );
       return;
     }
@@ -886,7 +886,7 @@ class _AddReviewDialogBodyState extends State<_AddReviewDialogBody> {
       'Post Failed',
       message,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.cardColor(context),
     );
   }
 }

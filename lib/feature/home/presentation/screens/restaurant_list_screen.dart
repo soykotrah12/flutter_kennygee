@@ -39,8 +39,8 @@ class RestaurantListScreen extends StatelessWidget {
           title: Text.rich(
             TextSpan(
               text: 'Restaurant List ',
-              style: const TextStyle(
-                color: AppColors.textBlack,
+              style: TextStyle(
+                color: AppColors.primaryText(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Montserrat',
@@ -71,7 +71,7 @@ class RestaurantListScreen extends StatelessWidget {
                 final List<RestaurantModel> source = shopController.shops;
 
                 if (isLoading && source.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryGreen,
                     ),
@@ -84,7 +84,7 @@ class RestaurantListScreen extends StatelessWidget {
                       error.isNotEmpty
                           ? 'Could not load restaurants'
                           : 'No restaurants available',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textGrey,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -165,7 +165,7 @@ class _RestaurantGridCard extends StatelessWidget {
                     child: Container(
                       width: 24,
                       height: 24,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
@@ -192,15 +192,15 @@ class _RestaurantGridCard extends StatelessWidget {
                       item.name,
                       maxLines: 2,
                       overflow: TextOverflow.visible,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.star,
                     size: 16,
                     color: AppColors.primaryOrange,
@@ -208,7 +208,7 @@ class _RestaurantGridCard extends StatelessWidget {
                   const SizedBox(width: 2),
                   Text(
                     item.rating.toStringAsFixed(1),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.primaryGreen,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -222,7 +222,7 @@ class _RestaurantGridCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 2, 12, 0),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.location_on_rounded,
                     color: AppColors.primaryOrange,
                     size: 24,
@@ -233,8 +233,8 @@ class _RestaurantGridCard extends StatelessWidget {
                       item.distance,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
@@ -248,7 +248,7 @@ class _RestaurantGridCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.access_time_rounded,
                     color: Color(0xFF31B24C),
                     size: 24,
@@ -259,8 +259,8 @@ class _RestaurantGridCard extends StatelessWidget {
                       item.openingHours,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Montserrat',

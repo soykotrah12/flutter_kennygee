@@ -22,7 +22,7 @@ class MapRouteInfoSheet extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
         padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
         decoration: BoxDecoration(
-          color: const Color(0xFFF2F2F2),
+          color: AppColors.softCardColor(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: const [
             BoxShadow(
@@ -37,7 +37,7 @@ class MapRouteInfoSheet extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text(
+                Text(
                   'Walking',
                   style: TextStyle(
                     color: AppColors.primaryGreen,
@@ -59,7 +59,7 @@ class MapRouteInfoSheet extends StatelessWidget {
                       ),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       color: Color(0xFF6F6F6F),
                       size: 28,
@@ -102,7 +102,7 @@ class MapRouteInfoSheet extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: Color(0xFF707070),
               fontSize: 22,
               fontWeight: FontWeight.w500,

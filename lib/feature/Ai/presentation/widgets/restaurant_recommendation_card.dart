@@ -21,9 +21,9 @@ class RestaurantRecommendationCard extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
         ],
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE8ECEE)),
+        border: Border.all(color: AppColors.divider(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,8 +43,8 @@ class RestaurantRecommendationCard extends StatelessWidget {
                       restaurant.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Montserrat',
@@ -59,8 +59,8 @@ class RestaurantRecommendationCard extends StatelessWidget {
                                 : 'Restaurant'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textGrey,
+                      style: TextStyle(
+                        color: AppColors.secondaryText(context),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
@@ -73,8 +73,8 @@ class RestaurantRecommendationCard extends StatelessWidget {
                           restaurant.address,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.textGrey,
+                          style: TextStyle(
+                            color: AppColors.secondaryText(context),
                             fontSize: 10.5,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat',
@@ -92,7 +92,7 @@ class RestaurantRecommendationCard extends StatelessWidget {
                 ),
                 child: Text(
                   '\u2605 ${_ratingLabel(restaurant.rating)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Color(0xFF2F2F2F),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -149,12 +149,12 @@ class _RestaurantImage extends StatelessWidget {
       return Container(
         width: 36,
         height: 36,
-        color: const Color(0xFFF1F4F6),
+        color: AppColors.softCardColor(context),
         alignment: Alignment.center,
-        child: const Icon(
+        child: Icon(
           Icons.storefront_outlined,
           size: 18,
-          color: AppColors.textGrey,
+          color: AppColors.secondaryText(context),
         ),
       );
     }
@@ -168,12 +168,12 @@ class _RestaurantImage extends StatelessWidget {
         return Container(
           width: 36,
           height: 36,
-          color: const Color(0xFFF1F4F6),
+          color: AppColors.softCardColor(context),
           alignment: Alignment.center,
-          child: const Icon(
+          child: Icon(
             Icons.storefront_outlined,
             size: 18,
-            color: AppColors.textGrey,
+            color: AppColors.secondaryText(context),
           ),
         );
       },
@@ -193,15 +193,15 @@ class _InfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: AppColors.textGrey),
+          Icon(icon, size: 12, color: AppColors.secondaryText(context)),
           const SizedBox(width: 2),
           Expanded(
             child: Text(
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppColors.textGrey,
+              style: TextStyle(
+                color: AppColors.secondaryText(context),
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Montserrat',

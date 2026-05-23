@@ -108,8 +108,8 @@ class _MenuItemCardState extends State<MenuItemCard> {
                         widget.dishName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textBlack,
+                        style: TextStyle(
+                          color: AppColors.primaryText(context),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -118,7 +118,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
                     const SizedBox(width: 8),
                     Text(
                       widget.priceText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.primaryGreen,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -131,7 +131,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
                   widget.subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textGrey,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -162,7 +162,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
                           child: Container(
                             width: 24,
                             height: 24,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),

@@ -16,19 +16,19 @@ class EmptyShopCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
+            color: AppColors.softCardColor(context),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Add Your Restaurant',
                       style: TextStyle(
-                        color: AppColors.textBlack,
+                        color: AppColors.primaryText(context),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -37,7 +37,7 @@ class EmptyShopCard extends StatelessWidget {
                     Text(
                       'List your shop details, location, and start showcasing your menu to customers',
                       style: TextStyle(
-                        color: AppColors.textBlack,
+                        color: AppColors.primaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         height: 1.3,
@@ -53,11 +53,11 @@ class EmptyShopCard extends StatelessWidget {
                 child: Container(
                   width: 40,
                   height: 40,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.primaryGreen,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 24),
+                  child: Icon(Icons.add, color: Colors.white, size: 24),
                 ),
               ),
             ],

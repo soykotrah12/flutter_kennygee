@@ -90,13 +90,13 @@ class _OwnerFoodListScreenState extends State<OwnerFoodListScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       appBarTitle: 'Food List',
       centerTitle: false,
       bodyPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       body: Obx(() {
         if (_controller.isLoading.value) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: AppColors.primaryGreen),
           );
         }
@@ -113,7 +113,7 @@ class _OwnerFoodListScreenState extends State<OwnerFoodListScreen> {
                         ? _controller.error.value
                         : 'No food items found',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textGrey,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -130,7 +130,7 @@ class _OwnerFoodListScreenState extends State<OwnerFoodListScreen> {
                         vertical: 10,
                       ),
                     ),
-                    child: const Text('Retry'),
+                    child: Text('Retry'),
                   ),
                 ],
               ),

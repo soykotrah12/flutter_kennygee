@@ -49,7 +49,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
-        color: const Color(0xFFF2F2F2),
+        color: AppColors.softCardColor(context),
         child: Column(
           children: [
             Expanded(
@@ -59,7 +59,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                   children: [
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           'Search Filters',
                           style: TextStyle(
                             fontSize: 24,
@@ -70,7 +70,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                         const Spacer(),
                         TextButton(
                           onPressed: _resetAll,
-                          child: const Text(
+                          child: Text(
                             'Reset All',
                             style: TextStyle(
                               color: AppColors.primaryGreen,
@@ -87,7 +87,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                     const SizedBox(height: 26),
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           'Distance Range',
                           style: TextStyle(
                             fontSize: 18,
@@ -98,7 +98,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                         const Spacer(),
                         Text(
                           '${_distance.round()}km',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.primaryGreen,
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -119,7 +119,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                         });
                       },
                     ),
-                    const Row(
+                    Row(
                       children: [
                         Text(
                           '0km',
@@ -143,7 +143,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                       ],
                     ),
                     const SizedBox(height: 26),
-                    const Text(
+                    Text(
                       'Minimum Rating',
                       style: TextStyle(
                         fontSize: 18,
@@ -166,7 +166,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                       ),
                     ),
                     const SizedBox(height: 26),
-                    const Text(
+                    Text(
                       'Price Range',
                       style: TextStyle(
                         fontSize: 18,
@@ -179,7 +179,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                       controller: _priceController,
                       decoration: InputDecoration(
                         hintText: 'Price',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           color: Color(0xFFBFBFBF),
                           fontFamily: 'Montserrat',
                           fontSize: 18,
@@ -208,7 +208,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                     const SizedBox(height: 22),
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           'Open Now',
                           style: TextStyle(
                             fontSize: 18,
@@ -229,7 +229,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                         ),
                       ],
                     ),
-                    const Text(
+                    Text(
                       'Only show places currently open',
                       style: TextStyle(
                         color: Color(0xFF7A7A7A),
@@ -262,7 +262,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text(
+                child: Text(
                   'Show On Map',
                   style: TextStyle(
                     fontSize: 22,

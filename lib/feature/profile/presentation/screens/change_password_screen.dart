@@ -15,7 +15,7 @@ class ChangePasswordScreen extends StatelessWidget {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       appBarTitle: 'Change Password',
 
@@ -61,7 +61,7 @@ class ChangePasswordScreen extends StatelessWidget {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Save',
                         style: TextStyle(
                           color: Colors.white,
@@ -90,16 +90,16 @@ class _PasswordField extends StatelessWidget {
     return TextField(
       controller: controller,
       obscureText: true,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 14,
         fontWeight: FontWeight.w500,
         fontFamily: 'Montserrat',
       ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(
-          color: AppColors.textBlack,
+        hintStyle: TextStyle(
+          color: AppColors.primaryText(context),
           fontSize: 14,
           fontWeight: FontWeight.w500,
           fontFamily: 'Montserrat',

@@ -35,10 +35,10 @@ class RecommendedListScreen extends StatelessWidget {
           toolbarHeight: 72,
           titleSpacing: 0,
           automaticallyImplyLeading: true,
-          title: const Text(
+          title: Text(
             'Recommended for you',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 18,
               fontWeight: FontWeight.w600,
               fontFamily: 'Montserrat',
@@ -52,7 +52,7 @@ class RecommendedListScreen extends StatelessWidget {
               shopController.recommendedItems;
 
           if (isLoading && items.isEmpty) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(color: AppColors.primaryGreen),
             );
           }
@@ -63,7 +63,7 @@ class RecommendedListScreen extends StatelessWidget {
                 error.isNotEmpty
                     ? 'Could not load recommendations'
                     : 'No recommendations available',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textGrey,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -134,8 +134,8 @@ class _RecommendedItem extends StatelessWidget {
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
@@ -159,8 +159,8 @@ class _RecommendedItem extends StatelessWidget {
                               item.distance,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.textBlack,
+                              style: TextStyle(
+                                color: AppColors.primaryText(context),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Montserrat',
@@ -171,7 +171,7 @@ class _RecommendedItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(
+                    Icon(
                       Icons.star,
                       size: 16,
                       color: AppColors.primaryOrange,
@@ -179,7 +179,7 @@ class _RecommendedItem extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       item.rating.toStringAsFixed(1),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.primaryGreen,
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -203,8 +203,8 @@ class _RecommendedItem extends StatelessWidget {
                         item.openingHours,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textBlack,
+                        style: TextStyle(
+                          color: AppColors.primaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Montserrat',

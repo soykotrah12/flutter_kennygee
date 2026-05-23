@@ -100,7 +100,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 50, 16, 24),
       body: Obx(() {
         final shop = _controller.ownerShop.value;
@@ -118,10 +118,10 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
             const SizedBox(height: 22),
             Row(
               children: [
-                const Text(
+                Text(
                   'Menu Management',
                   style: TextStyle(
-                    color: AppColors.textBlack,
+                    color: AppColors.primaryText(context),
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
@@ -141,7 +141,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                           color: AppColors.primaryGreen,
                           borderRadius: BorderRadius.circular(22),
                         ),
-                        child: const Text(
+                        child: Text(
                           '0 items',
                           style: TextStyle(
                             color: Colors.white,
@@ -167,7 +167,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                         ),
                         child: Text(
                           '$count items',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -203,8 +203,8 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                     );
                   }
                 },
-                icon: const Icon(Icons.add, color: Colors.white, size: 20),
-                label: const Text(
+                icon: Icon(Icons.add, color: Colors.white, size: 20),
+                label: Text(
                   'Add new Item',
                   style: TextStyle(
                     color: Colors.white,
@@ -229,13 +229,13 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                     shop != null && shop.shopId.trim().isNotEmpty;
                 if (!hasShop) {
                   return Column(
-                    children: const [
+                    children: [
                       SizedBox(height: 10),
                       Center(
                         child: Text(
                           'No menu item',
                           style: TextStyle(
-                            color: AppColors.textGrey,
+                            color: AppColors.secondaryText(context),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -252,7 +252,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
 
                 return Obx(() {
                   if (ownerFoodCtrl.isLoading.value) {
-                    return const Padding(
+                    return Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Center(
                         child: CircularProgressIndicator(
@@ -271,8 +271,8 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                             ownerFoodCtrl.error.value.isNotEmpty
                                 ? ownerFoodCtrl.error.value
                                 : 'No menu item',
-                            style: const TextStyle(
-                              color: AppColors.textGrey,
+                            style: TextStyle(
+                              color: AppColors.secondaryText(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -331,7 +331,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                       Center(
                         child: TextButton(
                           onPressed: _openFoodList,
-                          child: const Text(
+                          child: Text(
                             'See All',
                             style: TextStyle(
                               color: AppColors.primaryGreen,
@@ -347,10 +347,10 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
               },
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Event Hosting',
               style: TextStyle(
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
               ),

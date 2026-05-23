@@ -26,17 +26,17 @@ class OwnerEventCard extends StatelessWidget {
         width: double.infinity,
         height: 190,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardColor(context),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Color(0x16000000),
+              color: AppColors.shadow(context),
               blurRadius: 10,
               offset: Offset(0, 3),
             ),
           ],
         ),
-        child: const Center(
+        child: Center(
           child: CircularProgressIndicator(color: AppColors.primaryGreen),
         ),
       );
@@ -47,11 +47,11 @@ class OwnerEventCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardColor(context),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Color(0x16000000),
+              color: AppColors.shadow(context),
               blurRadius: 10,
               offset: Offset(0, 3),
             ),
@@ -63,15 +63,15 @@ class OwnerEventCard extends StatelessWidget {
             Text(
               errorMessage.isNotEmpty ? errorMessage : 'No events found',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textGrey,
+              style: TextStyle(
+                color: AppColors.secondaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
             ),
             // if (onRetry != null) ...[
             //   const SizedBox(height: 8),
-            //   TextButton(onPressed: onRetry, child: const Text('Retry')),
+            //   TextButton(onPressed: onRetry, child: Text('Retry')),
             // ],
           ],
         ),
@@ -83,11 +83,11 @@ class OwnerEventCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x16000000),
+            color: AppColors.shadow(context),
             blurRadius: 10,
             offset: Offset(0, 3),
           ),
@@ -114,12 +114,12 @@ class OwnerEventCard extends StatelessWidget {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF2ECE5),
+                    color: AppColors.badgeSurface(context),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
                     activeEvent.fee,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.primaryGreen,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -134,7 +134,7 @@ class OwnerEventCard extends StatelessWidget {
                   width: 46,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF2ECE5),
+                    color: AppColors.badgeSurface(context),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Center(
@@ -159,8 +159,8 @@ class OwnerEventCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       activeEvent.date,
-                      style: const TextStyle(
-                        color: AppColors.textGrey,
+                      style: TextStyle(
+                        color: AppColors.secondaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -173,8 +173,8 @@ class OwnerEventCard extends StatelessWidget {
                         activeEvent.time,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textGrey,
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -185,8 +185,8 @@ class OwnerEventCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   activeEvent.title,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
@@ -201,8 +201,8 @@ class OwnerEventCard extends StatelessWidget {
                         activeEvent.location,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textGrey,
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),

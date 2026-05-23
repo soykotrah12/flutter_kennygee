@@ -5,6 +5,7 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/bottomNavbar/controllers/bottom_nav_controller.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_controller.dart';
 import '../../../auth/presentation/controller/auth_flow_controller.dart';
 import '../controller/profile_controller.dart';
 import 'change_password_screen.dart';
@@ -17,11 +18,16 @@ import 'terms_of_condition_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+  static int _buildCount = 0;
 
   @override
   Widget build(BuildContext context) {
+    _buildCount++;
+    debugPrint('[ProfileScreen] build count=$_buildCount');
+
     final flowController = ensureAuthFlowController();
     final profileController = ensureProfileController();
+    final themeController = ensureThemeController();
 
     return Obx(() {
       final AppUserRole? selectedRole = flowController.selectedRole.value;
@@ -40,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
       return AppScaffold(
         useSafeArea: true,
         isScrollable: false,
-        backgroundColor: AppColors.appBackground,
+        backgroundColor: AppColors.background(context),
         bodyPadding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
         body: LayoutBuilder(
           builder: (context, constraints) {
@@ -114,10 +120,10 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'Quick Access',
                       style: TextStyle(
-                        color: AppColors.textBlack,
+                        color: AppColors.primaryText(context),
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Montserrat',
@@ -150,7 +156,7 @@ class ProfileScreen extends StatelessWidget {
                             }
                           },
                         ),
-                        Divider(color: Color(0xFFB9B9B9), height: 1),
+                        Divider(color: AppColors.divider(context), height: 1),
                         _QuickAccessRow(
                           icon: AppImages.bookmark,
                           iconColor: AppColors.primaryOrange,
@@ -164,10 +170,10 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    const Text(
+                    Text(
                       'Settings',
                       style: TextStyle(
-                        color: AppColors.textBlack,
+                        color: AppColors.primaryText(context),
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Montserrat',
@@ -183,7 +189,7 @@ class ProfileScreen extends StatelessWidget {
                           subtitle: 'Update your personal information',
                           onTap: () => Get.to(() => const EditProfileScreen()),
                         ),
-                        Divider(color: Color(0xFFB9B9B9), height: 1),
+                        Divider(color: AppColors.divider(context), height: 1),
                         _SettingsRow(
                           icon: AppImages.changepassword,
                           title: 'Change Password',
@@ -191,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
                           onTap: () =>
                               Get.to(() => const ChangePasswordScreen()),
                         ),
-                        Divider(color: Color(0xFFB9B9B9), height: 1),
+                        Divider(color: AppColors.divider(context), height: 1),
                         _SettingsRow(
                           icon: AppImages.privacypolicy,
                           title: 'Privacy policy & Security',
@@ -199,7 +205,7 @@ class ProfileScreen extends StatelessWidget {
                           onTap: () =>
                               Get.to(() => const PrivacyPolicySecurityScreen()),
                         ),
-                        Divider(color: Color(0xFFB9B9B9), height: 1),
+                        Divider(color: AppColors.divider(context), height: 1),
                         _SettingsRow(
                           icon: AppImages.terms,
                           title: 'Terms of Condition',
@@ -207,12 +213,22 @@ class ProfileScreen extends StatelessWidget {
                           onTap: () =>
                               Get.to(() => const TermsOfConditionScreen()),
                         ),
-                        Divider(color: Color(0xFFB9B9B9), height: 1),
+                        Divider(color: AppColors.divider(context), height: 1),
                         _SettingsRow(
                           icon: AppImages.helpsupport,
                           title: 'Help & Support',
                           subtitle: 'App usage terms and conditions',
                           onTap: () => Get.to(() => const HelpSupportScreen()),
+                        ),
+                        Divider(color: AppColors.divider(context), height: 1),
+                        Obx(
+                          () => _ThemeToggleRow(
+                            icon: Icons.dark_mode_outlined,
+                            title: 'Dark Mode',
+                            subtitle: 'Enable dark theme for the app',
+                            value: themeController.isDarkMode.value,
+                            onChanged: themeController.toggleDarkMode,
+                          ),
                         ),
                       ],
                     ),
@@ -226,7 +242,7 @@ class ProfileScreen extends StatelessWidget {
                           color: AppColors.primaryGreen,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.logout, size: 20, color: Colors.white),
@@ -247,7 +263,7 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Obx(
                       () => flowController.isSubmitting.value
-                          ? const Padding(
+                          ? Padding(
                               padding: EdgeInsets.only(top: 8),
                               child: SizedBox(
                                 height: 18,
@@ -281,20 +297,22 @@ class _OwnerProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeController = ensureThemeController();
+
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(10, 4, 10, 12),
       customAppBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         toolbarHeight: 48,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Profile',
           style: TextStyle(
-            color: AppColors.textBlack,
+            color: AppColors.primaryText(context),
             fontSize: 16,
             fontWeight: FontWeight.w600,
             fontFamily: 'Montserrat',
@@ -317,6 +335,7 @@ class _OwnerProfileView extends StatelessWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
+                      color: AppColors.cardColor(context),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
                         color: AppColors.primaryGreen,
@@ -366,8 +385,8 @@ class _OwnerProfileView extends StatelessWidget {
                                       : 'User Name',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: AppColors.textBlack,
+                                  style: TextStyle(
+                                    color: AppColors.primaryText(context),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'Montserrat',
@@ -380,8 +399,8 @@ class _OwnerProfileView extends StatelessWidget {
                                       : 'example@email.com',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: AppColors.textGrey,
+                                  style: TextStyle(
+                                    color: AppColors.secondaryText(context),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w400,
                                     fontFamily: 'Montserrat',
@@ -395,10 +414,10 @@ class _OwnerProfileView extends StatelessWidget {
                     }),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     'Settings',
                     style: TextStyle(
-                      color: AppColors.textBlack,
+                      color: AppColors.primaryText(context),
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
@@ -408,9 +427,10 @@ class _OwnerProfileView extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
+                      color: AppColors.cardColor(context),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
-                        color: const Color(0xFFB9B9B9),
+                        color: AppColors.divider(context),
                         width: 1,
                       ),
                     ),
@@ -422,7 +442,7 @@ class _OwnerProfileView extends StatelessWidget {
                           subtitle: 'Update your personal information',
                           onTap: () => Get.to(() => const EditProfileScreen()),
                         ),
-                        const Divider(height: 1, color: Color(0xFFB9B9B9)),
+                        Divider(height: 1, color: AppColors.divider(context)),
                         _OwnerSettingsRow(
                           icon: AppImages.changepassword,
                           title: 'Change Password',
@@ -430,7 +450,7 @@ class _OwnerProfileView extends StatelessWidget {
                           onTap: () =>
                               Get.to(() => const ChangePasswordScreen()),
                         ),
-                        const Divider(height: 1, color: Color(0xFFB9B9B9)),
+                        Divider(height: 1, color: AppColors.divider(context)),
                         _OwnerSettingsRow(
                           icon: AppImages.privacypolicy,
                           title: 'Privacy policy & Security',
@@ -438,7 +458,7 @@ class _OwnerProfileView extends StatelessWidget {
                           onTap: () =>
                               Get.to(() => const PrivacyPolicySecurityScreen()),
                         ),
-                        const Divider(height: 1, color: Color(0xFFB9B9B9)),
+                        Divider(height: 1, color: AppColors.divider(context)),
                         _OwnerSettingsRow(
                           icon: AppImages.terms,
                           title: 'Terms of Condition',
@@ -446,12 +466,22 @@ class _OwnerProfileView extends StatelessWidget {
                           onTap: () =>
                               Get.to(() => const TermsOfConditionScreen()),
                         ),
-                        const Divider(height: 1, color: Color(0xFFB9B9B9)),
+                        Divider(height: 1, color: AppColors.divider(context)),
                         _OwnerSettingsRow(
                           icon: AppImages.helpsupport,
                           title: 'Help & Support',
                           subtitle: 'App usage terms and conditions',
                           onTap: () => Get.to(() => const HelpSupportScreen()),
+                        ),
+                        Divider(height: 1, color: AppColors.divider(context)),
+                        Obx(
+                          () => _ThemeToggleRow(
+                            icon: Icons.dark_mode_outlined,
+                            title: 'Dark Mode',
+                            subtitle: 'Enable dark theme for the app',
+                            value: themeController.isDarkMode.value,
+                            onChanged: themeController.toggleDarkMode,
+                          ),
                         ),
                       ],
                     ),
@@ -467,7 +497,7 @@ class _OwnerProfileView extends StatelessWidget {
                         color: AppColors.logoutRed,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.logout, size: 28, color: Colors.white),
@@ -488,7 +518,7 @@ class _OwnerProfileView extends StatelessWidget {
                   const SizedBox(height: 8),
                   Obx(
                     () => flowController.isSubmitting.value
-                        ? const Padding(
+                        ? Padding(
                             padding: EdgeInsets.only(top: 8),
                             child: SizedBox(
                               height: 16,
@@ -532,7 +562,11 @@ class _OwnerSettingsRow extends StatelessWidget {
             SizedBox(
               width: 24,
               height: 24,
-              child: Image.asset(icon, fit: BoxFit.contain),
+              child: Image.asset(
+                icon,
+                fit: BoxFit.contain,
+                color: AppColors.primaryText(context),
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -541,8 +575,8 @@ class _OwnerSettingsRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -551,8 +585,8 @@ class _OwnerSettingsRow extends StatelessWidget {
                   const SizedBox(height: 1),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: AppColors.textGrey,
+                    style: TextStyle(
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Montserrat',
@@ -580,7 +614,8 @@ class _SectionCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.primaryGreen, width: 1.5),
+        border: Border.all(color: AppColors.divider(context), width: 1.2),
+        color: AppColors.cardColor(context),
       ),
       child: Column(children: children),
     );
@@ -615,12 +650,12 @@ class _QuickAccessRow extends StatelessWidget {
             Container(
               width: 24,
               height: 24,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF5F5F5),
+              decoration: BoxDecoration(
+                color: AppColors.cardColor(context),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0x1A000000),
+                    color: AppColors.shadow(context, light: 0.1, dark: 0.26),
                     blurRadius: 6,
                     spreadRadius: 2,
                     offset: Offset(0, 2),
@@ -643,8 +678,8 @@ class _QuickAccessRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -653,8 +688,8 @@ class _QuickAccessRow extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Montserrat',
@@ -666,19 +701,15 @@ class _QuickAccessRow extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               count,
-              style: const TextStyle(
-                color: AppColors.textBlack,
+              style: TextStyle(
+                color: AppColors.primaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Montserrat',
               ),
             ),
             const SizedBox(width: 14),
-            const Icon(
-              Icons.chevron_right,
-              size: 20,
-              color: AppColors.textBlack,
-            ),
+            Icon(Icons.chevron_right, size: 20, color: AppColors.primaryGreen),
           ],
         ),
       ),
@@ -718,6 +749,7 @@ class _SettingsRow extends StatelessWidget {
                     width: 24,
                     height: 24,
                     fit: BoxFit.contain,
+                    color: AppColors.primaryText(context),
                   ),
                 ),
               ),
@@ -729,8 +761,8 @@ class _SettingsRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -739,8 +771,8 @@ class _SettingsRow extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Montserrat',
@@ -748,6 +780,75 @@ class _SettingsRow extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeToggleRow extends StatelessWidget {
+  const _ThemeToggleRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Row(
+          children: [
+            Icon(icon, size: 24, color: AppColors.primaryText(context)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: AppColors.secondaryText(context),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Switch(
+              value: value,
+              activeThumbColor: Colors.white,
+              activeTrackColor: AppColors.primaryGreen,
+              inactiveThumbColor:
+                  Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.primaryWhite,
+              inactiveTrackColor: AppColors.divider(context),
+              onChanged: onChanged,
             ),
           ],
         ),

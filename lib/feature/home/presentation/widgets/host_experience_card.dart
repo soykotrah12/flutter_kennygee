@@ -30,31 +30,31 @@ class HostExperienceCard extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.primaryGreen,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.celebration_outlined,
               color: Colors.white,
               size: 24,
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Host an Experience',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Reach more guests and grow your community with live music nights, chef\'s tables, or seasonal tastings.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w400,
               height: 1.4,
@@ -76,7 +76,7 @@ class HostExperienceCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Create Event',
                 style: TextStyle(
                   color: Colors.white,

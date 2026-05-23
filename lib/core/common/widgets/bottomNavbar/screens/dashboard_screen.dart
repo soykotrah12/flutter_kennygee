@@ -43,7 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.appBackground,
+        backgroundColor: AppColors.background(context),
         body: Obx(
           () => IndexedStack(
             index: _controller.currentIndex.value,
@@ -64,7 +64,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             margin: const EdgeInsets.fromLTRB(0, 0, 12, 0),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.transparent,
+              color: AppColors.isDarkMode
+                  ? AppColors.darkNav.withValues(alpha: 0.9)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Obx(
@@ -93,6 +95,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       decoration: BoxDecoration(
                         color: isActive
                             ? AppColors.primaryGreen
+                            : AppColors.isDarkMode
+                            ? AppColors.darkNav.withValues(alpha: 0.82)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(27),
                       ),
@@ -106,6 +110,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             decoration: BoxDecoration(
                               color: isActive
                                   ? const Color(0xFFF2ECE5)
+                                  : AppColors.isDarkMode
+                                  ? AppColors.darkCardSoft
                                   : AppColors.primaryGreen,
                               shape: BoxShape.circle,
                               border: isHighlighted && !isActive
@@ -142,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     child: Center(
                                       child: Text(
                                         tab.label,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,

@@ -31,10 +31,10 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Payment Summary',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 18,
               fontWeight: FontWeight.w700,
               fontFamily: 'Montserrat',
@@ -43,7 +43,7 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Text(
+              Text(
                 'Platform Service Fee',
                 style: TextStyle(
                   color: AppColors.textGrey,
@@ -55,8 +55,8 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
               const Spacer(),
               Text(
                 '\$${_formatMoney(platformServiceFee)}',
-                style: const TextStyle(
-                  color: AppColors.textBlack,
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Montserrat',
@@ -65,7 +65,7 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          const Row(
+          Row(
             children: [
               Icon(Icons.lock_outline, size: 12, color: AppColors.textGrey),
               SizedBox(width: 4),
@@ -87,10 +87,10 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F3F3),
+              color: AppColors.softCardColor(context),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Text(
+            child: Text(
               'Stripe',
               style: TextStyle(
                 color: Color(0xFF4149FF),
@@ -100,16 +100,16 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
               ),
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Divider(height: 1, thickness: 1, color: Color(0xFFE3E3E3)),
           ),
           Row(
             children: [
-              const Text(
+              Text(
                 'Total',
                 style: TextStyle(
-                  color: AppColors.textBlack,
+                  color: AppColors.primaryText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Montserrat',
@@ -118,8 +118,8 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
               const Spacer(),
               Text(
                 '\$${_formatMoney(total)}',
-                style: const TextStyle(
-                  color: AppColors.textBlack,
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Montserrat',
@@ -139,7 +139,7 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
           //       color: AppColors.primaryGreen,
           //       borderRadius: BorderRadius.circular(6),
           //     ),
-          //     child: const Text(
+          //     child: Text(
           //       'Complete Payment',
           //       style: TextStyle(
           //         color: Colors.white,

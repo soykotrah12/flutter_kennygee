@@ -33,8 +33,8 @@ class CreateEventInputField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppColors.textBlack,
+          style: TextStyle(
+            color: AppColors.primaryText(context),
             fontSize: 13,
             fontWeight: FontWeight.w600,
             fontFamily: 'Montserrat',
@@ -47,8 +47,8 @@ class CreateEventInputField extends StatelessWidget {
           onTap: onTap,
           keyboardType: keyboardType,
           maxLines: maxLines,
-          style: const TextStyle(
-            color: AppColors.textBlack,
+          style: TextStyle(
+            color: AppColors.primaryText(context),
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontFamily: 'Montserrat',
@@ -58,12 +58,12 @@ class CreateEventInputField extends StatelessWidget {
             prefixText: prefixText,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: const Color(0xFFF7F7F7),
+            fillColor: AppColors.softCardColor(context),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 14,
             ),
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
               color: AppColors.textGrey,
               fontSize: 13,
               fontWeight: FontWeight.w400,

@@ -25,7 +25,7 @@ class _OwnerUpgradePlanScreenState extends State<OwnerUpgradePlanScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF3F3F3),
+      color: AppColors.softCardColor(context),
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
@@ -37,10 +37,10 @@ class _OwnerUpgradePlanScreenState extends State<OwnerUpgradePlanScreen> {
           toolbarHeight: 72,
           titleSpacing: 0,
           automaticallyImplyLeading: true,
-          title: const Text(
+          title: Text(
             'Upgrade Plan',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
@@ -48,7 +48,7 @@ class _OwnerUpgradePlanScreenState extends State<OwnerUpgradePlanScreen> {
         ),
         body: Obx(() {
           if (_controller.isLoading.value && _controller.plans.isEmpty) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(color: AppColors.primaryGreen),
             );
           }
@@ -59,7 +59,7 @@ class _OwnerUpgradePlanScreenState extends State<OwnerUpgradePlanScreen> {
                 _controller.error.value.isNotEmpty
                     ? _controller.error.value
                     : 'No plans available',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textGrey,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -99,7 +99,7 @@ class _PlanCard extends StatelessWidget {
         : const Color(0xFF77C4B0);
     final Color surfaceColor = highlighted
         ? const Color(0xFFF3EEDC)
-        : const Color(0xFFF3F3F3);
+        : AppColors.softCardColor(context);
     final Color actionBg = highlighted
         ? AppColors.primaryGreen
         : const Color(0xFFEFF3F2);
@@ -128,8 +128,8 @@ class _PlanCard extends StatelessWidget {
             children: [
               Text(
                 plan.planName,
-                style: const TextStyle(
-                  color: AppColors.textBlack,
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -137,11 +137,11 @@ class _PlanCard extends StatelessWidget {
               const SizedBox(height: 12),
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(color: AppColors.textBlack),
+                  style: TextStyle(color: AppColors.primaryText(context)),
                   children: [
                     TextSpan(
                       text: '\$${plan.price.toStringAsFixed(0)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFF2E8166),
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
@@ -149,7 +149,7 @@ class _PlanCard extends StatelessWidget {
                     ),
                     TextSpan(
                       text: '/${plan.duration}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w400,
                       ),
@@ -169,14 +169,14 @@ class _PlanCard extends StatelessWidget {
                       Icon(
                         Icons.check_circle_outline,
                         size: 22,
-                        color:AppColors.textBlack,
+                        color:AppColors.primaryText(context),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           feature,
-                          style: const TextStyle(
-                            color: AppColors.textBlack,
+                          style: TextStyle(
+                            color: AppColors.primaryText(context),
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
                             height: 1.2,
@@ -197,7 +197,7 @@ class _PlanCard extends StatelessWidget {
                       'Plan Selected',
                       '${plan.planName} selected',
                       snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.cardColor(context),
                       margin: const EdgeInsets.all(12),
                     );
                   },
@@ -248,7 +248,7 @@ class _PlanCard extends StatelessWidget {
               child: Text(
                 badge,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

@@ -42,7 +42,7 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -93,7 +93,7 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
                             _obscurePassword
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
-                            color: AppColors.textFieldLightGrey,
+                            color: AppColors.secondaryText(context),
                           ),
                           iconSize: 20,
                         ),
@@ -105,7 +105,7 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
                           onTap: () => Get.to(() => const EmailVerifyScreen()),
                           child: const Text(
                             'Forgot password?',
-                            style: TextStyle(                              
+                            style: TextStyle(
                               color: AppColors.primaryGreen,
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
@@ -137,10 +137,10 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             'Don’t have an account? ',
                             style: TextStyle(
-                              color: AppColors.textBlack,
+                              color: AppColors.primaryText(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                             ),
@@ -191,9 +191,9 @@ class _InputLabel extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'Montserrat',
-          color: AppColors.textBlack,
+          color: AppColors.primaryText(context),
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -225,8 +225,8 @@ class _AuthInput extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),
@@ -234,7 +234,7 @@ class _AuthInput extends StatelessWidget {
         hintText: hintText,
         prefixIcon: Icon(
           prefixIcon,
-          color: AppColors.textFieldLightGrey,
+          color: AppColors.secondaryText(context),
           size: 20,
         ),
         suffixIcon: suffixIcon,

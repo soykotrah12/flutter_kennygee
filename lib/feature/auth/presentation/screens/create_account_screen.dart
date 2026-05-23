@@ -52,7 +52,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 50),
         child: Column(
@@ -65,11 +65,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               fit: BoxFit.contain,
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Let’s Get Started!',
               style: TextStyle(
                 fontFamily: 'Montserrat',
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.7,
@@ -79,9 +79,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             Text(
               'Create an account as ${widget.selectedRole.title}',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Montserrat',
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -131,7 +131,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   _obscurePassword
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: AppColors.textFieldLightGrey,
+                  color: AppColors.secondaryText(context),
                 ),
               ),
             ),
@@ -154,7 +154,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   _obscureConfirm
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: AppColors.textFieldLightGrey,
+                  color: AppColors.secondaryText(context),
                 ),
               ),
             ),
@@ -186,10 +186,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Already have an account? ',
                   style: TextStyle(
-                    color: AppColors.textBlack,
+                    color: AppColors.primaryText(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                   ),
@@ -226,9 +226,9 @@ class _FormLabel extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'Montserrat',
-          color: AppColors.textBlack,
+          color: AppColors.primaryText(context),
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -260,8 +260,8 @@ class _AuthInput extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),
@@ -269,7 +269,7 @@ class _AuthInput extends StatelessWidget {
         hintText: hintText,
         prefixIcon: Icon(
           prefixIcon,
-          color: AppColors.textFieldLightGrey,
+          color: AppColors.secondaryText(context),
           size: 22,
         ),
         suffixIcon: suffixIcon,

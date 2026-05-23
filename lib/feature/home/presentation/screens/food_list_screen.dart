@@ -72,8 +72,8 @@ class _FoodListScreenState extends State<FoodListScreen>
           title: Text.rich(
             TextSpan(
               text: 'Food List ',
-              style: const TextStyle(
-                color: AppColors.textBlack,
+              style: TextStyle(
+                color: AppColors.primaryText(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Montserrat',
@@ -102,7 +102,7 @@ class _FoodListScreenState extends State<FoodListScreen>
                 final List<FoodModel> items = _foodController.foods;
 
                 if (_foodController.isLoading.value && items.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryGreen,
                     ),
@@ -119,7 +119,7 @@ class _FoodListScreenState extends State<FoodListScreen>
                           Text(
                             _foodController.error.value,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textGrey,
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -129,7 +129,7 @@ class _FoodListScreenState extends State<FoodListScreen>
                           const SizedBox(height: 10),
                           TextButton(
                             onPressed: _foodController.fetchNearbyFoods,
-                            child: const Text(
+                            child: Text(
                               'Try again',
                               style: TextStyle(
                                 color: AppColors.primaryGreen,
@@ -215,7 +215,7 @@ class _FoodGridCard extends StatelessWidget {
                     child: Container(
                       width: 24,
                       height: 24,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
@@ -241,15 +241,15 @@ class _FoodGridCard extends StatelessWidget {
                       item.name,
                       maxLines: 2,
                       overflow: TextOverflow.visible,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.star,
                     size: 16,
                     color: AppColors.primaryOrange,
@@ -257,7 +257,7 @@ class _FoodGridCard extends StatelessWidget {
                   const SizedBox(width: 2),
                   Text(
                     item.rating.toStringAsFixed(1),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.primaryGreen,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -271,7 +271,7 @@ class _FoodGridCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 2, 12, 0),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.location_on_rounded,
                     color: AppColors.primaryOrange,
                     size: 24,
@@ -282,8 +282,8 @@ class _FoodGridCard extends StatelessWidget {
                       item.distance,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
@@ -297,7 +297,7 @@ class _FoodGridCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.access_time_rounded,
                     color: Color(0xFF31B24C),
                     size: 24,
@@ -308,8 +308,8 @@ class _FoodGridCard extends StatelessWidget {
                       item.openingHours,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textBlack,
+                      style: TextStyle(
+                        color: AppColors.primaryText(context),
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Montserrat',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class AppColors {
   AppColors._();
@@ -57,4 +58,81 @@ class AppColors {
   static const Color authSecondaryText = Color(0xFF666666);
   static const Color authBorder = Color(0xFFBCBCBC);
   static const Color containerGrey = Color(0xFFF5F5F5);
+
+  // Dark mode palette
+  static const Color darkBackground = Color(0xFF011B14);
+  static const Color darkCard = Color(0xFF0A3A2D);
+  static const Color darkCardSoft = Color(0xFF0E4837);
+  static const Color darkNav = Color(0xFF04130E);
+  static const Color darkDivider = Color(0xFF1A5847);
+  static const Color darkInput = Color(0xFF123D31);
+  static const Color darkTextPrimary = Color(0xFFF3F6F4);
+  static const Color darkTextSecondary = Color(0xFFA8B5AF);
+
+  static bool get isDarkMode => Get.isDarkMode;
+
+  static Color background(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkBackground
+      : appBackground;
+
+  static Color cardColor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? darkCard : primaryWhite;
+
+  static Color softCardColor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? darkCardSoft : white1;
+
+  static Color primaryText(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkTextPrimary
+      : textBlack;
+
+  static Color secondaryText(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkTextSecondary
+      : textGrey;
+
+  static Color divider(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkDivider
+      : inputBorder;
+
+  static Color inputFill(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkInput
+      : inputBackground;
+
+  static Color mutedInput(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkInput
+      : const Color(0xFFE8E8E8);
+
+  static Color badgeSurface(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkCardSoft
+      : const Color(0xFFF2ECE5);
+
+  static Color iconCircleSurface(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkInput
+      : const Color(0xFFDCE5E2);
+
+  static Color shadow(
+    BuildContext context, {
+    double light = 0.08,
+    double dark = 0.24,
+  }) => Colors.black.withValues(
+    alpha: Theme.of(context).brightness == Brightness.dark ? dark : light,
+  );
+
+  static Color get backgroundAdaptive =>
+      isDarkMode ? darkBackground : appBackground;
+  static Color get cardAdaptive => isDarkMode ? darkCard : primaryWhite;
+  static Color get softCardAdaptive => isDarkMode ? darkCardSoft : white1;
+  static Color get primaryTextAdaptive =>
+      isDarkMode ? darkTextPrimary : textBlack;
+  static Color get secondaryTextAdaptive =>
+      isDarkMode ? darkTextSecondary : textGrey;
+  static Color get dividerAdaptive => isDarkMode ? darkDivider : inputBorder;
+  static Color get navAdaptive => isDarkMode ? darkNav : appBackground;
 }

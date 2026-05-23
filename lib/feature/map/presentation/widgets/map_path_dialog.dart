@@ -41,7 +41,7 @@ class _MapPathDialogState extends State<MapPathDialog> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFF2F2F2),
+          color: AppColors.softCardColor(context),
           borderRadius: BorderRadius.circular(18),
         ),
         child: Column(
@@ -124,7 +124,7 @@ class _MapPathDialogState extends State<MapPathDialog> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Show Path',
                         style: TextStyle(
                           fontSize: 21,
@@ -161,7 +161,7 @@ class _MapPathDialogState extends State<MapPathDialog> {
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(
+        hintStyle: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: Color(0xFF7F7F7F),
@@ -169,7 +169,7 @@ class _MapPathDialogState extends State<MapPathDialog> {
         ),
         prefixIcon: readonly
             ? null
-            : const Icon(Icons.search, size: 32, color: Color(0xFF6D6D6D)),
+            : Icon(Icons.search, size: 32, color: Color(0xFF6D6D6D)),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 13,

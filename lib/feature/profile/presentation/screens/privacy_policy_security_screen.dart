@@ -17,7 +17,7 @@ class PrivacyPolicySecurityScreen extends StatelessWidget {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       appBarTitle: 'Privacy policy & Security',
       body: Column(
@@ -59,8 +59,8 @@ class _PolicyText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       paragraph,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 16,
         fontWeight: FontWeight.w400,
         fontFamily: 'Montserrat',

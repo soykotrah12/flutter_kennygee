@@ -15,7 +15,7 @@ class LogoutConfirmScreen extends StatelessWidget {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       appBarTitle: 'Log out',
       
@@ -31,10 +31,10 @@ class LogoutConfirmScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const Text(
+                Text(
                   'Are you sure to log out?',
                   style: TextStyle(
-                    color: AppColors.textBlack ,
+                    color: AppColors.primaryText(context) ,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Montserrat',
@@ -58,7 +58,7 @@ class LogoutConfirmScreen extends StatelessWidget {
                                 width: 2,
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Text(
                                 'Cancel',
                                 style: TextStyle(
@@ -101,7 +101,7 @@ class LogoutConfirmScreen extends StatelessWidget {
                                         color: Colors.white,
                                       ),
                                     )
-                                  : const Text(
+                                  : Text(
                                       'Log out',
                                       style: TextStyle(
                                         color: Colors.white,

@@ -52,15 +52,22 @@ class ProfileController extends GetxController {
   final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmNewPasswordController = TextEditingController();
+  static int _initCount = 0;
+  int _fetchProfileCount = 0;
+  int _fetchQuickAccessCount = 0;
 
   @override
   void onInit() {
     super.onInit();
+    _initCount++;
+    debugPrint('[ProfileController] onInit count=$_initCount');
     fetchProfile();
     fetchQuickAccessCounts();
   }
 
   Future<void> fetchProfile({bool showLoader = true}) async {
+    _fetchProfileCount++;
+    debugPrint('[ProfileController] fetchProfile #$_fetchProfileCount');
     if (showLoader) {
       isProfileLoading.value = true;
     }
@@ -192,6 +199,10 @@ class ProfileController extends GetxController {
   }
 
   Future<void> fetchQuickAccessCounts() async {
+    _fetchQuickAccessCount++;
+    debugPrint(
+      '[ProfileController] fetchQuickAccessCounts #$_fetchQuickAccessCount',
+    );
     await Future.wait<void>(<Future<void>>[
       _fetchWishlistCount(),
       _fetchBookmarkCount(),
@@ -234,7 +245,7 @@ class ProfileController extends GetxController {
       title,
       message,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.cardAdaptive,
     );
   }
 

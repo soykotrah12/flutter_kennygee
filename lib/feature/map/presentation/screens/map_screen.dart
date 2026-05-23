@@ -22,6 +22,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  static int _buildCount = 0;
   late final MapFeatureController _controller;
   late final TextEditingController _searchController;
 
@@ -41,6 +42,11 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _buildCount++;
+    debugPrint('[MapScreen] build count=$_buildCount');
+
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Stack(
       children: [
         Positioned.fill(
@@ -110,14 +116,14 @@ class _MapScreenState extends State<MapScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xF2FFFFFF),
+                color: isDark ? AppColors.darkCardSoft : const Color(0xF2FFFFFF),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'No restaurant found',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Color(0xFF6E6E6E),
+                  color: AppColors.secondaryText(context),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Montserrat',
@@ -132,10 +138,12 @@ class _MapScreenState extends State<MapScreen> {
               top: MediaQuery.of(context).padding.top + 86,
               left: 0,
               right: 0,
-              child: const LinearProgressIndicator(
+              child: LinearProgressIndicator(
                 color: AppColors.primaryGreen,
                 minHeight: 2,
-                backgroundColor: Colors.white,
+                backgroundColor: isDark
+                    ? AppColors.darkCardSoft
+                    : Colors.white,
               ),
             );
           }
@@ -153,13 +161,13 @@ class _MapScreenState extends State<MapScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xEEFFFFFF),
+                color: isDark ? AppColors.darkCardSoft : const Color(0xEEFFFFFF),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 message,
-                style: const TextStyle(
-                  color: Color(0xFF6E6E6E),
+                style: TextStyle(
+                  color: AppColors.secondaryText(context),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Montserrat',
@@ -185,7 +193,7 @@ class _MapScreenState extends State<MapScreen> {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.cardColor(context),
                   shape: BoxShape.circle,
                   boxShadow: const [
                     BoxShadow(
@@ -195,7 +203,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.my_location,
                   color: AppColors.primaryGreen,
                   size: 24,
@@ -260,7 +268,9 @@ class _MapScreenState extends State<MapScreen> {
             decoration: BoxDecoration(
               color: isSelected
                   ? const Color(0xFFF3CB67)
-                  : const Color(0xFFF7F7F7),
+                  : (AppColors.isDarkMode
+                        ? AppColors.darkCardSoft
+                        : AppColors.softCardColor(context)),
               borderRadius: BorderRadius.circular(10),
               boxShadow: const [
                 BoxShadow(
@@ -275,7 +285,7 @@ class _MapScreenState extends State<MapScreen> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: const Color(0xFF1D1D1D),
+                color: AppColors.primaryText(context),
                 fontSize: 18,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                 fontFamily: 'Montserrat',

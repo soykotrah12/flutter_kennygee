@@ -64,7 +64,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         body: Obx(() {
           if (detailsController.isLoading.value &&
               detailsController.event.value == null) {
-            return const Padding(
+            return Padding(
               padding: EdgeInsets.only(top: 48),
               child: Center(
                 child: CircularProgressIndicator(color: AppColors.primaryGreen),
@@ -82,7 +82,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   Text(
                     detailsController.error.value,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textGrey,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -95,7 +95,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       detailsController.fetchEventDetails(widget.event.id);
                       detailsController.fetchGoingStatus(widget.event.id);
                     },
-                    child: const Text(
+                    child: Text(
                       'Retry',
                       style: TextStyle(
                         color: AppColors.primaryGreen,
@@ -159,7 +159,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               const SizedBox(height: 34),
               Text(
                 activeEvent.detailsTitle,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.primaryGreen,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -169,7 +169,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               const SizedBox(height: 12),
               Text(
                 activeEvent.detailsDescription,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.black,
                   fontSize: 16,
                   height: 1.45,
@@ -216,7 +216,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         )
                       : Text(
                           going ? 'Cancel' : activeEvent.actionLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -253,7 +253,7 @@ class _InfoBox extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: isWide ? 18 : 14),
       decoration: BoxDecoration(
-        color: AppColors.appBackground,
+        color: AppColors.background(context),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
@@ -270,7 +270,7 @@ class _InfoBox extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textGrey,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -281,7 +281,7 @@ class _InfoBox extends StatelessWidget {
           Text(
             value,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.black,
               fontSize: 14,
               fontWeight: FontWeight.w500,

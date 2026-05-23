@@ -30,7 +30,7 @@ class CreateEventImageCard extends StatelessWidget {
         width: double.infinity,
         height: 190,
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F8F8),
+          color: AppColors.softCardColor(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFFD6D6D6)),
         ),
@@ -45,7 +45,7 @@ class CreateEventImageCard extends StatelessWidget {
                     ? AdaptiveImage(path: remoteImageUrl, fit: BoxFit.cover)
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(
                             Icons.photo_camera_outlined,
                             size: 34,
@@ -55,7 +55,7 @@ class CreateEventImageCard extends StatelessWidget {
                           Text(
                             'Upload Event Photo',
                             style: TextStyle(
-                              color: AppColors.textBlack,
+                              color: AppColors.primaryText(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Montserrat',
@@ -81,11 +81,11 @@ class CreateEventImageCard extends StatelessWidget {
               child: Container(
                 width: 34,
                 height: 34,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.primaryGreen,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.edit, color: Colors.white, size: 18),
+                child: Icon(Icons.edit, color: Colors.white, size: 18),
               ),
             ),
           ],

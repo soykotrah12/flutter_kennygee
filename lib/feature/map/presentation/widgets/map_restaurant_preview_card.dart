@@ -24,7 +24,7 @@ class MapRestaurantPreviewCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(14, 0, 14, 10),
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(18),
         boxShadow: const [
           BoxShadow(
@@ -58,7 +58,7 @@ class MapRestaurantPreviewCard extends StatelessWidget {
                       restaurant.restaurantName,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: Colors.black,
@@ -68,7 +68,7 @@ class MapRestaurantPreviewCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '${restaurant.distanceLabel} AWAY',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryGreen,
@@ -78,7 +78,7 @@ class MapRestaurantPreviewCard extends StatelessWidget {
                     const SizedBox(height: 7),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.star,
                           color: Color(0xFFF7C100),
                           size: 28,
@@ -89,7 +89,7 @@ class MapRestaurantPreviewCard extends StatelessWidget {
                             '${restaurant.rating.toStringAsFixed(1)} ${restaurant.reviewsLabel}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 19,
                               fontWeight: FontWeight.w500,
                               color: Color(0xFF585858),
@@ -117,7 +117,7 @@ class MapRestaurantPreviewCard extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text(
+                  child: Text(
                     'View Details',
                     style: TextStyle(
                       fontSize: 21,
@@ -141,7 +141,7 @@ class MapRestaurantPreviewCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(13),
                     ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.near_me,
                     color: Color(0xFFF3CB67),
                     size: 32,

@@ -106,13 +106,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(AppImages.rolebackground),
-          fit: BoxFit.cover,
-        ),
-      ),
+      decoration: isDark
+          ? BoxDecoration(color: AppColors.darkBackground)
+          : BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AppImages.rolebackground),
+                fit: BoxFit.cover,
+              ),
+            ),
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: true,
@@ -163,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           fit: BoxFit.contain,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'Events',
                           style: TextStyle(
                             color: Colors.white,
@@ -182,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             Text(
               'Hungry? Discover What\'s nearby.',
               style: TextStyle(
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
                 height: 1.1,
@@ -216,13 +220,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               _searchQuery = value;
                             });
                           },
-                          style: const TextStyle(
-                            color: AppColors.textBlack,
+                          style: TextStyle(
+                            color: AppColors.primaryText(context),
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             fontFamily: 'Montserrat',
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             isCollapsed: true,
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
@@ -232,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             focusedErrorBorder: InputBorder.none,
                             hintText: 'Search Restaurant, dishes...',
                             hintStyle: TextStyle(
-                              color: AppColors.textGrey,
+                              color: AppColors.secondaryText(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w300,
                               fontFamily: 'Montserrat',
@@ -245,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   Container(
                     width: 52,
                     height: double.infinity,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.primaryGreen,
                       borderRadius: BorderRadius.horizontal(
                         right: Radius.circular(9),
@@ -309,7 +313,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               return SizedBox(
                 height: 224,
                 child: isLoading && source.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primaryGreen,
                         ),
@@ -320,8 +324,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           error.isNotEmpty
                               ? 'Could not load restaurants'
                               : 'No restaurants available',
-                          style: const TextStyle(
-                            color: AppColors.textGrey,
+                          style: TextStyle(
+                            color: AppColors.secondaryText(context),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat',
@@ -329,11 +333,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                       )
                     : filteredRestaurants.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
                           'No matching restaurants found',
                           style: TextStyle(
-                            color: AppColors.textGrey,
+                            color: AppColors.secondaryText(context),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat',
@@ -379,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   : filteredRecommended.take(5).toList();
 
               if (isRecommendedLoading && recommendedItems.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Center(
                     child: CircularProgressIndicator(
@@ -396,8 +400,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     recommendedError.isNotEmpty
                         ? 'Could not load recommendations'
                         : 'No recommendations available',
-                    style: const TextStyle(
-                      color: AppColors.textGrey,
+                    style: TextStyle(
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -408,12 +412,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
               if (_searchQuery.trim().isNotEmpty &&
                   filteredRecommended.isEmpty) {
-                return const Padding(
+                return Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     'No matching recommendations found',
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -515,7 +519,7 @@ class _FilterChip extends StatelessWidget {
         height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: active ? AppColors.primaryGreen : AppColors.appBackground,
+          color: active ? AppColors.primaryGreen : AppColors.background(context),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.primaryGreen),
         ),
@@ -527,7 +531,7 @@ class _FilterChip extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: active ? Colors.white : AppColors.textBlack,
+                color: active ? Colors.white : AppColors.primaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Montserrat',
@@ -561,8 +565,8 @@ class _SectionHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: AppColors.textBlack,
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   height: 1.1,
@@ -571,8 +575,8 @@ class _SectionHeader extends StatelessWidget {
               ),
               Text(
                 subtitle,
-                style: const TextStyle(
-                  color: AppColors.textGrey,
+                style: TextStyle(
+                  color: AppColors.secondaryText(context),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Montserrat',
@@ -583,7 +587,7 @@ class _SectionHeader extends StatelessWidget {
         ),
         GestureDetector(
           onTap: onSeeAll,
-          child: const Text(
+          child: Text(
             'See all',
             style: TextStyle(
               color: AppColors.primaryGreen,
@@ -611,8 +615,8 @@ class _OnlyTitleHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 22,
               fontWeight: FontWeight.w600,
               height: 1.1,
@@ -622,7 +626,7 @@ class _OnlyTitleHeader extends StatelessWidget {
         ),
         GestureDetector(
           onTap: onSeeAll,
-          child: const Text(
+          child: Text(
             'See all',
             style: TextStyle(
               color: AppColors.primaryGreen,
@@ -652,7 +656,7 @@ class _NearbyCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.primaryWhite,
+            color: AppColors.cardColor(context),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -685,8 +689,8 @@ class _NearbyCard extends StatelessWidget {
                       child: Container(
                         width: 26,
                         height: 26,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primaryWhite,
+                        decoration: BoxDecoration(
+                          color: AppColors.cardColor(context),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -711,15 +715,15 @@ class _NearbyCard extends StatelessWidget {
                         restaurant.name,
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textBlack,
+                        style: TextStyle(
+                          color: AppColors.primaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Montserrat',
                         ),
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.star,
                       size: 12,
                       color: AppColors.primaryOrange,
@@ -727,7 +731,7 @@ class _NearbyCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       restaurant.rating.toStringAsFixed(1),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.primaryGreen,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -753,8 +757,8 @@ class _NearbyCard extends StatelessWidget {
                         restaurant.distance,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textBlack,
+                        style: TextStyle(
+                          color: AppColors.primaryText(context),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Montserrat',
@@ -780,8 +784,8 @@ class _NearbyCard extends StatelessWidget {
                         restaurant.openingHours,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textBlack,
+                        style: TextStyle(
+                          color: AppColors.primaryText(context),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Montserrat',
@@ -834,8 +838,8 @@ class _RecommendedItem extends StatelessWidget {
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
@@ -859,8 +863,8 @@ class _RecommendedItem extends StatelessWidget {
                               item.distance,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.textBlack,
+                              style: TextStyle(
+                                color: AppColors.primaryText(context),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Montserrat',
@@ -871,7 +875,7 @@ class _RecommendedItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(
+                    Icon(
                       Icons.star,
                       size: 16,
                       color: AppColors.primaryOrange,
@@ -879,7 +883,7 @@ class _RecommendedItem extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       item.rating.toStringAsFixed(1),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.primaryGreen,
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -903,8 +907,8 @@ class _RecommendedItem extends StatelessWidget {
                         item.openingHours,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textBlack,
+                        style: TextStyle(
+                          color: AppColors.primaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Montserrat',

@@ -45,7 +45,7 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -68,33 +68,33 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      const Center(
+                      Center(
                         child: Text(
                           'Reset password',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textBlack,
+                            color: AppColors.primaryText(context),
                           ),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Enter your email to receive the OTP',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: AppColors.textGrey,
+                          color: AppColors.secondaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
                       const SizedBox(height: 34),
-                      const Align(
+                      Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Your Email',
                           style: TextStyle(
-                            color: AppColors.textBlack,
+                            color: AppColors.primaryText(context),
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -104,16 +104,16 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                       TextField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(
-                          color: AppColors.textBlack,
+                        style: TextStyle(
+                          color: AppColors.primaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Enter your Email',
                           prefixIcon: Icon(
                             Icons.mail_outline_rounded,
-                            color: AppColors.textFieldLightGrey,
+                            color: AppColors.secondaryText(context),
                             size: 22,
                           ),
                         ),

@@ -123,7 +123,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
               ) {
                 return states.contains(WidgetState.selected)
                     ? Colors.white
-                    : AppColors.textBlack;
+                    : AppColors.primaryText(context);
               }),
             ),
           ),
@@ -151,7 +151,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Closed',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
@@ -201,7 +201,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
         'Validation',
         'Please fill all required shop fields.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardColor(context),
         margin: const EdgeInsets.all(12),
       );
       return;
@@ -237,7 +237,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Shop Identity',
               style: TextStyle(
                 color: AppColors.primaryGreen,
@@ -246,10 +246,10 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Tell us about your brand\'s essence.',
               style: TextStyle(
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -296,10 +296,10 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
               hintText: '123 Culinary Way',
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Operating Hours',
               style: TextStyle(
-                color: AppColors.textBlack,
+                color: AppColors.primaryText(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
               ),
@@ -343,7 +343,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                       )
                     : Text(
                         isEditMode ? 'Save Changes' : 'Save',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
@@ -389,14 +389,14 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
         Container(
           width: 40,
           height: 40,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Color(0xFFD9E2DF),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.add, color: AppColors.primaryGreen, size: 28),
+          child: Icon(Icons.add, color: AppColors.primaryGreen, size: 28),
         ),
         const SizedBox(height: 10),
-        const Text(
+        Text(
           'Add photo',
           style: TextStyle(
             color: AppColors.primaryGreen,
@@ -411,8 +411,8 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
   Widget _fieldLabel(String label) {
     return Text(
       label,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
@@ -427,16 +427,16 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(
-        color: AppColors.textBlack,
+      style: TextStyle(
+        color: AppColors.primaryText(context),
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color(0xFFF0F0F0),
+        fillColor: AppColors.softCardColor(context),
         hintText: hintText,
-        hintStyle: const TextStyle(
+        hintStyle: TextStyle(
           color: AppColors.textGrey,
           fontSize: 14,
           fontWeight: FontWeight.w400,
@@ -489,8 +489,8 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 softWrap: true,
-                style: const TextStyle(
-                  color: AppColors.textBlack,
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
@@ -514,7 +514,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                           color: const Color(0xFFF9E8E8),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Closed',
                           style: TextStyle(
                             color: AppColors.logoutRed,
@@ -533,7 +533,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                           onTap: () => _pickTime(day: day, isOpen: true),
                         ),
                       ),
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
                           '-',
@@ -564,7 +564,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
 
     return Obx(() {
       if (ownerFoodCtrl.isLoading.value && ownerFoodCtrl.foods.isEmpty) {
-        return const Padding(
+        return Padding(
           padding: EdgeInsets.symmetric(vertical: 6),
           child: Center(
             child: CircularProgressIndicator(color: AppColors.primaryGreen),
@@ -611,8 +611,8 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
             );
           }
         },
-        icon: const Icon(Icons.add, color: Colors.white, size: 26),
-        label: const Text(
+        icon: Icon(Icons.add, color: Colors.white, size: 26),
+        label: Text(
           'Add Food Item',
           style: TextStyle(
             color: Colors.white,
@@ -640,13 +640,13 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
         height: 42,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: const Color(0xFFF2F2F2),
+          color: AppColors.softCardColor(context),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           text,
-          style: const TextStyle(
-            color: AppColors.textBlack,
+          style: TextStyle(
+            color: AppColors.primaryText(context),
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -720,8 +720,8 @@ class _FoodPreviewCard extends StatelessWidget {
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -731,7 +731,7 @@ class _FoodPreviewCard extends StatelessWidget {
                   description,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textGrey,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -743,7 +743,7 @@ class _FoodPreviewCard extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             '\$$formattedPrice',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primaryGreen,
               fontSize: 18,
               fontWeight: FontWeight.w700,

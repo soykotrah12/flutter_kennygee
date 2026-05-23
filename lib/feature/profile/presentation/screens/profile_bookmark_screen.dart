@@ -30,7 +30,7 @@ class _ProfileBookmarkScreenState extends State<ProfileBookmarkScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF3F3F3),
+      color: AppColors.softCardColor(context),
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
@@ -42,10 +42,10 @@ class _ProfileBookmarkScreenState extends State<ProfileBookmarkScreen> {
           toolbarHeight: 72,
           titleSpacing: 0,
           automaticallyImplyLeading: true,
-          title: const Text(
+          title: Text(
             'Book Mark',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 18,
               fontWeight: FontWeight.w700,
               fontFamily: 'Montserrat',
@@ -54,7 +54,7 @@ class _ProfileBookmarkScreenState extends State<ProfileBookmarkScreen> {
         ),
         body: Obx(() {
           if (_controller.isLoading.value && _controller.bookmarks.isEmpty) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(color: AppColors.primaryGreen),
             );
           }
@@ -70,7 +70,7 @@ class _ProfileBookmarkScreenState extends State<ProfileBookmarkScreen> {
                     Text(
                       _controller.error.value,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textGrey,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -80,7 +80,7 @@ class _ProfileBookmarkScreenState extends State<ProfileBookmarkScreen> {
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: () => _controller.fetchBookmarks(force: true),
-                      child: const Text(
+                      child: Text(
                         'Try again',
                         style: TextStyle(
                           color: AppColors.primaryGreen,
@@ -97,7 +97,7 @@ class _ProfileBookmarkScreenState extends State<ProfileBookmarkScreen> {
           }
 
           if (_controller.bookmarks.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'No bookmarks found',
                 style: TextStyle(
@@ -175,8 +175,8 @@ class _BookmarkCard extends StatelessWidget {
                     item.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textBlack,
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Montserrat',
@@ -187,7 +187,7 @@ class _BookmarkCard extends StatelessWidget {
                     item.subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textGrey,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -197,7 +197,7 @@ class _BookmarkCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.star,
                         color: AppColors.primaryOrange,
                         size: 16,
@@ -205,7 +205,7 @@ class _BookmarkCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         item.rating.toStringAsFixed(1),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.primaryGreen,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -215,7 +215,7 @@ class _BookmarkCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         '(${item.reviewsCount})',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textGrey,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -229,7 +229,7 @@ class _BookmarkCard extends StatelessWidget {
                     item.address.isNotEmpty ? item.address : item.distance,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textGrey,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -240,7 +240,7 @@ class _BookmarkCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.bookmark, color: AppColors.primaryGreen, size: 22),
+            Icon(Icons.bookmark, color: AppColors.primaryGreen, size: 22),
           ],
         ),
       ),

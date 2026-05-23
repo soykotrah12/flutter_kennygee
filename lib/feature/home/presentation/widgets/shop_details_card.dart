@@ -20,7 +20,7 @@ class ShopDetailsCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F0F0),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -29,10 +29,10 @@ class ShopDetailsCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Shop Details',
                   style: TextStyle(
-                    color: AppColors.textBlack,
+                    color: AppColors.primaryText(context),
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -42,8 +42,8 @@ class ShopDetailsCard extends StatelessWidget {
                   '$title • $subtitle',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -57,7 +57,7 @@ class ShopDetailsCard extends StatelessWidget {
               foregroundColor: AppColors.primaryGreen,
               padding: const EdgeInsets.symmetric(horizontal: 8),
             ),
-            child: const Text(
+            child: Text(
               'Edit',
               style: TextStyle(
                 color: AppColors.primaryGreen,

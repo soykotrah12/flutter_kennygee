@@ -76,7 +76,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: true,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +115,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           Text(
             'Welcome back,\nThe Culinary Architect',
             style: TextStyle(
-              color: AppColors.textBlack,
+              color: AppColors.primaryText(context),
               fontSize: 22,
               fontWeight: FontWeight.w600,
               letterSpacing: -0.9,
@@ -153,7 +153,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           ),
           const SizedBox(height: 14),
           Row(
-            children: const [
+            children: [
               Expanded(
                 child: _StatsCard(
                   icon: AppImages.starIcon,
@@ -166,7 +166,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
               Expanded(
                 child: _StatsCard(
                   icon: AppImages.reviewIcon,
-                  iconColor: Color(0xFF34B58A),
+                  iconColor: const Color(0xFF34B58A),
                   title: 'Total Reviews',
                   value: '1,240',
                 ),
@@ -234,7 +234,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                   text: 'Upgrade Plan',
                   height: 48,
                   borderRadius: 8,
-                  backgroundColor: AppColors.primaryWhite,
+                  backgroundColor: AppColors.cardColor(context),
                   textColor: AppColors.primaryGreen,
                   borderColor: Colors.transparent,
                 ),
@@ -244,10 +244,10 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           const SizedBox(height: 18),
           Row(
             children: [
-              const Text(
+              Text(
                 'Recent Reviews',
                 style: TextStyle(
-                  color: AppColors.textBlack,
+                  color: AppColors.primaryText(context),
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
@@ -265,7 +265,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                       decoration: TextDecoration.underline,
                       color: hasReviews
                           ? AppColors.primaryGreen
-                          : AppColors.textGrey,
+                          : AppColors.secondaryText(context),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -283,7 +283,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 (_ownerShopController.ownerShop.value?.image.url ?? '').trim();
 
             if (isLoading && preview.isEmpty) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Center(
                   child: CircularProgressIndicator(
@@ -298,8 +298,8 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
                   error.isNotEmpty ? error : 'No reviews yet',
-                  style: const TextStyle(
-                    color: AppColors.textGrey,
+                  style: TextStyle(
+                    color: AppColors.secondaryText(context),
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
@@ -339,17 +339,17 @@ class OwnerAllReviewsScreen extends StatelessWidget {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       customAppBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 72,
         titleSpacing: 0,
         automaticallyImplyLeading: true,
-        title: const Text(
+        title: Text(
           'All Reviews',
           style: TextStyle(
-            color: AppColors.textBlack,
+            color: AppColors.primaryText(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -364,7 +364,7 @@ class OwnerAllReviewsScreen extends StatelessWidget {
             (ownerShopController.ownerShop.value?.image.url ?? '').trim();
 
         if (isLoading && reviews.isEmpty) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: AppColors.primaryGreen),
           );
         }
@@ -373,8 +373,8 @@ class OwnerAllReviewsScreen extends StatelessWidget {
           return Center(
             child: Text(
               error.isNotEmpty ? error : 'No reviews yet',
-              style: const TextStyle(
-                color: AppColors.textGrey,
+              style: TextStyle(
+                color: AppColors.secondaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -407,7 +407,7 @@ class _BoostNowDialog extends StatelessWidget {
         child: Container(
           width: 340,
           decoration: BoxDecoration(
-            color: AppColors.primaryWhite,
+            color: AppColors.cardColor(context),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Padding(
@@ -444,11 +444,15 @@ class _BoostNowDialog extends StatelessWidget {
                           height: 188,
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryWhite,
+                            color: AppColors.cardColor(context),
                             borderRadius: BorderRadius.circular(22),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.14),
+                                color: AppColors.shadow(
+                                  context,
+                                  light: 0.14,
+                                  dark: 0.3,
+                                ),
                                 blurRadius: 18,
                                 offset: const Offset(0, 8),
                               ),
@@ -469,15 +473,15 @@ class _BoostNowDialog extends StatelessWidget {
                         child: Container(
                           width: 38,
                           height: 38,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: Color(0xFFF3A61F),
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
-                          child: const Icon(
+                          child: Icon(
                             Icons.rocket_launch_rounded,
                             size: 20,
-                            color: AppColors.textBlack,
+                            color: AppColors.primaryText(context),
                           ),
                         ),
                       ),
@@ -485,24 +489,24 @@ class _BoostNowDialog extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Skyrocket Your\nVisibility',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppColors.textBlack,
+                    color: AppColors.primaryText(context),
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
                     height: 1.2,
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     'Boost your restaurant for 7 days. Your best dishes will be featured directly on potential customers home screens, driving more traffic and orders.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       height: 1.5,
@@ -514,7 +518,7 @@ class _BoostNowDialog extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(),
                   height: 46,
                   borderRadius: 8,
-                  child: const Text(
+                  child: Text(
                     'Upgrade & Boost Now',
                     style: TextStyle(
                       color: Colors.white,
@@ -528,10 +532,10 @@ class _BoostNowDialog extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(0, 18, 0, 20),
                   child: GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
-                    child: const Text(
+                    child: Text(
                       'Maybe Later',
                       style: TextStyle(
-                        color: Color(0xFF666666),
+                        color: AppColors.secondaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -566,9 +570,9 @@ class _StatsCard extends StatelessWidget {
       height: 140,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.containerGrey,
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.textFieldLightLavender),
+        border: Border.all(color: AppColors.divider(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -579,8 +583,8 @@ class _StatsCard extends StatelessWidget {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppColors.textGrey,
+            style: TextStyle(
+              color: AppColors.secondaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
@@ -590,8 +594,8 @@ class _StatsCard extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -619,11 +623,11 @@ class _ReviewCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.primaryWhite,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: AppColors.shadow(context),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -670,8 +674,8 @@ class _ReviewCard extends StatelessWidget {
                               item.reviewerName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.textBlack,
+                              style: TextStyle(
+                                color: AppColors.primaryText(context),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -682,8 +686,8 @@ class _ReviewCard extends StatelessWidget {
                               _timeAgo(item.createdAt),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.black,
+                              style: TextStyle(
+                                color: AppColors.secondaryText(context),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w300,
                               ),
@@ -707,8 +711,8 @@ class _ReviewCard extends StatelessWidget {
                         item.reviewText,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textGrey,
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
                           fontSize: 10,
                           fontWeight: FontWeight.w400,
                           height: 1.3,

@@ -32,7 +32,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
     return AppScaffold(
       useSafeArea: true,
       isScrollable: false,
-      backgroundColor: AppColors.appBackground,
+      backgroundColor: AppColors.background(context),
       bodyPadding: const EdgeInsets.fromLTRB(16, 52, 16, 24),
       body: Obx(() {
         final OwnerAnalyticsModel? analytics = _controller.analytics.value;
@@ -75,8 +75,8 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
                       Text(
                         _controller.error.value,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: AppColors.textGrey,
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Montserrat',
@@ -85,7 +85,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: _controller.fetchAnalytics,
-                        child: const Text('Retry'),
+                        child: Text('Retry'),
                       ),
                     ],
                   ),
@@ -110,7 +110,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
                     child: Text(
                       'No analytics found',
                       style: TextStyle(
-                        color: AppColors.textGrey,
+                        color: AppColors.secondaryText(context),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Montserrat',
@@ -148,17 +148,17 @@ class _AnalyticsBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Performance Overview',
           style: TextStyle(
-            color: AppColors.textGrey,
+            color: AppColors.secondaryText(context),
             fontSize: 16,
             fontWeight: FontWeight.w500,
             fontFamily: 'Montserrat',
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Real-time Visibility',
           style: TextStyle(
             color: AppColors.primaryGreen,
@@ -171,7 +171,9 @@ class _AnalyticsBody extends StatelessWidget {
         const SizedBox(height: 16),
         _LargeMetricCard(
           icon: Icons.remove_red_eye_outlined,
-          iconBgColor: const Color(0xFFD7ECE0),
+          iconBgColor: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.darkCardSoft
+              : const Color(0xFFD7ECE0),
           iconColor: AppColors.primaryGreen,
           trailingText:
               '${analytics.profileViewsChangePercent >= 0 ? '+' : ''}${_formatCompactDecimal(analytics.profileViewsChangePercent)}%',
@@ -182,7 +184,9 @@ class _AnalyticsBody extends StatelessWidget {
         const SizedBox(height: 14),
         _LargeMetricCard(
           icon: Icons.search_rounded,
-          iconBgColor: const Color(0xFFF2EFE3),
+          iconBgColor: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.darkCardSoft
+              : const Color(0xFFF2EFE3),
           iconColor: const Color(0xFFC89A1A),
           trailingText: analytics.searchAppearancesLabel,
           trailingColor: AppColors.primaryGreen,
@@ -190,7 +194,7 @@ class _AnalyticsBody extends StatelessWidget {
           subtitle: 'Search Appearances',
         ),
         const SizedBox(height: 18),
-        const Text(
+        Text(
           'Engagement Depth',
           style: TextStyle(
             color: AppColors.primaryGreen,
@@ -239,7 +243,7 @@ class _AnalyticsBody extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               analytics.currentRating.toStringAsFixed(1),
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.primaryGreen,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -253,8 +257,8 @@ class _AnalyticsBody extends StatelessWidget {
           analytics.ratingSubtitle.trim().isEmpty
               ? '30-day historical trend'
               : analytics.ratingSubtitle,
-          style: const TextStyle(
-            color: AppColors.textGrey,
+          style: TextStyle(
+            color: AppColors.secondaryText(context),
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontFamily: 'Montserrat',
@@ -263,7 +267,7 @@ class _AnalyticsBody extends StatelessWidget {
         const SizedBox(height: 10),
         _RatingTrendCard(points: analytics.ratingTrend),
         const SizedBox(height: 18),
-        const Text(
+        Text(
           'Most Search Foods',
           style: TextStyle(
             color: AppColors.primaryGreen,
@@ -278,20 +282,20 @@ class _AnalyticsBody extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.cardColor(context),
               borderRadius: BorderRadius.circular(18),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0x12000000),
+                  color: AppColors.shadow(context, light: 0.07, dark: 0.22),
                   blurRadius: 10,
                   offset: Offset(0, 2),
                 ),
               ],
             ),
-            child: const Text(
+            child: Text(
               'No search food analytics available.',
               style: TextStyle(
-                color: AppColors.textGrey,
+                color: AppColors.secondaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Montserrat',
@@ -356,11 +360,11 @@ class _LargeMetricCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: AppColors.shadow(context, light: 0.07, dark: 0.22),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -375,7 +379,7 @@ class _LargeMetricCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCEEAD6),
+                  color: iconBgColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, size: 24, color: iconColor),
@@ -395,7 +399,7 @@ class _LargeMetricCard extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             valueText,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primaryGreen,
               fontSize: 32,
               fontWeight: FontWeight.w600,
@@ -405,8 +409,8 @@ class _LargeMetricCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: AppColors.textGrey,
+            style: TextStyle(
+              color: AppColors.secondaryText(context),
               fontSize: 16,
               fontWeight: FontWeight.w500,
               fontFamily: 'Montserrat',
@@ -436,9 +440,9 @@ class _SmallMetricCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8F8),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFECECEC)),
+        border: Border.all(color: AppColors.divider(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -447,8 +451,8 @@ class _SmallMetricCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             title,
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w400,
               fontFamily: 'Montserrat',
@@ -457,8 +461,8 @@ class _SmallMetricCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              color: AppColors.textBlack,
+            style: TextStyle(
+              color: AppColors.primaryText(context),
               fontSize: 16,
               fontWeight: FontWeight.w600,
               fontFamily: 'Montserrat',
@@ -482,12 +486,15 @@ class _RatingTrendCard extends StatelessWidget {
       height: 300,
       padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8F8),
+        color: AppColors.softCardColor(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE9E9E9)),
+        border: Border.all(color: AppColors.divider(context)),
       ),
       child: CustomPaint(
-        painter: _TrendChartPainter(points: points),
+        painter: _TrendChartPainter(
+          points: points,
+          gridColor: AppColors.divider(context),
+        ),
         child: const SizedBox.expand(),
       ),
     );
@@ -495,9 +502,10 @@ class _RatingTrendCard extends StatelessWidget {
 }
 
 class _TrendChartPainter extends CustomPainter {
-  _TrendChartPainter({required this.points});
+  _TrendChartPainter({required this.points, required this.gridColor});
 
   final List<OwnerAnalyticsTrendPoint> points;
+  final Color gridColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -512,7 +520,7 @@ class _TrendChartPainter extends CustomPainter {
     if (chartWidth <= 0 || chartHeight <= 0) return;
 
     final Paint gridPaint = Paint()
-      ..color = const Color(0xFFCBCBCB)
+      ..color = gridColor
       ..strokeWidth = 1;
 
     const TextStyle labelStyle = TextStyle(
@@ -574,6 +582,7 @@ class _TrendChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _TrendChartPainter oldDelegate) {
+    if (oldDelegate.gridColor != gridColor) return true;
     if (oldDelegate.points.length != points.length) return true;
 
     for (int i = 0; i < points.length; i++) {
@@ -601,11 +610,11 @@ class _MostSearchFoodCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: AppColors.shadow(context, light: 0.07, dark: 0.22),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -631,8 +640,8 @@ class _MostSearchFoodCard extends StatelessWidget {
                   food.title.trim().isEmpty ? 'Untitled Food' : food.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textBlack,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Montserrat',
@@ -645,8 +654,8 @@ class _MostSearchFoodCard extends StatelessWidget {
                       : food.subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textGrey,
+                  style: TextStyle(
+                    color: AppColors.secondaryText(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
@@ -661,7 +670,7 @@ class _MostSearchFoodCard extends StatelessWidget {
             children: [
               Text(
                 growth,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(0xFF24C05A),
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
@@ -669,11 +678,11 @@ class _MostSearchFoodCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              const Text(
+              Text(
                 'Demand\nGrowth',
                 textAlign: TextAlign.right,
                 style: TextStyle(
-                  color: AppColors.textGrey,
+                  color: AppColors.secondaryText(context),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Montserrat',

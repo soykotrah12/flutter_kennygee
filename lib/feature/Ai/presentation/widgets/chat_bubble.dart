@@ -32,7 +32,7 @@ class ChatBubble extends StatelessWidget {
               ),
               child: Text(
                 message.text ?? '',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -66,13 +66,13 @@ class ChatBubble extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: message.isLocationResponse
-                        ? const Color(0xFFE9F5EB)
-                        : const Color(0xFFF1F3F4),
+                        ? AppColors.softCardColor(context)
+                        : AppColors.cardColor(context),
                     borderRadius: BorderRadius.circular(7),
                     border: Border.all(
                       color: message.isError
                           ? const Color(0xFFF1C5C5)
-                          : const Color(0xFFE3E8EA),
+                          : AppColors.divider(context),
                     ),
                   ),
                   child: Text(
@@ -80,7 +80,7 @@ class ChatBubble extends StatelessWidget {
                     style: TextStyle(
                       color: message.isError
                           ? const Color(0xFFB94545)
-                          : AppColors.textBlack,
+                          : AppColors.primaryText(context),
                       fontSize: 11.8,
                       height: 1.28,
                       fontWeight: FontWeight.w500,
@@ -128,8 +128,8 @@ class _BotAvatar extends StatelessWidget {
       height: 30,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFE6E6E6)),
-        color: Colors.white,
+        border: Border.all(color: AppColors.divider(context)),
+        color: AppColors.cardColor(context),
       ),
       alignment: Alignment.center,
       child: Image.asset(
@@ -154,7 +154,7 @@ class _UserAvatar extends StatelessWidget {
       height: 30,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFE6E6E6)),
+        border: Border.all(color: AppColors.divider(context)),
       ),
       clipBehavior: Clip.antiAlias,
       child: imageUrl.trim().isNotEmpty

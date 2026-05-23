@@ -25,7 +25,7 @@ class MapSearchBar extends StatelessWidget {
         if (showBackButton)
           GestureDetector(
             onTap: onBackTap,
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.only(right: 10),
               child: Icon(
                 Icons.arrow_back,
@@ -57,13 +57,13 @@ class MapSearchBar extends StatelessWidget {
                     child: TextField(
                       controller: controller,
                       onChanged: onChanged,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textBlack,
+                        color: AppColors.primaryText(context),
                         fontFamily: 'Montserrat',
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: false,
                         fillColor: Colors.transparent,
                         border: InputBorder.none,
@@ -99,13 +99,13 @@ class MapSearchBar extends StatelessWidget {
                   child: Container(
                     width: 84,
                     height: double.infinity,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.primaryGreen,
                       borderRadius: BorderRadius.horizontal(
                         right: Radius.circular(16),
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.tune_rounded,
                       color: Colors.white,
                       size: 34,

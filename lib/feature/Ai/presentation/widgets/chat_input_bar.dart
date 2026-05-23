@@ -36,13 +36,13 @@ class ChatInputBar extends StatelessWidget {
               maxLines: 3,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Montserrat',
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Ask anything you need',
                 hintStyle: TextStyle(
                   color: Colors.white,
@@ -83,7 +83,7 @@ class ChatInputBar extends StatelessWidget {
                           color: AppColors.primaryGreen,
                         ),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(

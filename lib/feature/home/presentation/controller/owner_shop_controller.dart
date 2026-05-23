@@ -374,7 +374,7 @@ class OwnerShopController extends GetxController {
       title,
       message,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.cardAdaptive,
       margin: const EdgeInsets.all(12),
     );
   }

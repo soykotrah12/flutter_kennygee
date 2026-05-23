@@ -6,7 +6,7 @@ extension InputDecorationExtensions on BuildContext {
   InputDecoration get primaryInputDecoration => InputDecoration(
     filled: true,
     suffixIconColor: AppColors.textFieldLightGrey,
-    fillColor: AppColors.primaryWhite,
+    fillColor: AppColors.cardColor(this),
     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14.5),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(50),
@@ -18,7 +18,7 @@ extension InputDecorationExtensions on BuildContext {
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(50),
-      borderSide: BorderSide(color: AppColors.textBlack, width: 1),
+      borderSide: BorderSide(color: AppColors.primaryText(this), width: 1),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(50),
@@ -34,7 +34,7 @@ extension InputDecorationExtensions on BuildContext {
       fontWeight: FontWeight.w400,
     ),
     labelStyle: TextStyle(
-      color: AppColors.textBlack,
+      color: AppColors.primaryText(this),
       fontSize: 16,
       fontWeight: FontWeight.w500,
     ),
