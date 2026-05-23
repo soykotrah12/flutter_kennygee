@@ -55,8 +55,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   // ),
                   Image.asset(
                     AppImages.appLogo,
-                    width: 60,
-                    height: 60,
+                    width: 40,
+                    height: 40,
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 7),
