@@ -8,6 +8,7 @@ import '../../../../../feature/home/presentation/screens/home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_analytics_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_shop_screen.dart';
+import '../../../../../feature/map/presentation/screens/map_screen.dart';
 import '../../../../../feature/profile/presentation/screens/profile_screen.dart';
 import '../../../../theme/app_colors.dart';
 
@@ -57,14 +58,10 @@ class BottomNavController extends GetxController {
             screen: HomeScreen(),
           ),
           const DashboardTabItem(
-            label: 'Location',
+            label: 'Map',
             icon: Icons.location_on_outlined,
             activeIcon: Icons.location_on,
-            screen: DashboardPlaceholderView(
-              title: 'Nearby On Map',
-              subtitle: 'Explore all nearby restaurants around you.',
-              icon: Icons.map_outlined,
-            ),
+            screen: MapScreen(),
           ),
           const DashboardTabItem(
             label: 'AI Chat',

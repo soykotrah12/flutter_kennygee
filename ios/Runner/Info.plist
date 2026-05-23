@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Renbite needs access to your photo library so you can select and upload photos to your account.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Renbite uses your location to show nearby restaurants and route directions on the map.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
