@@ -5,6 +5,7 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../payment/presentation/controllers/payment_controller.dart';
 import '../../data/model/event_model.dart';
 import '../controller/home_event_details_controller.dart';
 
@@ -19,7 +20,84 @@ class EventDetailsScreen extends StatefulWidget {
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
   late final HomeEventDetailsController detailsController;
+  late final PaymentController paymentController;
   late final String controllerTag;
+
+  Future<bool> _showJoinPaymentDialog(EventModel event) async {
+    final bool? shouldPay = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardColor(context),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          title: Text(
+            'Confirm Payment',
+            style: TextStyle(
+              color: AppColors.primaryText(context),
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                event.title.trim().isNotEmpty ? event.title : 'Event',
+                style: TextStyle(
+                  color: AppColors.primaryText(context),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Entry fee: ${event.fee.trim().isNotEmpty ? event.fee : 'N/A'}',
+                style: TextStyle(
+                  color: AppColors.secondaryText(context),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ],
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: AppColors.secondaryText(context),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Pay Now',
+                style: TextStyle(
+                  color: AppColors.primaryGreen,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    return shouldPay == true;
+  }
 
   @override
   void initState() {
@@ -33,6 +111,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     detailsController = HomeEventDetailsController.ensureInitialized(
       widget.event.id,
     );
+    paymentController = ensurePaymentController();
 
     detailsController.fetchEventDetails(widget.event.id);
     detailsController.fetchGoingStatus(widget.event.id);
@@ -116,6 +195,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           final bool isLoadingGoing = detailsController.isLoadingGoing.value;
           final bool hasGoingStatus = detailsController.hasGoingStatus.value;
           final bool isToggleLoading = detailsController.isToggleLoading.value;
+          final bool isPaymentLoading =
+              paymentController.isPaymentLoading.value;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,11 +260,71 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               ),
               const SizedBox(height: 30),
               InkWell(
-                onTap: isToggleLoading || isLoadingGoing || !hasGoingStatus
+                onTap:
+                    isToggleLoading ||
+                        isLoadingGoing ||
+                        !hasGoingStatus ||
+                        isPaymentLoading
                     ? null
                     : () async {
+                        final bool wasGoing = going;
+
+                        if (!going) {
+                          final bool shouldPay = await _showJoinPaymentDialog(
+                            activeEvent,
+                          );
+
+                          if (!shouldPay) return;
+
+                          final bool paymentSuccess = await paymentController
+                              .payForOrder(orderId: activeEvent.id);
+
+                          if (!paymentSuccess) {
+                            Get.snackbar(
+                              'Payment',
+                              paymentController.paymentMessage.value.isNotEmpty
+                                  ? paymentController.paymentMessage.value
+                                  : 'Payment was not completed.',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.black87,
+                              colorText: Colors.white,
+                              margin: const EdgeInsets.all(12),
+                            );
+                            return;
+                          }
+
+                          Get.snackbar(
+                            'Payment',
+                            paymentController.paymentMessage.value.isNotEmpty
+                                ? paymentController.paymentMessage.value
+                                : 'Payment successful.',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.black87,
+                            colorText: Colors.white,
+                            margin: const EdgeInsets.all(12),
+                          );
+                        }
+
                         final String message = await detailsController
                             .toggleGoing(activeEvent.id);
+
+                        if (!wasGoing && detailsController.isGoing.value) {
+                          Get.snackbar(
+                            'Event',
+                            'You are enrolled for this event.',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.black87,
+                            colorText: Colors.white,
+                            margin: const EdgeInsets.all(12),
+                          );
+                          if (Get.key.currentState?.canPop() ?? false) {
+                            await Future<void>.delayed(
+                              const Duration(milliseconds: 180),
+                            );
+                            Get.back();
+                          }
+                          return;
+                        }
 
                         if (message.isNotEmpty) {
                           Get.snackbar(
@@ -205,7 +346,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   alignment: Alignment.center,
-                  child: isToggleLoading || !hasGoingStatus
+                  child: isToggleLoading || isPaymentLoading || !hasGoingStatus
                       ? const SizedBox(
                           width: 18,
                           height: 18,
@@ -257,7 +398,7 @@ class _InfoBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 2,
             spreadRadius: 2,
             offset: const Offset(0, 1),

@@ -5,7 +5,10 @@ import 'package:intl/intl.dart';
 
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../payment/presentation/controllers/payment_controller.dart';
 import '../../../presentation/controller/home_event_controller.dart';
+import '../../../presentation/controller/owner_shop_controller.dart';
+import '../../../presentation/controller/owner_shop_event_controller.dart';
 import '../../data/model/create_event_request_model.dart';
 import '../../data/model/create_event_response_model.dart';
 import '../../data/repo/create_event_repository.dart';
@@ -21,6 +24,9 @@ OwnerCreateEventController ensureOwnerCreateEventController() {
       fenix: true,
     );
   }
+
+  ensureOwnerShopController();
+  ensurePaymentController();
 
   if (!Get.isRegistered<OwnerCreateEventController>()) {
     Get.put<OwnerCreateEventController>(
@@ -52,6 +58,8 @@ class OwnerCreateEventController extends GetxController {
       Rxn<CreateEventResponseModel>();
 
   static const double defaultPlatformServiceFee = 29.0;
+
+  PaymentController get _paymentController => ensurePaymentController();
 
   Future<void> pickImage() async {
     final XFile? pickedImage = await _imagePicker.pickImage(
@@ -96,46 +104,8 @@ class OwnerCreateEventController extends GetxController {
   Future<void> submitCreateEvent() async {
     if (isSubmitting.value) return;
 
-    final String title = titleController.text.trim();
-    final String description = descriptionController.text.trim();
-    final String entryFeeRaw = entryFeeController.text.trim();
-    final DateTime? eventDate = selectedDate.value;
-    final TimeOfDay? eventTime = selectedTime.value;
-
-    if (title.isEmpty) {
-      _showError('Validation', 'Event title is required.');
-      return;
-    }
-
-    if (description.isEmpty) {
-      _showError('Validation', 'Description is required.');
-      return;
-    }
-
-    if (eventDate == null) {
-      _showError('Validation', 'Please select an event date.');
-      return;
-    }
-
-    if (eventTime == null) {
-      _showError('Validation', 'Please select event time.');
-      return;
-    }
-
-    final double? entryFee = double.tryParse(entryFeeRaw);
-    if (entryFee == null || entryFee < 0) {
-      _showError('Validation', 'Please enter a valid entry fee.');
-      return;
-    }
-
-    final CreateEventRequestModel request = CreateEventRequestModel(
-      title: title,
-      description: description,
-      date: eventDate,
-      time: _formatTimeApi(eventTime),
-      entryFee: entryFee,
-      imagePath: selectedImagePath.value,
-    );
+    final CreateEventRequestModel? request = await _buildValidatedRequest();
+    if (request == null) return;
 
     isSubmitting.value = true;
     final result = await _repository.createEvent(request: request);
@@ -146,25 +116,65 @@ class OwnerCreateEventController extends GetxController {
         _showError('Create Failed', failure.message);
       },
       (success) {
-        createdEvent.value = success.data;
-        _applyApiResponse(success.data);
-
-        if (Get.isRegistered<HomeEventController>()) {
-          Get.find<HomeEventController>().fetchEvents();
-        }
-
-        Get.snackbar(
-          'Success',
-          success.message.isNotEmpty
-              ? success.message
-              : 'Event created successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.primaryGreen,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(12),
+        _finalizeCreatedEvent(
+          event: success.data,
+          successMessage: success.message,
         );
       },
     );
+  }
+
+  Future<void> submitCreateEventWithPayment() async {
+    if (isSubmitting.value || _paymentController.isPaymentLoading.value) return;
+
+    final CreateEventRequestModel? request = await _buildValidatedRequest();
+    if (request == null) return;
+
+    isSubmitting.value = true;
+    debugPrint('EVENT CREATE PAYLOAD => ${request.toPayload()}');
+    debugPrint('EVENT CREATE IMAGE PATH => ${request.imagePath ?? ''}');
+
+    final result = await _repository.createEvent(request: request);
+    await result.fold(
+      (failure) async {
+        debugPrint('EVENT CREATE FAILED => ${failure.message}');
+        _showError('Create Failed', failure.message);
+      },
+      (success) async {
+        final String eventId = success.data.eventId.trim();
+        debugPrint('CREATE EVENT RESPONSE eventId => $eventId');
+
+        if (eventId.isEmpty) {
+          _showError(
+            'Create Failed',
+            'Event created response is missing event id.',
+          );
+          return;
+        }
+
+        final bool paid = await _paymentController.payForOrder(
+          orderId: eventId,
+        );
+        if (!paid) {
+          _showError(
+            'Payment',
+            _paymentController.paymentMessage.value.isNotEmpty
+                ? _paymentController.paymentMessage.value
+                : 'Payment was not completed.',
+          );
+          return;
+        }
+
+        _finalizeCreatedEvent(
+          event: success.data,
+          successMessage: success.message,
+          clearFormAfterSuccess: true,
+          closeScreenAfterSuccess: true,
+        );
+      },
+    );
+
+    isSubmitting.value = false;
   }
 
   double get platformServiceFee {
@@ -177,6 +187,143 @@ class OwnerCreateEventController extends GetxController {
 
     final double entry = double.tryParse(entryFeeController.text.trim()) ?? 0;
     return entry + defaultPlatformServiceFee;
+  }
+
+  Future<CreateEventRequestModel?> _buildValidatedRequest() async {
+    final String title = titleController.text.trim();
+    final String description = descriptionController.text.trim();
+    final String entryFeeRaw = entryFeeController.text.trim();
+    final DateTime? eventDate = selectedDate.value;
+    final TimeOfDay? eventTime = selectedTime.value;
+    final String shopId = await _resolveShopId();
+
+    if (shopId.isEmpty) {
+      _showError('Validation', 'Please create/select your shop first.');
+      return null;
+    }
+    if (title.isEmpty) {
+      _showError('Validation', 'Event title is required.');
+      return null;
+    }
+
+    if (description.isEmpty) {
+      _showError('Validation', 'Description is required.');
+      return null;
+    }
+
+    if (eventDate == null) {
+      _showError('Validation', 'Please select an event date.');
+      return null;
+    }
+
+    if (eventTime == null) {
+      _showError('Validation', 'Please select event time.');
+      return null;
+    }
+
+    final double? entryFee = double.tryParse(entryFeeRaw);
+    if (entryFee == null || entryFee < 0) {
+      _showError('Validation', 'Please enter a valid entry fee.');
+      return null;
+    }
+
+    final double platformServiceFee = this.platformServiceFee;
+    final double calculatedTotal = entryFee + platformServiceFee;
+    if (platformServiceFee.isNaN ||
+        platformServiceFee.isInfinite ||
+        platformServiceFee < 0) {
+      _showError('Validation', 'Invalid platform service fee.');
+      return null;
+    }
+    if (calculatedTotal.isNaN || calculatedTotal.isInfinite) {
+      _showError('Validation', 'Invalid payment total.');
+      return null;
+    }
+
+    return CreateEventRequestModel(
+      shopId: shopId,
+      title: title,
+      description: description,
+      date: eventDate,
+      time: _formatTimeApi(eventTime),
+      entryFee: entryFee,
+      platformServiceFee: platformServiceFee,
+      total: calculatedTotal,
+      imagePath: selectedImagePath.value,
+    );
+  }
+
+  Future<String> _resolveShopId() async {
+    final OwnerShopController ownerShopController = ensureOwnerShopController();
+
+    String shopId = (ownerShopController.ownerShop.value?.shopId ?? '').trim();
+    if (shopId.isNotEmpty) return shopId;
+
+    await ownerShopController.refreshShop();
+    shopId = (ownerShopController.ownerShop.value?.shopId ?? '').trim();
+    return shopId;
+  }
+
+  void _finalizeCreatedEvent({
+    required CreateEventResponseModel event,
+    required String successMessage,
+    bool clearFormAfterSuccess = false,
+    bool closeScreenAfterSuccess = false,
+  }) {
+    createdEvent.value = event;
+    _applyApiResponse(event);
+
+    if (clearFormAfterSuccess) {
+      _clearForm();
+    }
+
+    if (Get.isRegistered<HomeEventController>()) {
+      Get.find<HomeEventController>().fetchEvents();
+    }
+    if (Get.isRegistered<OwnerShopEventController>()) {
+      Get.find<OwnerShopEventController>().fetchOwnerEvents();
+    }
+
+    final String message = successMessage.isNotEmpty
+        ? successMessage
+        : 'Event created successfully';
+
+    if (closeScreenAfterSuccess && (Get.key.currentState?.canPop() ?? false)) {
+      Get.back();
+      Future<void>.delayed(const Duration(milliseconds: 120), () {
+        Get.snackbar(
+          'Success',
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.primaryGreen,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(12),
+        );
+      });
+      return;
+    }
+
+    Get.snackbar(
+      'Success',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.primaryGreen,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+    );
+  }
+
+  void _clearForm() {
+    titleController.clear();
+    descriptionController.clear();
+    dateController.clear();
+    timeController.clear();
+    entryFeeController.clear();
+    selectedDate.value = null;
+    selectedTime.value = null;
+    selectedImagePath.value = null;
+    responseImageUrl.value = '';
+    createdEvent.value = null;
   }
 
   void _applyApiResponse(CreateEventResponseModel response) {

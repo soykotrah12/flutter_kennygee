@@ -87,7 +87,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     if (shouldPayNow == true && mounted) {
       FocusScope.of(context).unfocus();
-      await _controller.submitCreateEvent();
+      await _controller.submitCreateEventWithPayment();
     }
   }
 

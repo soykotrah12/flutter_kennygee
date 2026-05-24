@@ -7,7 +7,9 @@ import '../../../../core/network/constants/api_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/user_profile_model.dart';
 import '../../data/repo/profile_repo_impl.dart';
+import '../../data/repo/stripe_connect_repository.dart';
 import '../../domain/repo/profile_repo.dart';
+import '../screens/stripe_onboarding_webview_screen.dart';
 
 ProfileController ensureProfileController() {
   if (!Get.isRegistered<ApiClient>()) {
@@ -21,11 +23,19 @@ ProfileController ensureProfileController() {
     );
   }
 
+  if (!Get.isRegistered<StripeConnectRepository>()) {
+    Get.lazyPut<StripeConnectRepository>(
+      () => StripeConnectRepository(apiClient: Get.find<ApiClient>()),
+      fenix: true,
+    );
+  }
+
   if (!Get.isRegistered<ProfileController>()) {
     Get.lazyPut<ProfileController>(
       () => ProfileController(
         Get.find<ProfileRepository>(),
         Get.find<ApiClient>(),
+        Get.find<StripeConnectRepository>(),
       ),
       fenix: true,
     );
@@ -35,10 +45,15 @@ ProfileController ensureProfileController() {
 }
 
 class ProfileController extends GetxController {
-  ProfileController(this._profileRepository, this._apiClient);
+  ProfileController(
+    this._profileRepository,
+    this._apiClient,
+    this._stripeConnectRepository,
+  );
 
   final ProfileRepository _profileRepository;
   final ApiClient _apiClient;
+  final StripeConnectRepository _stripeConnectRepository;
   final ImagePicker _imagePicker = ImagePicker();
 
   final profile = Rxn<UserProfileModel>();
@@ -47,6 +62,10 @@ class ProfileController extends GetxController {
   final isProfileLoading = false.obs;
   final isSaving = false.obs;
   final isChangingPassword = false.obs;
+  final stripeConnected = false.obs;
+  final stripeAccountId = ''.obs;
+  final isStripeStatusLoading = false.obs;
+  final isStripeOnboardingLoading = false.obs;
   final selectedImagePath = RxnString();
   final nameController = TextEditingController();
   final currentPasswordController = TextEditingController();
@@ -55,6 +74,7 @@ class ProfileController extends GetxController {
   static int _initCount = 0;
   int _fetchProfileCount = 0;
   int _fetchQuickAccessCount = 0;
+  bool _didRequestStripeStatus = false;
 
   @override
   void onInit() {
@@ -63,6 +83,12 @@ class ProfileController extends GetxController {
     debugPrint('[ProfileController] onInit count=$_initCount');
     fetchProfile();
     fetchQuickAccessCounts();
+  }
+
+  void onOwnerProfileOpened() {
+    if (_didRequestStripeStatus) return;
+    _didRequestStripeStatus = true;
+    fetchStripeConnectStatus();
   }
 
   Future<void> fetchProfile({bool showLoader = true}) async {
@@ -207,6 +233,70 @@ class ProfileController extends GetxController {
       _fetchWishlistCount(),
       _fetchBookmarkCount(),
     ]);
+  }
+
+  Future<void> fetchStripeConnectStatus({bool showLoader = true}) async {
+    if (showLoader) {
+      isStripeStatusLoading.value = true;
+    }
+    try {
+      final result = await _stripeConnectRepository.fetchStatus();
+      result.fold(
+        (_) {
+          stripeConnected.value = false;
+          stripeAccountId.value = '';
+        },
+        (success) {
+          stripeConnected.value = success.data.connected;
+          stripeAccountId.value = success.data.accountId;
+        },
+      );
+    } finally {
+      if (showLoader) {
+        isStripeStatusLoading.value = false;
+      }
+    }
+  }
+
+  Future<void> onTapStripeConnect() async {
+    if (isStripeOnboardingLoading.value) return;
+
+    if (stripeConnected.value) {
+      Get.snackbar(
+        'Stripe Connect',
+        'Stripe already connected.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.cardAdaptive,
+      );
+      return;
+    }
+
+    isStripeOnboardingLoading.value = true;
+    try {
+      final result = await _stripeConnectRepository.createOnboardingLink();
+      await result.fold(
+        (failure) async {
+          _showError('Stripe Connect', failure.message);
+        },
+        (success) async {
+          final onboardingUrl = success.data.onboardingUrl.trim();
+          if (onboardingUrl.isEmpty) {
+            _showError(
+              'Stripe Connect',
+              'Unable to start onboarding right now. Please try again.',
+            );
+            return;
+          }
+
+          await Get.to<bool>(
+            () => StripeOnboardingWebViewScreen(onboardingUrl: onboardingUrl),
+          );
+          await fetchStripeConnectStatus();
+        },
+      );
+    } finally {
+      isStripeOnboardingLoading.value = false;
+    }
   }
 
   Future<void> _fetchWishlistCount() async {

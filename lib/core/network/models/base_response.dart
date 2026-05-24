@@ -19,6 +19,7 @@ class BaseResponse<T> {
     Map<String, dynamic> json,
     T Function(dynamic) fromJsonT,
   ) {
+    final bool isSuccess = json['success'] == true || json['status'] == true;
     // Handle data field - it can be null, empty string, or actual data
     // Also check for 'date' field as a fallback (some APIs have typos)
     T? parsedData;
@@ -45,10 +46,17 @@ class BaseResponse<T> {
           parsedData = null;
         }
       }
+    } else if (isSuccess) {
+      // Some endpoints return payload fields at the root instead of data.
+      try {
+        parsedData = fromJsonT(json);
+      } catch (e) {
+        parsedData = null;
+      }
     }
 
     return BaseResponse<T>(
-      success: json['success'] ?? json['status'] ?? false,
+      success: isSuccess,
       message: json['message'] ?? '',
       data: parsedData,
       errorSources: json['errorSources'] != null

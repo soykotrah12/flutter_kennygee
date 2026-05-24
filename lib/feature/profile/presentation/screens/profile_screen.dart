@@ -15,6 +15,7 @@ import 'logout_confirm_screen.dart';
 import 'profile_bookmark_screen.dart';
 import 'privacy_policy_security_screen.dart';
 import 'terms_of_condition_screen.dart';
+import '../widgets/stripe_connect_card.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -298,6 +299,7 @@ class _OwnerProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeController = ensureThemeController();
+    profileController.onOwnerProfileOpened();
 
     return AppScaffold(
       useSafeArea: true,
@@ -412,6 +414,16 @@ class _OwnerProfileView extends StatelessWidget {
                         ],
                       );
                     }),
+                  ),
+                  const SizedBox(height: 10),
+                  Obx(
+                    () => StripeConnectCard(
+                      isConnected: profileController.stripeConnected.value,
+                      isLoading:
+                          profileController.isStripeStatusLoading.value ||
+                          profileController.isStripeOnboardingLoading.value,
+                      onTap: profileController.onTapStripeConnect,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Text(

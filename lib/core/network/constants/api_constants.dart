@@ -31,6 +31,7 @@ class ApiConstants {
   static SubscriptionEndpoints get subscription => SubscriptionEndpoints();
 
   static PaymentEndpoints get payment => PaymentEndpoints();
+  static StripeConnectEndpoints get stripeConnect => StripeConnectEndpoints();
 
   static ShopEndpoints get shop => ShopEndpoints();
   static MenuEndpoints get menu => MenuEndpoints();
@@ -105,12 +106,19 @@ class PlanEndpoints {
 }
 
 class PaymentEndpoints {
-  static const String _base = '${ApiConstants.baseUrl}/payments';
+  static const String _base = '${ApiConstants.baseUrl}/payment';
 
   final String createPayment = '$_base/create-payment';
   final String confirmPayment = '$_base/confirm-payment';
   final String createPaymentEvent = '$_base/event';
   final String confirmPaymentEvent = '$_base/event/confirm';
+}
+
+class StripeConnectEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/payment/stripe-connect';
+
+  final String createOnboardingLink = '$_base/onboarding-link';
+  final String fetchStatus = '$_base/status';
 }
 
 class AskPriceEndpoints {
@@ -163,7 +171,7 @@ class EventEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/event';
 
   final String fetchEvents = _base;
-  final String createEvent = '$_base/create';
+  final String createEvent = _base;
 
   String fetchEventsByUser(String userId) => '$_base/user/$userId';
 
@@ -171,7 +179,7 @@ class EventEndpoints {
 
   String fetchGoingStatus(String eventId) => '$_base/$eventId/going';
 
-  String toggleGoing(String eventId) => '$_base/$eventId/going';
+  String toggleGoing(String eventId) => '$_base/going/$eventId';
 }
 
 class ReviewEndpoints {

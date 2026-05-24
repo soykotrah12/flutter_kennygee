@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/network/constants/api_constants.dart';
@@ -16,18 +17,32 @@ class CreateEventRepository {
     required CreateEventRequestModel request,
   }) {
     final Map<String, dynamic> payload = request.toPayload();
+    final Map<String, dynamic> formMap = <String, dynamic>{
+      'shopId': (payload['shopId'] ?? '').toString(),
+      'title': (payload['title'] ?? '').toString(),
+      'description': (payload['description'] ?? '').toString(),
+      'date': (payload['date'] ?? '').toString(),
+      'time': (payload['time'] ?? '').toString(),
+      'entryFee': (payload['entryFee'] ?? '').toString(),
+      'platformServiceFee': (payload['platformServiceFee'] ?? '').toString(),
+      'total': (payload['total'] ?? '').toString(),
+    };
     final String imagePath = request.imagePath?.trim() ?? '';
 
     if (imagePath.isNotEmpty) {
-      payload['image'] = MultipartFile.fromFileSync(
+      formMap['image'] = MultipartFile.fromFileSync(
         imagePath,
         filename: imagePath.split('/').last,
       );
     }
 
+    final FormData formData = FormData.fromMap(formMap);
+    debugPrint('EVENT FORM FIELDS => ${formData.fields}');
+    debugPrint('EVENT FORM FILES => ${formData.files}');
+
     return _apiClient.post<CreateEventResponseModel>(
       ApiConstants.event.createEvent,
-      formData: FormData.fromMap(payload),
+      formData: formData,
       isFormData: true,
       options: Options(contentType: 'multipart/form-data'),
       fromJsonT: (json) => CreateEventResponseModel.fromJson(_asMap(json)),

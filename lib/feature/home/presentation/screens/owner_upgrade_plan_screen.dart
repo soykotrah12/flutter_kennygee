@@ -5,6 +5,7 @@ import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/model/subscription_plan_model.dart';
 import '../controller/subscription_controller.dart';
+import '../../../payment/presentation/controllers/payment_controller.dart';
 
 class OwnerUpgradePlanScreen extends StatefulWidget {
   const OwnerUpgradePlanScreen({super.key});
@@ -15,11 +16,59 @@ class OwnerUpgradePlanScreen extends StatefulWidget {
 
 class _OwnerUpgradePlanScreenState extends State<OwnerUpgradePlanScreen> {
   late final SubscriptionController _controller;
+  late final PaymentController _paymentController;
 
   @override
   void initState() {
     super.initState();
     _controller = ensureSubscriptionController();
+    _paymentController = ensurePaymentController();
+  }
+
+  Future<void> _handleBuyPlan(SubscriptionPlanModel plan) async {
+    if (_paymentController.isPaymentLoading.value) return;
+
+    final String planId = plan.id.trim();
+    if (planId.isEmpty) {
+      Get.snackbar(
+        'Payment',
+        'Invalid plan information.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.cardColor(context),
+        margin: const EdgeInsets.all(12),
+      );
+      return;
+    }
+
+    const int price = 29;
+    final bool paid = await _paymentController.payForPlan(
+      planId: planId,
+      price: price,
+    );
+
+    if (!mounted) return;
+
+    if (!paid) {
+      Get.snackbar(
+        'Payment',
+        _paymentController.paymentMessage.value.isNotEmpty
+            ? _paymentController.paymentMessage.value
+            : 'Payment was not completed.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.cardColor(context),
+        margin: const EdgeInsets.all(12),
+      );
+      return;
+    }
+
+    Get.snackbar(
+      'Payment',
+      '${plan.planName} purchase completed.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.primaryGreen,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+    );
   }
 
   @override
@@ -74,7 +123,12 @@ class _OwnerUpgradePlanScreenState extends State<OwnerUpgradePlanScreen> {
             separatorBuilder: (_, __) => const SizedBox(height: 22),
             itemBuilder: (_, index) {
               final SubscriptionPlanModel plan = _controller.plans[index];
-              return _PlanCard(plan: plan, highlighted: plan.isPopular);
+              return _PlanCard(
+                plan: plan,
+                highlighted: plan.isPopular,
+                isPaymentLoading: _paymentController.isPaymentLoading.value,
+                onBuyPlan: () => _handleBuyPlan(plan),
+              );
             },
           );
         }),
@@ -84,10 +138,17 @@ class _OwnerUpgradePlanScreenState extends State<OwnerUpgradePlanScreen> {
 }
 
 class _PlanCard extends StatelessWidget {
-  const _PlanCard({required this.plan, required this.highlighted});
+  const _PlanCard({
+    required this.plan,
+    required this.highlighted,
+    required this.isPaymentLoading,
+    required this.onBuyPlan,
+  });
 
   final SubscriptionPlanModel plan;
   final bool highlighted;
+  final bool isPaymentLoading;
+  final VoidCallback onBuyPlan;
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +230,7 @@ class _PlanCard extends StatelessWidget {
                       Icon(
                         Icons.check_circle_outline,
                         size: 22,
-                        color:AppColors.primaryText(context),
+                        color: AppColors.primaryText(context),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -192,15 +253,7 @@ class _PlanCard extends StatelessWidget {
                 width: double.infinity,
                 height: 60,
                 child: TextButton(
-                  onPressed: () {
-                    Get.snackbar(
-                      'Plan Selected',
-                      '${plan.planName} selected',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: AppColors.cardColor(context),
-                      margin: const EdgeInsets.all(12),
-                    );
-                  },
+                  onPressed: isPaymentLoading ? null : onBuyPlan,
                   style: TextButton.styleFrom(
                     backgroundColor: actionBg,
                     shape: RoundedRectangleBorder(
@@ -211,14 +264,23 @@ class _PlanCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  child: Text(
-                    'Buy Plan',
-                    style: TextStyle(
-                      color: actionText,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  child: isPaymentLoading
+                      ? SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: actionText,
+                          ),
+                        )
+                      : Text(
+                          'Buy Plan',
+                          style: TextStyle(
+                            color: actionText,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                 ),
               ),
             ],
