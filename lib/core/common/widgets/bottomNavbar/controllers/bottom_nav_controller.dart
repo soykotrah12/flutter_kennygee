@@ -8,6 +8,7 @@ import '../../../../../feature/home/presentation/screens/home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_analytics_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_home_screen.dart';
 import '../../../../../feature/home/presentation/screens/owner_shop_screen.dart';
+import '../../../../../feature/map/owner_map/presentation/screens/owner_shop_location_picker_screen.dart';
 import '../../../../../feature/map/presentation/screens/map_screen.dart';
 import '../../../../../feature/profile/presentation/screens/profile_screen.dart';
 import '../../../../theme/app_colors.dart';
@@ -31,11 +32,7 @@ class BottomNavController extends GetxController {
             label: 'Location',
             icon: Icons.location_on_outlined,
             activeIcon: Icons.location_on,
-            screen: DashboardPlaceholderView(
-              title: 'Restaurant Location',
-              subtitle: 'Manage your outlet location and delivery zone.',
-              icon: Icons.map_outlined,
-            ),
+            screen: OwnerShopLocationPickerScreen(isPickerMode: false),
           ),
           const DashboardTabItem(
             label: 'Store',

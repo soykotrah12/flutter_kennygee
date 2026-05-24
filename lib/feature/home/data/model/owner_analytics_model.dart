@@ -41,6 +41,55 @@ class MostSearchFoodModel {
   final double averageRating;
 }
 
+class HourlyTrafficPointModel {
+  const HourlyTrafficPointModel({required this.hour, required this.customers});
+
+  factory HourlyTrafficPointModel.fromJson(Map<String, dynamic> json) {
+    return HourlyTrafficPointModel(
+      hour: _toInt(json['hour']),
+      customers: _toInt(json['customers']),
+    );
+  }
+
+  final int hour;
+  final int customers;
+}
+
+class EstimatedArrivalTrafficModel {
+  const EstimatedArrivalTrafficModel({
+    required this.currentHour,
+    required this.activeCustomersEstimate,
+    required this.nextHourEstimate,
+    required this.hourlyTraffic,
+  });
+
+  factory EstimatedArrivalTrafficModel.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> rawHourlyTraffic = _asList(json['hourlyTraffic']);
+
+    return EstimatedArrivalTrafficModel(
+      currentHour: (json['currentHour'] ?? '').toString(),
+      activeCustomersEstimate: _toInt(json['activeCustomersEstimate']),
+      nextHourEstimate: _toInt(json['nextHourEstimate']),
+      hourlyTraffic: rawHourlyTraffic
+          .map((item) => HourlyTrafficPointModel.fromJson(_asMap(item)))
+          .toList(),
+    );
+  }
+
+  static const EstimatedArrivalTrafficModel empty =
+      EstimatedArrivalTrafficModel(
+        currentHour: '',
+        activeCustomersEstimate: 0,
+        nextHourEstimate: 0,
+        hourlyTraffic: <HourlyTrafficPointModel>[],
+      );
+
+  final String currentHour;
+  final int activeCustomersEstimate;
+  final int nextHourEstimate;
+  final List<HourlyTrafficPointModel> hourlyTraffic;
+}
+
 class OwnerAnalyticsModel {
   const OwnerAnalyticsModel({
     required this.shopId,
@@ -57,6 +106,7 @@ class OwnerAnalyticsModel {
     required this.ratingSubtitle,
     required this.ratingTrend,
     required this.mostSearchFoods,
+    required this.estimatedArrivalTraffic,
   });
 
   factory OwnerAnalyticsModel.fromJson(Map<String, dynamic> json) {
@@ -77,6 +127,12 @@ class OwnerAnalyticsModel {
     final Map<String, dynamic> saves = _asMap(engagement['saves']);
 
     final Map<String, dynamic> rating = _asMap(overview['ratingConsistency']);
+    final Map<String, dynamic> smartTrafficInsights = _asMap(
+      overview['smartTrafficInsights'],
+    );
+    final Map<String, dynamic> estimatedArrivalTraffic = _asMap(
+      smartTrafficInsights['estimatedArrivalTraffic'],
+    );
 
     final List<dynamic> rawTrend = _asList(rating['trend']);
     final List<dynamic> rawFoods = _asList(overview['mostSearchFoods']);
@@ -100,6 +156,9 @@ class OwnerAnalyticsModel {
       mostSearchFoods: rawFoods
           .map((item) => MostSearchFoodModel.fromJson(_asMap(item)))
           .toList(),
+      estimatedArrivalTraffic: estimatedArrivalTraffic.isEmpty
+          ? EstimatedArrivalTrafficModel.empty
+          : EstimatedArrivalTrafficModel.fromJson(estimatedArrivalTraffic),
     );
   }
 
@@ -122,6 +181,7 @@ class OwnerAnalyticsModel {
   final List<OwnerAnalyticsTrendPoint> ratingTrend;
 
   final List<MostSearchFoodModel> mostSearchFoods;
+  final EstimatedArrivalTrafficModel estimatedArrivalTraffic;
 }
 
 Map<String, dynamic> _asMap(dynamic value) {

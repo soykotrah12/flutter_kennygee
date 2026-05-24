@@ -320,6 +320,20 @@ class _AnalyticsBody extends StatelessWidget {
               );
             }),
           ),
+        const SizedBox(height: 18),
+        Text(
+          'Estimated Arrival Traffic',
+          style: TextStyle(
+            color: AppColors.primaryGreen,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Montserrat',
+          ),
+        ),
+        const SizedBox(height: 10),
+        _EstimatedArrivalTrafficCard(
+          traffic: analytics.estimatedArrivalTraffic,
+        ),
       ],
     );
   }
@@ -696,6 +710,211 @@ class _MostSearchFoodCard extends StatelessWidget {
   }
 }
 
+class _EstimatedArrivalTrafficCard extends StatelessWidget {
+  const _EstimatedArrivalTrafficCard({required this.traffic});
+
+  final EstimatedArrivalTrafficModel traffic;
+
+  @override
+  Widget build(BuildContext context) {
+    final int maxCustomers = traffic.hourlyTraffic.fold<int>(
+      0,
+      (int previousValue, HourlyTrafficPointModel element) =>
+          element.customers > previousValue ? element.customers : previousValue,
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      decoration: BoxDecoration(
+        color: AppColors.cardColor(context),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadow(context, light: 0.07, dark: 0.22),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.darkCardSoft
+                      : const Color(0xFFE9F5EE),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.timeline_rounded,
+                  color: AppColors.primaryGreen,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  traffic.currentHour.trim().isEmpty
+                      ? 'Current hour unavailable'
+                      : traffic.currentHour,
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              ),
+              Text(
+                '${_formatWholeNumber(traffic.activeCustomersEstimate)} active',
+                style: TextStyle(
+                  color: AppColors.primaryGreen,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _SmallMetricCard(
+                  icon: Icons.group_outlined,
+                  iconColor: const Color(0xFF0A3E76),
+                  title: 'Current Estimate',
+                  value: _formatWholeNumber(traffic.activeCustomersEstimate),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _SmallMetricCard(
+                  icon: Icons.schedule_rounded,
+                  iconColor: const Color(0xFFC89A1A),
+                  title: 'Next Hour',
+                  value: _formatWholeNumber(traffic.nextHourEstimate),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Hourly Traffic',
+            style: TextStyle(
+              color: AppColors.secondaryText(context),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (traffic.hourlyTraffic.isEmpty)
+            Text(
+              'No hourly traffic data available.',
+              style: TextStyle(
+                color: AppColors.secondaryText(context),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat',
+              ),
+            )
+          else
+            SizedBox(
+              height: 130,
+              child: ListView.separated(
+                physics: const BouncingScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                itemCount: traffic.hourlyTraffic.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (BuildContext context, int index) {
+                  final HourlyTrafficPointModel point =
+                      traffic.hourlyTraffic[index];
+
+                  return _HourlyTrafficBar(
+                    hourLabel: _formatHourLabel(point.hour),
+                    customers: point.customers,
+                    maxCustomers: maxCustomers,
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HourlyTrafficBar extends StatelessWidget {
+  const _HourlyTrafficBar({
+    required this.hourLabel,
+    required this.customers,
+    required this.maxCustomers,
+  });
+
+  final String hourLabel;
+  final int customers;
+  final int maxCustomers;
+
+  @override
+  Widget build(BuildContext context) {
+    const double minBarHeight = 6;
+    const double maxBarHeight = 66;
+    final double ratio = maxCustomers <= 0 ? 0 : customers / maxCustomers;
+    final double barHeight = maxCustomers <= 0
+        ? minBarHeight
+        : (minBarHeight + ((maxBarHeight - minBarHeight) * ratio)).clamp(
+            minBarHeight,
+            maxBarHeight,
+          );
+
+    return SizedBox(
+      width: 30,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text(
+            _formatWholeNumber(customers),
+            style: TextStyle(
+              color: AppColors.primaryText(context),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            width: 16,
+            height: barHeight,
+            decoration: BoxDecoration(
+              color: AppColors.primaryGreen.withValues(alpha: 0.88),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            hourLabel,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: AppColors.secondaryText(context),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 String _formatWholeNumber(int value) {
   return NumberFormat.decimalPattern().format(value);
 }
@@ -715,4 +934,9 @@ String _formatSignedPercent(double value) {
       ? absoluteValue.toStringAsFixed(0)
       : absoluteValue.toStringAsFixed(1);
   return '$sign$formatted%';
+}
+
+String _formatHourLabel(int hour) {
+  final DateTime time = DateTime(2026, 1, 1, hour.clamp(0, 23));
+  return DateFormat('ha').format(time).toLowerCase();
 }

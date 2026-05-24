@@ -10,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../map/owner_map/data/models/owner_map_location_selection_model.dart';
+import '../../../map/owner_map/presentation/screens/owner_shop_location_picker_screen.dart';
 import '../../data/model/food_model.dart';
 import '../controller/owner_food_list_controller.dart';
 import '../controller/owner_shop_controller.dart';
@@ -30,6 +32,8 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
       TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  double? _selectedLatitude;
+  double? _selectedLongitude;
 
   String? _selectedImagePath;
   String? _remoteImageUrl;
@@ -44,6 +48,17 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
     _descriptionController.text = shop?.description ?? '';
     _locationController.text = shop?.location.address ?? '123 Culinary Way';
     _remoteImageUrl = shop?.image.url;
+
+    final List<double> coordinates = shop?.location.coordinates ?? <double>[];
+    if (coordinates.length >= 2) {
+      final double lng = coordinates[0];
+      final double lat = coordinates[1];
+      if (_isValidCoordinate(lat, lng)) {
+        _selectedLatitude = lat;
+        _selectedLongitude = lng;
+      }
+    }
+
     _controller.resetOperatingHoursFromShop(force: true);
   }
 
@@ -207,17 +222,47 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
       return;
     }
 
+    final double latitude = _selectedLatitude ?? 23.8103;
+    final double longitude = _selectedLongitude ?? 90.4125;
+
     final bool success = await _controller.submitShop(
       restaurantName: name,
       description: description,
       address: location,
-      latitude: 23.8103,
-      longitude: 90.4125,
+      latitude: latitude,
+      longitude: longitude,
       imagePath: _selectedImagePath,
     );
 
     if (!success || !mounted) return;
     Navigator.of(context).pop();
+  }
+
+  Future<void> _openLocationPicker() async {
+    final OwnerMapLocationSelectionModel? picked =
+        await Get.to<OwnerMapLocationSelectionModel>(
+          () => OwnerShopLocationPickerScreen(
+            isPickerMode: true,
+            initialAddress: _locationController.text.trim(),
+            initialLatitude: _selectedLatitude,
+            initialLongitude: _selectedLongitude,
+          ),
+        );
+
+    if (!mounted || picked == null) return;
+
+    setState(() {
+      _locationController.text = picked.address;
+      _selectedLatitude = picked.latitude;
+      _selectedLongitude = picked.longitude;
+    });
+  }
+
+  bool _isValidCoordinate(double latitude, double longitude) {
+    return latitude >= -90 &&
+        latitude <= 90 &&
+        longitude >= -180 &&
+        longitude <= 180;
   }
 
   @override
@@ -295,6 +340,44 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
               controller: _locationController,
               hintText: '123 Culinary Way',
             ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: _openLocationPicker,
+                icon: Icon(
+                  Icons.location_on_rounded,
+                  color: AppColors.primaryGreen,
+                  size: 20,
+                ),
+                label: Text(
+                  'Pick Location From Map',
+                  style: TextStyle(
+                    color: AppColors.primaryGreen,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  backgroundColor: AppColors.softCardColor(context),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            if (_selectedLatitude != null && _selectedLongitude != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Lat: ${_selectedLatitude!.toStringAsFixed(6)}  •  Lng: ${_selectedLongitude!.toStringAsFixed(6)}',
+                style: TextStyle(
+                  color: AppColors.secondaryText(context),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             Text(
               'Operating Hours',
