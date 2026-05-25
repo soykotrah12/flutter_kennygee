@@ -277,22 +277,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                _FilterChip(label: 'All', active: true, icon: AppImages.all),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  label: 'Restaurant List',
-                  icon: AppImages.restaurantlist,
-                  onTap: _openRestaurantList,
-                ),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  label: 'Food List',
-                  icon: AppImages.foodlist,
-                  onTap: _openFoodList,
-                ),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _FilterChip(label: 'All', active: true, icon: AppImages.all),
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    label: 'Restaurant List',
+                    icon: AppImages.restaurantlist,
+                    onTap: _openRestaurantList,
+                  ),
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    label: 'Food List',
+                    icon: AppImages.foodlist,
+                    onTap: _openFoodList,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 18),
             _SectionHeader(
@@ -517,7 +520,7 @@ class _FilterChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: Container(
         height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           color: active ? AppColors.primaryGreen : AppColors.background(context),
           borderRadius: BorderRadius.circular(18),
@@ -530,6 +533,9 @@ class _FilterChip extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
               style: TextStyle(
                 color: active ? Colors.white : AppColors.primaryText(context),
                 fontSize: 14,
@@ -558,6 +564,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Column(
@@ -565,6 +572,9 @@ class _SectionHeader extends StatelessWidget {
             children: [
               Text(
                 title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
                 style: TextStyle(
                   color: AppColors.primaryText(context),
                   fontSize: 22,
@@ -575,6 +585,9 @@ class _SectionHeader extends StatelessWidget {
               ),
               Text(
                 subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
                 style: TextStyle(
                   color: AppColors.secondaryText(context),
                   fontSize: 13,
@@ -585,10 +598,14 @@ class _SectionHeader extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(width: 8),
         GestureDetector(
           onTap: onSeeAll,
           child: Text(
             'See all',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
             style: TextStyle(
               color: AppColors.primaryGreen,
               fontSize: 18,
@@ -615,6 +632,9 @@ class _OnlyTitleHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
             style: TextStyle(
               color: AppColors.primaryText(context),
               fontSize: 22,
@@ -624,10 +644,14 @@ class _OnlyTitleHeader extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(width: 8),
         GestureDetector(
           onTap: onSeeAll,
           child: Text(
             'See all',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
             style: TextStyle(
               color: AppColors.primaryGreen,
               fontSize: 18,
@@ -649,8 +673,11 @@ class _NearbyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final double computedWidth = (screenWidth * 0.45).clamp(148.0, 200.0);
+
     return SizedBox(
-      width: 160,
+      width: computedWidth,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -713,7 +740,8 @@ class _NearbyCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         restaurant.name,
-                        softWrap: true,
+                        maxLines: 1,
+                        softWrap: false,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: AppColors.primaryText(context),
@@ -731,6 +759,8 @@ class _NearbyCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       restaurant.rating.toStringAsFixed(1),
+                      maxLines: 1,
+                      softWrap: false,
                       style: TextStyle(
                         color: AppColors.primaryGreen,
                         fontSize: 14,
