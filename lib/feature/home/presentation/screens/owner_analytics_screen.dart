@@ -396,7 +396,13 @@ class _LargeMetricCard extends StatelessWidget {
                   color: iconBgColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, size: 24, color: iconColor),
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : null,
+                ),
               ),
               const Spacer(),
               Text(
@@ -505,13 +511,16 @@ class _RatingTrendCard extends StatelessWidget {
         border: Border.all(color: AppColors.divider(context)),
       ),
       child: CustomPaint(
-        painter: _TrendChartPainter(
-          points: points,
-          gridColor: AppColors.divider(context),
-          labelColor: AppColors.accentText(context),
-        ),
-        child: const SizedBox.expand(),
-      ),
+  painter: _TrendChartPainter(
+    points: points,
+    gridColor: AppColors.divider(context),
+    labelColor: AppColors.accentText(context),
+    lineColor: Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : AppColors.primaryGreen,
+  ),
+  child: const SizedBox.expand(),
+),
     );
   }
 }
@@ -521,11 +530,13 @@ class _TrendChartPainter extends CustomPainter {
     required this.points,
     required this.gridColor,
     required this.labelColor,
+    required this.lineColor,
   });
 
   final List<OwnerAnalyticsTrendPoint> points;
   final Color gridColor;
   final Color labelColor;
+  final Color lineColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -593,7 +604,7 @@ class _TrendChartPainter extends CustomPainter {
     }
 
     final Paint linePaint = Paint()
-      ..color = AppColors.primaryGreen
+      ..color = lineColor
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
 
@@ -604,6 +615,7 @@ class _TrendChartPainter extends CustomPainter {
   bool shouldRepaint(covariant _TrendChartPainter oldDelegate) {
     if (oldDelegate.gridColor != gridColor) return true;
     if (oldDelegate.labelColor != labelColor) return true;
+    if (oldDelegate.lineColor != lineColor) return true;
     if (oldDelegate.points.length != points.length) return true;
 
     for (int i = 0; i < points.length; i++) {

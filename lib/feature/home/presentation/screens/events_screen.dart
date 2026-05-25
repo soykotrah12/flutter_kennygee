@@ -105,6 +105,8 @@ class _EventsScreenState extends State<EventsScreen> {
                         ),
                         decoration: InputDecoration(
                           isCollapsed: true,
+                          fillColor: Colors.transparent,
+                          filled: true,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,

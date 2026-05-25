@@ -62,7 +62,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                         Text(
                           'Search Filters',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 18,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'Montserrat',
                           ),
@@ -74,7 +74,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                             'Reset All',
                             style: TextStyle(
                               color: AppColors.primaryGreen,
-                              fontSize: 22,
+                              fontSize: 14,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Montserrat',
                             ),
@@ -90,7 +90,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                         Text(
                           'Distance Range',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'Montserrat',
                           ),
@@ -100,7 +100,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                           '${_distance.round()}km',
                           style: TextStyle(
                             color: AppColors.primaryGreen,
-                            fontSize: 18,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat',
                           ),
@@ -125,7 +125,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                           '0km',
                           style: TextStyle(
                             color: Color(0xFF6F6F6F),
-                            fontSize: 18,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat',
                           ),
@@ -135,7 +135,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                           '20km',
                           style: TextStyle(
                             color: Color(0xFF6F6F6F),
-                            fontSize: 18,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat',
                           ),
@@ -146,7 +146,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                     Text(
                       'Minimum Rating',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Montserrat',
                       ),
@@ -169,7 +169,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                     Text(
                       'Price Range',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Montserrat',
                       ),
@@ -182,7 +182,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                         hintStyle: TextStyle(
                           color: Color(0xFFBFBFBF),
                           fontFamily: 'Montserrat',
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w400,
                         ),
                         filled: true,
@@ -211,7 +211,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                         Text(
                           'Open Now',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'Montserrat',
                           ),
@@ -233,7 +233,7 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                       'Only show places currently open',
                       style: TextStyle(
                         color: Color(0xFF7A7A7A),
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
                         fontFamily: 'Montserrat',
                       ),
@@ -258,14 +258,14 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryGreen,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(
                   'Show On Map',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                     fontFamily: 'Montserrat',
@@ -290,11 +290,11 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
           });
         },
         child: Container(
-          height: 72,
+          height: 56,
           margin: const EdgeInsets.all(7),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.primaryGreen : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Center(
             child: Row(
@@ -303,13 +303,14 @@ class _MapFilterSheetState extends State<MapFilterSheet> {
                 Icon(
                   Icons.star,
                   color: isSelected ? Colors.white : const Color(0xFF6D6366),
+                  size: 16,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   '${rating == rating.toInt() ? rating.toInt() : rating}+',
                   style: TextStyle(
                     color: isSelected ? Colors.white : const Color(0xFF6D6366),
-                    fontSize: 18,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
                   ),

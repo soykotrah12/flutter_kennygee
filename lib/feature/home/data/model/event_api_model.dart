@@ -11,6 +11,7 @@ class EventApiModel {
     required this.entryFee,
     required this.interested,
     required this.isGoing,
+    required this.goingUsers,
   });
 
   factory EventApiModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +34,7 @@ class EventApiModel {
       entryFee: _toDouble(json['entryFee']),
       interested: _toInt(json['interested']),
       isGoing: json['isGoing'] == true,
+      goingUsers: _toStringList(json['goingUsers']),
     );
   }
 
@@ -47,6 +49,7 @@ class EventApiModel {
   final double entryFee;
   final int interested;
   final bool isGoing;
+  final List<String> goingUsers;
 }
 
 double _toDouble(dynamic value) {
@@ -57,6 +60,15 @@ double _toDouble(dynamic value) {
 int _toInt(dynamic value) {
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+List<String> _toStringList(dynamic value) {
+  if (value is! List) return const <String>[];
+  return value
+      .map((item) => item?.toString() ?? '')
+      .map((item) => item.trim())
+      .where((item) => item.isNotEmpty)
+      .toList();
 }
 
 Map<String, dynamic> _asMap(dynamic value) {

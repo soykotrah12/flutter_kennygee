@@ -11,6 +11,7 @@ class EventModel {
     required this.detailsDescription,
     this.actionLabel = 'I am Going',
     this.isGoing = false,
+    this.goingUsers = const <String>[],
   });
 
   final String id;
@@ -24,4 +25,5 @@ class EventModel {
   final String detailsDescription;
   final String actionLabel;
   final bool isGoing;
+  final List<String> goingUsers;
 }

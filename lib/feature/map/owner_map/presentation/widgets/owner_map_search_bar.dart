@@ -72,37 +72,37 @@ class OwnerMapSearchBar extends StatelessWidget {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: isSearching ? null : onSearchTap,
-            child: Container(
-              width: 54,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.primaryGreen,
-                borderRadius: const BorderRadius.horizontal(
-                  right: Radius.circular(13),
-                ),
-              ),
-              // child: Center(
-              //   child: isSearching
-              //       ? const SizedBox(
-              //           width: 18,
-              //           height: 18,
-              //           child: CircularProgressIndicator(
-              //             strokeWidth: 2,
-              //             valueColor: AlwaysStoppedAnimation<Color>(
-              //               Colors.white,
-              //             ),
-              //           ),
-              //         )
-              //       : const Icon(
-              //           Icons.search_rounded,
-              //           color: Colors.white,
-              //           size: 22,
-              //         ),
-              // ),
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: isSearching ? null : onSearchTap,
+          //   child: Container(
+          //     width: 54,
+          //     height: double.infinity,
+          //     decoration: BoxDecoration(
+          //       color: AppColors.primaryGreen,
+          //       borderRadius: const BorderRadius.horizontal(
+          //         right: Radius.circular(13),
+          //       ),
+          //     ),
+          //     child: Center(
+          //       child: isSearching
+          //           ? const SizedBox(
+          //               width: 18,
+          //               height: 18,
+          //               child: CircularProgressIndicator(
+          //                 strokeWidth: 2,
+          //                 valueColor: AlwaysStoppedAnimation<Color>(
+          //                   Colors.white,
+          //                 ),
+          //               ),
+          //             )
+          //           : const Icon(
+          //               Icons.search_rounded,
+          //               color: Colors.white,
+          //               size: 22,
+          //             ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

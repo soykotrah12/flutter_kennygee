@@ -114,7 +114,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     paymentController = ensurePaymentController();
 
     detailsController.fetchEventDetails(widget.event.id);
-    detailsController.fetchGoingStatus(widget.event.id);
   }
 
   @override
@@ -172,7 +171,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   TextButton(
                     onPressed: () {
                       detailsController.fetchEventDetails(widget.event.id);
-                      detailsController.fetchGoingStatus(widget.event.id);
                     },
                     child: Text(
                       'Retry',

@@ -50,6 +50,7 @@ class _OwnerAllEventsScreenState extends State<OwnerAllEventsScreen> {
       detailsDescription: event.detailsDescription,
       actionLabel: event.actionLabel,
       isGoing: event.isGoing,
+      goingUsers: event.goingUsers,
     );
   }
 

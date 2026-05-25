@@ -73,13 +73,13 @@ class ProfileScreen extends StatelessWidget {
                           fit: BoxFit.contain,
                         ),
                         const Spacer(),
-                        Image.asset(
-                          AppImages.ai,
-                          width: 30,
-                          height: 30,
-                          fit: BoxFit.contain,
-                        ),
-                        const SizedBox(width: 16),
+                        // Image.asset(
+                        //   AppImages.ai,
+                        //   width: 30,
+                        //   height: 30,
+                        //   fit: BoxFit.contain,
+                        // ),
+                        // const SizedBox(width: 16),
                         Container(
                           width: 32,
                           height: 32,

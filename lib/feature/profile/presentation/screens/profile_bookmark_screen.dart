@@ -138,6 +138,7 @@ class _BookmarkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: () => HomeNavigation.openRestaurantDetailsById(item.id),
       borderRadius: BorderRadius.circular(16),

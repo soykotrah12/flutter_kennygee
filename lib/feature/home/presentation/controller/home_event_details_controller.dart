@@ -1,13 +1,16 @@
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../data/model/event_model.dart';
 import '../../data/repo/home_event_repo.dart';
 
 class HomeEventDetailsController extends GetxController {
-  HomeEventDetailsController(this._repository);
+  HomeEventDetailsController(this._repository, this._authStorageService);
 
   final HomeEventRepository _repository;
+  final AuthStorageService _authStorageService;
 
   final Rxn<EventModel> event = Rxn<EventModel>();
   final RxBool isLoading = false.obs;
@@ -32,12 +35,18 @@ class HomeEventDetailsController extends GetxController {
         fenix: true,
       );
     }
+    if (!Get.isRegistered<AuthStorageService>()) {
+      Get.lazyPut<AuthStorageService>(() => AuthStorageService(), fenix: true);
+    }
 
     final String tag = tagForEvent(eventId);
 
     if (!Get.isRegistered<HomeEventDetailsController>(tag: tag)) {
       Get.put<HomeEventDetailsController>(
-        HomeEventDetailsController(Get.find<HomeEventRepository>()),
+        HomeEventDetailsController(
+          Get.find<HomeEventRepository>(),
+          Get.find<AuthStorageService>(),
+        ),
         tag: tag,
       );
     }
@@ -52,15 +61,21 @@ class HomeEventDetailsController extends GetxController {
     error.value = '';
 
     final result = await _repository.fetchEventDetails(eventId);
+    EventModel? fetchedEvent;
 
     result.fold(
       (failure) {
         error.value = failure.message;
       },
       (success) {
-        event.value = success.data;
+        fetchedEvent = success.data;
       },
     );
+
+    if (fetchedEvent != null) {
+      event.value = fetchedEvent;
+      await _syncGoingStateFromEvent(fetchedEvent!);
+    }
 
     isLoading.value = false;
   }
@@ -71,21 +86,26 @@ class HomeEventDetailsController extends GetxController {
     hasGoingStatus.value = false;
     isLoadingGoing.value = true;
 
-    final result = await _repository.fetchGoingStatus(eventId);
+    final result = await _repository.fetchEventDetails(eventId);
 
     if (requestToken != _goingRequestToken) {
       return;
     }
 
+    EventModel? fetchedEvent;
     result.fold(
       (_) {
         isGoing.value = false;
       },
       (success) {
-        isGoing.value = success.data.isGoing;
-        print('GET isGoing: ${success.data.isGoing}');
+        fetchedEvent = success.data;
       },
     );
+
+    if (fetchedEvent != null) {
+      event.value = fetchedEvent;
+      await _syncGoingStateFromEvent(fetchedEvent!);
+    }
 
     hasGoingStatus.value = true;
     isLoadingGoing.value = false;
@@ -99,6 +119,7 @@ class HomeEventDetailsController extends GetxController {
     isToggleLoading.value = true;
 
     String message = '';
+    bool didToggleSucceed = false;
 
     final result = await _repository.toggleGoing(eventId);
     result.fold(
@@ -109,7 +130,7 @@ class HomeEventDetailsController extends GetxController {
         if (requestToken != _goingRequestToken) return;
         isGoing.value = success.data.isGoing;
         hasGoingStatus.value = true;
-        print('PATCH isGoing: ${success.data.isGoing}');
+        didToggleSucceed = true;
         message = success.message.isNotEmpty
             ? success.message
             : (success.data.isGoing
@@ -118,7 +139,31 @@ class HomeEventDetailsController extends GetxController {
       },
     );
 
+    if (didToggleSucceed && requestToken == _goingRequestToken) {
+      await fetchEventDetails(eventId);
+    }
+
     isToggleLoading.value = false;
     return message;
+  }
+
+  Future<void> _syncGoingStateFromEvent(EventModel event) async {
+    final String currentUserId = (await _authStorageService.getUserId() ?? '')
+        .trim();
+
+    final Set<String> normalizedGoingUsers = event.goingUsers
+        .map((userId) => userId.trim())
+        .where((userId) => userId.isNotEmpty)
+        .toSet();
+
+    final bool isGoing =
+        currentUserId.isNotEmpty && normalizedGoingUsers.contains(currentUserId);
+
+    this.isGoing.value = isGoing;
+    hasGoingStatus.value = true;
+
+    debugPrint('CURRENT USER ID => $currentUserId');
+    debugPrint('EVENT GOING USERS => ${event.goingUsers}');
+    debugPrint('IS CURRENT USER GOING => $isGoing');
   }
 }

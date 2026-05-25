@@ -93,6 +93,7 @@ class HomeEventRepository {
       detailsDescription: resolvedDescription,
       actionLabel: 'I am Going',
       isGoing: event.isGoing,
+      goingUsers: event.goingUsers,
     );
   }
 

@@ -133,11 +133,15 @@ class _BotAvatar extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Image.asset(
-        AppImages.ai,
-        width: 22,
-        height: 22,
-        fit: BoxFit.contain,
-      ),
+  AppImages.ai,
+  width: 22,
+  height: 22,
+  fit: BoxFit.contain,
+  color: Theme.of(context).brightness == Brightness.dark
+      ? Colors.white
+      : null,
+  colorBlendMode: BlendMode.srcIn,
+),
     );
   }
 }
