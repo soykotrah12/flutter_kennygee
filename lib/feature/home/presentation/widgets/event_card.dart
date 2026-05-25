@@ -139,13 +139,13 @@ class OwnerEventCard extends StatelessWidget {
                   ),
                   child: Center(
                     child: Image.asset(
-  AppImages.editfood,
-  width: 24,
-  height: 24,
-  color: Theme.of(context).brightness == Brightness.dark
-      ? Colors.white
-      : null,
-),
+                      AppImages.editfood,
+                      width: 24,
+                      height: 24,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : null,
+                    ),
                   ),
                 ),
               ),
