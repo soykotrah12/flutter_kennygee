@@ -2,7 +2,7 @@ name: flutter_kennegee
 description: "A new Flutter project."
 publish_to: 'none' 
 
-version: 1.0.0+3 // previous version for testflight: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: ^3.11.4
@@ -48,9 +48,6 @@ flutter_launcher_icons:
   ios: true
   image_path: assets/icons/appicon.png
   min_sdk_android: 21
-
-  flutter_lints: ^5.0.0
-  dotted_border: ^2.1.0
 
 flutter:
   uses-material-design: true
