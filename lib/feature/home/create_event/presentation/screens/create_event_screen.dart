@@ -214,7 +214,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 child: Text(
                   'Synced from API • ${_controller.createdEvent.value!.eventId}',
                   style: TextStyle(
-                    color: AppColors.primaryGreen,
+                    color: AppColors.accentText(context),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Montserrat',

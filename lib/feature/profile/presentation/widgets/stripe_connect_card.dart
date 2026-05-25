@@ -89,7 +89,7 @@ class StripeConnectCard extends StatelessWidget {
                 isConnected ? 'Connected' : 'Connect',
                 style: TextStyle(
                   color: isConnected
-                      ? AppColors.primaryGreen
+                      ? AppColors.accentText(context)
                       : AppColors.primaryOrange,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

@@ -285,7 +285,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
             Text(
               'Shop Identity',
               style: TextStyle(
-                color: AppColors.primaryGreen,
+                color: AppColors.accentText(context),
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
               ),
@@ -347,13 +347,13 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                 onPressed: _openLocationPicker,
                 icon: Icon(
                   Icons.location_on_rounded,
-                  color: AppColors.primaryGreen,
+                  color: AppColors.accentText(context),
                   size: 20,
                 ),
                 label: Text(
                   'Pick Location From Map',
                   style: TextStyle(
-                    color: AppColors.primaryGreen,
+                    color: AppColors.accentText(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -473,7 +473,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: Color(0xFFD9E2DF),
+            color: AppColors.iconCircleSurface(context),
             shape: BoxShape.circle,
           ),
           child: Icon(Icons.add, color: AppColors.primaryGreen, size: 28),
@@ -482,7 +482,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
         Text(
           'Add photo',
           style: TextStyle(
-            color: AppColors.primaryGreen,
+            color: AppColors.accentText(context),
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -520,7 +520,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
         fillColor: AppColors.softCardColor(context),
         hintText: hintText,
         hintStyle: TextStyle(
-          color: AppColors.textGrey,
+          color: AppColors.secondaryText(context),
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
@@ -552,11 +552,11 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: AppColors.shadow(context),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -621,7 +621,7 @@ class _OwnerAddShopScreenState extends State<OwnerAddShopScreen> {
                         child: Text(
                           '-',
                           style: TextStyle(
-                            color: AppColors.primaryGreen,
+                            color: AppColors.accentText(context),
                             fontSize: 28,
                             fontWeight: FontWeight.w400,
                           ),
@@ -771,11 +771,11 @@ class _FoodPreviewCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: AppColors.shadow(context),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -815,7 +815,7 @@ class _FoodPreviewCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppColors.textGrey,
+                    color: AppColors.secondaryText(context),
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -827,7 +827,7 @@ class _FoodPreviewCard extends StatelessWidget {
           Text(
             '\$$formattedPrice',
             style: TextStyle(
-              color: AppColors.primaryGreen,
+              color: AppColors.accentText(context),
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),

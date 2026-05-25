@@ -169,10 +169,12 @@ class _OwnerShopLocationPickerScreenState
                                   ),
                                 )
                               : Icon(
-                                  Icons.my_location_rounded,
-                                  color: AppColors.primaryGreen,
-                                  size: 24,
-                                ),
+  Icons.my_location_rounded,
+  color: Theme.of(context).brightness == Brightness.dark
+      ? Colors.white
+      : AppColors.primaryGreen,
+  size: 24,
+),
                         ),
                       ),
                     ),

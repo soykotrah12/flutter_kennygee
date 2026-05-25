@@ -32,7 +32,7 @@ class CreateEventImageCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.softCardColor(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFD6D6D6)),
+          border: Border.all(color: AppColors.divider(context)),
         ),
         child: Stack(
           children: [
@@ -65,7 +65,7 @@ class CreateEventImageCard extends StatelessWidget {
                           Text(
                             'Tap to choose image',
                             style: TextStyle(
-                              color: AppColors.textGrey,
+                              color: AppColors.secondaryText(context),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Montserrat',

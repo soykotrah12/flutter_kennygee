@@ -162,7 +162,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     detailsController.error.value,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Montserrat',
@@ -241,7 +241,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               Text(
                 activeEvent.detailsTitle,
                 style: TextStyle(
-                  color: AppColors.primaryGreen,
+                  color: AppColors.accentText(context),
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Montserrat',
@@ -251,7 +251,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               Text(
                 activeEvent.detailsDescription,
                 style: TextStyle(
-                  color: AppColors.black,
+                  color: AppColors.primaryText(context),
                   fontSize: 16,
                   height: 1.45,
                   fontWeight: FontWeight.w400,
@@ -394,11 +394,11 @@ class _InfoBox extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: isWide ? 18 : 14),
       decoration: BoxDecoration(
-        color: AppColors.background(context),
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: AppColors.shadow(context),
             blurRadius: 2,
             spreadRadius: 2,
             offset: const Offset(0, 1),
@@ -412,7 +412,7 @@ class _InfoBox extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: AppColors.textGrey,
+              color: AppColors.secondaryText(context),
               fontSize: 12,
               fontWeight: FontWeight.w600,
               fontFamily: 'Montserrat',
@@ -423,7 +423,7 @@ class _InfoBox extends StatelessWidget {
             value,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.black,
+              color: AppColors.primaryText(context),
               fontSize: 14,
               fontWeight: FontWeight.w500,
               fontFamily: 'Montserrat',

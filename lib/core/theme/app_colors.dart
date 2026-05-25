@@ -92,6 +92,16 @@ class AppColors {
       ? darkTextSecondary
       : textGrey;
 
+  static Color iconColor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkTextPrimary
+      : textBlack;
+
+  static Color accentText(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkTextPrimary
+      : primaryGreen;
+
   static Color divider(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
       ? darkDivider

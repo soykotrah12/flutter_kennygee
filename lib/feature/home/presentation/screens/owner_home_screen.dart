@@ -235,7 +235,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                   height: 48,
                   borderRadius: 8,
                   backgroundColor: AppColors.cardColor(context),
-                  textColor: AppColors.primaryGreen,
+                  textColor: AppColors.accentText(context),
                   borderColor: Colors.transparent,
                 ),
               ],
@@ -264,7 +264,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                     style: TextStyle(
                       decoration: TextDecoration.underline,
                       color: hasReviews
-                          ? AppColors.primaryGreen
+                          ? AppColors.primaryText(context)
                           : AppColors.secondaryText(context),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

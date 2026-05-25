@@ -114,7 +114,7 @@ class _OwnerFoodListScreenState extends State<OwnerFoodListScreen> {
                         : 'No food items found',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppColors.textGrey,
+                      color: AppColors.secondaryText(context),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),

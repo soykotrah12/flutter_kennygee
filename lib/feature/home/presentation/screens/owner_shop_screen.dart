@@ -15,6 +15,7 @@ import '../widgets/host_experience_card.dart';
 import '../widgets/menu_item_card.dart';
 import '../widgets/shop_details_card.dart';
 import 'owner_add_menu_screen.dart';
+import 'owner_all_events_screen.dart';
 import 'owner_add_shop_screen.dart';
 import 'owner_food_list_screen.dart';
 import 'owner_update_menu_screen.dart';
@@ -278,7 +279,6 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                             ),
                           ),
                         ),
-                        
                       ],
                     );
                   }
@@ -334,7 +334,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                           child: Text(
                             'See All',
                             style: TextStyle(
-                              color: AppColors.primaryGreen,
+                              color: AppColors.accentText(context),
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -347,13 +347,29 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
               },
             ),
             const SizedBox(height: 10),
-            Text(
-              'Event Hosting',
-              style: TextStyle(
-                color: AppColors.primaryText(context),
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
+            Row(
+              children: [
+                Text(
+                  'Event Hosting',
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () => Get.to(() => const OwnerAllEventsScreen()),
+                  child: Text(
+                    'View All',
+                    style: TextStyle(
+                      color: AppColors.accentText(context),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             Obx(() {

@@ -161,7 +161,7 @@ class _AnalyticsBody extends StatelessWidget {
         Text(
           'Real-time Visibility',
           style: TextStyle(
-            color: AppColors.primaryGreen,
+            color: AppColors.accentText(context),
             fontSize: 20,
             height: 0.95,
             fontWeight: FontWeight.w600,
@@ -197,7 +197,7 @@ class _AnalyticsBody extends StatelessWidget {
         Text(
           'Engagement Depth',
           style: TextStyle(
-            color: AppColors.primaryGreen,
+            color: AppColors.accentText(context),
             fontSize: 20,
             fontWeight: FontWeight.w600,
             fontFamily: 'Montserrat',
@@ -228,11 +228,11 @@ class _AnalyticsBody extends StatelessWidget {
         const SizedBox(height: 18),
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'Rating Consistency',
                 style: TextStyle(
-                  color: AppColors.primaryGreen,
+                  color: AppColors.accentText(context),
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Montserrat',
@@ -244,7 +244,7 @@ class _AnalyticsBody extends StatelessWidget {
             Text(
               analytics.currentRating.toStringAsFixed(1),
               style: TextStyle(
-                color: AppColors.primaryGreen,
+                color: AppColors.accentText(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Montserrat',
@@ -270,7 +270,7 @@ class _AnalyticsBody extends StatelessWidget {
         Text(
           'Most Search Foods',
           style: TextStyle(
-            color: AppColors.primaryGreen,
+            color: AppColors.accentText(context),
             fontSize: 20,
             fontWeight: FontWeight.w600,
             fontFamily: 'Montserrat',
@@ -324,7 +324,7 @@ class _AnalyticsBody extends StatelessWidget {
         Text(
           'Estimated Arrival Traffic',
           style: TextStyle(
-            color: AppColors.primaryGreen,
+            color: AppColors.accentText(context),
             fontSize: 20,
             fontWeight: FontWeight.w600,
             fontFamily: 'Montserrat',
@@ -414,7 +414,7 @@ class _LargeMetricCard extends StatelessWidget {
           Text(
             valueText,
             style: TextStyle(
-              color: AppColors.primaryGreen,
+              color: AppColors.accentText(context),
               fontSize: 32,
               fontWeight: FontWeight.w600,
               fontFamily: 'Montserrat',
@@ -508,6 +508,7 @@ class _RatingTrendCard extends StatelessWidget {
         painter: _TrendChartPainter(
           points: points,
           gridColor: AppColors.divider(context),
+          labelColor: AppColors.accentText(context),
         ),
         child: const SizedBox.expand(),
       ),
@@ -516,10 +517,15 @@ class _RatingTrendCard extends StatelessWidget {
 }
 
 class _TrendChartPainter extends CustomPainter {
-  _TrendChartPainter({required this.points, required this.gridColor});
+  _TrendChartPainter({
+    required this.points,
+    required this.gridColor,
+    required this.labelColor,
+  });
 
   final List<OwnerAnalyticsTrendPoint> points;
   final Color gridColor;
+  final Color labelColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -537,8 +543,8 @@ class _TrendChartPainter extends CustomPainter {
       ..color = gridColor
       ..strokeWidth = 1;
 
-    const TextStyle labelStyle = TextStyle(
-      color: AppColors.primaryGreen,
+    final TextStyle labelStyle = TextStyle(
+      color: labelColor,
       fontSize: 11,
       fontWeight: FontWeight.w500,
       fontFamily: 'Montserrat',
@@ -597,6 +603,7 @@ class _TrendChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _TrendChartPainter oldDelegate) {
     if (oldDelegate.gridColor != gridColor) return true;
+    if (oldDelegate.labelColor != labelColor) return true;
     if (oldDelegate.points.length != points.length) return true;
 
     for (int i = 0; i < points.length; i++) {
@@ -753,7 +760,7 @@ class _EstimatedArrivalTrafficCard extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.timeline_rounded,
-                  color: AppColors.primaryGreen,
+                  color: AppColors.accentText(context),
                   size: 22,
                 ),
               ),
@@ -774,7 +781,7 @@ class _EstimatedArrivalTrafficCard extends StatelessWidget {
               Text(
                 '${_formatWholeNumber(traffic.activeCustomersEstimate)} active',
                 style: TextStyle(
-                  color: AppColors.primaryGreen,
+                  color: AppColors.accentText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Montserrat',

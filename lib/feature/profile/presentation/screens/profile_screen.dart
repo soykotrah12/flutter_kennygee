@@ -721,7 +721,11 @@ class _QuickAccessRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 14),
-            Icon(Icons.chevron_right, size: 20, color: AppColors.primaryGreen),
+            Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: AppColors.iconColor(context),
+            ),
           ],
         ),
       ),
@@ -852,16 +856,17 @@ class _ThemeToggleRow extends StatelessWidget {
               ),
             ),
             Switch(
-              value: value,
-              activeThumbColor: Colors.white,
-              activeTrackColor: AppColors.primaryGreen,
-              inactiveThumbColor:
-                  Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.darkTextPrimary
-                  : AppColors.primaryWhite,
-              inactiveTrackColor: AppColors.divider(context),
-              onChanged: onChanged,
-            ),
+  value: value,
+  activeThumbColor: Colors.white,
+  activeTrackColor: AppColors.primaryOrange,
+  inactiveThumbColor: Theme.of(context).brightness == Brightness.dark
+      ? Colors.white
+      : AppColors.primaryWhite,
+  inactiveTrackColor: Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF4A4A4A)
+      : AppColors.divider(context),
+  onChanged: onChanged,
+),
           ],
         ),
       ),

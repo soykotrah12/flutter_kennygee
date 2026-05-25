@@ -60,7 +60,7 @@ class ShopDetailsCard extends StatelessWidget {
             child: Text(
               'Edit',
               style: TextStyle(
-                color: AppColors.primaryGreen,
+                color: AppColors.accentText(context),
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),

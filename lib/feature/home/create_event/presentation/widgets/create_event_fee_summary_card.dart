@@ -24,9 +24,9 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E2E2)),
+        border: Border.all(color: AppColors.divider(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,7 +46,7 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
               Text(
                 'Platform Service Fee',
                 style: TextStyle(
-                  color: AppColors.textGrey,
+                  color: AppColors.secondaryText(context),
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Montserrat',
@@ -67,12 +67,16 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Icon(Icons.lock_outline, size: 12, color: AppColors.textGrey),
+              Icon(
+                Icons.lock_outline,
+                size: 12,
+                color: AppColors.secondaryText(context),
+              ),
               SizedBox(width: 4),
               Text(
                 'Payment Method',
                 style: TextStyle(
-                  color: AppColors.textGrey,
+                  color: AppColors.secondaryText(context),
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Montserrat',
@@ -102,7 +106,11 @@ class CreateEventFeeSummaryCard extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, thickness: 1, color: Color(0xFFE3E3E3)),
+            child: Divider(
+              height: 1,
+              thickness: 1,
+              color: AppColors.divider(context),
+            ),
           ),
           Row(
             children: [

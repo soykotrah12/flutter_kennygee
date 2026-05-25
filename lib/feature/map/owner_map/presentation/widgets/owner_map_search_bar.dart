@@ -37,7 +37,7 @@ class OwnerMapSearchBar extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 12),
-          const Icon(Icons.search, size: 22, color: Color(0xFF7A7A7A)),
+          Icon(Icons.search, size: 22, color: AppColors.iconColor(context)),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
@@ -51,7 +51,7 @@ class OwnerMapSearchBar extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 fontFamily: 'Montserrat',
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 filled: false,
                 fillColor: Colors.transparent,
                 border: InputBorder.none,
@@ -62,7 +62,7 @@ class OwnerMapSearchBar extends StatelessWidget {
                 focusedErrorBorder: InputBorder.none,
                 hintText: 'Search address, place or restaurant',
                 hintStyle: TextStyle(
-                  color: Color(0xFF7A7A7A),
+                  color: AppColors.secondaryText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Montserrat',
@@ -83,24 +83,24 @@ class OwnerMapSearchBar extends StatelessWidget {
                   right: Radius.circular(13),
                 ),
               ),
-              child: Center(
-                child: isSearching
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : const Icon(
-                        Icons.search_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-              ),
+              // child: Center(
+              //   child: isSearching
+              //       ? const SizedBox(
+              //           width: 18,
+              //           height: 18,
+              //           child: CircularProgressIndicator(
+              //             strokeWidth: 2,
+              //             valueColor: AlwaysStoppedAnimation<Color>(
+              //               Colors.white,
+              //             ),
+              //           ),
+              //         )
+              //       : const Icon(
+              //           Icons.search_rounded,
+              //           color: Colors.white,
+              //           size: 22,
+              //         ),
+              // ),
             ),
           ),
         ],

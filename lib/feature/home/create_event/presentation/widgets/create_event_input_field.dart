@@ -64,14 +64,23 @@ class CreateEventInputField extends StatelessWidget {
               vertical: 14,
             ),
             hintStyle: TextStyle(
-              color: AppColors.textGrey,
+              color: AppColors.secondaryText(context),
               fontSize: 13,
               fontWeight: FontWeight.w400,
               fontFamily: 'Montserrat',
             ),
+            prefixStyle: TextStyle(
+              color: AppColors.primaryText(context),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Montserrat',
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFD8D8D8), width: 1),
+              borderSide: BorderSide(
+                color: AppColors.divider(context),
+                width: 1,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

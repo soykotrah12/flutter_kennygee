@@ -25,6 +25,7 @@ class MenuItemCard extends StatefulWidget {
   final String? offerLabel;
   final VoidCallback? onEditTap;
   final Future<bool> Function(bool value)? onOfferToggle;
+  
 
   @override
   State<MenuItemCard> createState() => _MenuItemCardState();
@@ -71,15 +72,16 @@ class _MenuItemCardState extends State<MenuItemCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardColor(context),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: AppColors.shadow(context),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -116,14 +118,16 @@ class _MenuItemCardState extends State<MenuItemCard> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      widget.priceText,
-                      style: TextStyle(
-                        color: AppColors.primaryGreen,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                   Text(
+  widget.priceText,
+  style: TextStyle(
+    color: Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : AppColors.primaryGreen,
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+  ),
+),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -132,7 +136,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppColors.textGrey,
+                    color: AppColors.secondaryText(context),
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -143,32 +147,36 @@ class _MenuItemCardState extends State<MenuItemCard> {
                     InkWell(
                       onTap: _handleToggle,
                       borderRadius: BorderRadius.circular(20),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        curve: Curves.easeOut,
-                        width: 52,
-                        height: 30,
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          color: _isSpecialOffer
-                              ? AppColors.primaryGreen
-                              : const Color(0xFFE2E2E2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Align(
-                          alignment: _isSpecialOffer
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ),
+                     
+
+child: AnimatedContainer(
+  duration: const Duration(milliseconds: 180),
+  curve: Curves.easeOut,
+  width: 52,
+  height: 30,
+  padding: const EdgeInsets.all(3),
+  decoration: BoxDecoration(
+    color: _isSpecialOffer
+        ? AppColors.primaryOrange
+        : isDark
+            ? const Color(0xFF4A4A4A)
+            : AppColors.divider(context),
+    borderRadius: BorderRadius.circular(20),
+  ),
+  child: Align(
+    alignment: _isSpecialOffer
+        ? Alignment.centerRight
+        : Alignment.centerLeft,
+    child: Container(
+      width: 24,
+      height: 24,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+      ),
+    ),
+  ),
+),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -176,8 +184,8 @@ class _MenuItemCardState extends State<MenuItemCard> {
                           (_isSpecialOffer ? 'Special Offer' : 'Regular'),
                       style: TextStyle(
                         color: _isSpecialOffer
-                            ? AppColors.primaryGreen
-                            : AppColors.textGrey,
+                            ? AppColors.primaryTextAdaptive
+                            : AppColors.secondaryText(context),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),

@@ -109,7 +109,7 @@ class _OwnerUpgradePlanScreenState extends State<OwnerUpgradePlanScreen> {
                     ? _controller.error.value
                     : 'No plans available',
                 style: TextStyle(
-                  color: AppColors.textGrey,
+                  color: AppColors.secondaryText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -152,21 +152,22 @@ class _PlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color borderColor = highlighted
         ? const Color(0xFFE2A522)
-        : const Color(0xFF97BFB4);
+        : (isDark ? AppColors.divider(context) : const Color(0xFF97BFB4));
     final Color badgeColor = highlighted
         ? const Color(0xFFD9B62B)
-        : const Color(0xFF77C4B0);
+        : (isDark ? AppColors.darkCard : const Color(0xFF77C4B0));
     final Color surfaceColor = highlighted
-        ? const Color(0xFFF3EEDC)
+        ? (isDark ? AppColors.cardColor(context) : const Color(0xFFF3EEDC))
         : AppColors.softCardColor(context);
     final Color actionBg = highlighted
         ? AppColors.primaryGreen
-        : const Color(0xFFEFF3F2);
+        : (isDark ? AppColors.cardColor(context) : const Color(0xFFEFF3F2));
     final Color actionText = highlighted
         ? Colors.white
-        : AppColors.primaryGreen;
+        : AppColors.accentText(context);
     final String badge = plan.badge.trim().isNotEmpty
         ? plan.badge
         : highlighted
@@ -203,7 +204,7 @@ class _PlanCard extends StatelessWidget {
                     TextSpan(
                       text: '\$${plan.price.toStringAsFixed(0)}',
                       style: TextStyle(
-                        color: Color(0xFF2E8166),
+                        color: AppColors.accentText(context),
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                       ),
@@ -219,7 +220,7 @@ class _PlanCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const Divider(color: Color(0xFFD3D3D3), height: 1),
+              Divider(color: AppColors.divider(context), height: 1),
               const SizedBox(height: 18),
               ...plan.features.map(
                 (feature) => Padding(

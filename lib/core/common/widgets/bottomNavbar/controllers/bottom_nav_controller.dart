@@ -161,8 +161,8 @@ class DashboardPlaceholderView extends StatelessWidget {
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textGrey,
+              style: TextStyle(
+                color: AppColors.secondaryText(context),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),

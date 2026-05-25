@@ -120,7 +120,7 @@ class OwnerEventCard extends StatelessWidget {
                   child: Text(
                     activeEvent.fee,
                     style: TextStyle(
-                      color: AppColors.primaryGreen,
+                      color: AppColors.accentText(context),
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -139,10 +139,13 @@ class OwnerEventCard extends StatelessWidget {
                   ),
                   child: Center(
                     child: Image.asset(
-                      AppImages.editfood,
-                      width: 24,
-                      height: 24,
-                    ),
+  AppImages.editfood,
+  width: 24,
+  height: 24,
+  color: Theme.of(context).brightness == Brightness.dark
+      ? Colors.white
+      : null,
+),
                   ),
                 ),
               ),

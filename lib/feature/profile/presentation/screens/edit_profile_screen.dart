@@ -113,7 +113,7 @@ class _OwnerEditProfileLayout extends StatelessWidget {
             child: TextField(
               controller: profileController.nameController,
               style: TextStyle(
-                color: Color(0xFF6C6C6C),
+                color: AppColors.primaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Montserrat',
@@ -121,13 +121,12 @@ class _OwnerEditProfileLayout extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Enter your name',
                 hintStyle: TextStyle(
-                  color: Color(0xFF7A7A7A),
+                  color: AppColors.secondaryText(context),
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   fontFamily: 'Montserrat',
-
                 ),
-                filled: false, 
+                filled: false,
                 fillColor: Colors.transparent,
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -149,13 +148,13 @@ class _OwnerEditProfileLayout extends StatelessWidget {
               initialValue: profile?.email ?? '',
               readOnly: true,
               style: TextStyle(
-                color: Color(0xFF7A7A7A),
+                color: AppColors.secondaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Montserrat',
               ),
               decoration: InputDecoration(
-                filled: false, 
+                filled: false,
                 fillColor: Colors.transparent,
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -177,7 +176,7 @@ class _OwnerEditProfileLayout extends StatelessWidget {
               initialValue: profile?.phoneNumber ?? '',
               readOnly: true,
               style: TextStyle(
-                color: Color(0xFF7A7A7A),
+                color: AppColors.secondaryText(context),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Montserrat',
@@ -295,7 +294,7 @@ class _DefaultEditProfileLayout extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.textGrey, width: 1.5),
+            border: Border.all(color: AppColors.divider(context), width: 1.5),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -320,6 +319,9 @@ class _DefaultEditProfileLayout extends StatelessWidget {
                   ),
                   decoration: InputDecoration(
                     hintText: 'Enter your name',
+                    hintStyle: TextStyle(
+                      color: AppColors.secondaryText(context),
+                    ),
                     filled: false,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -385,7 +387,7 @@ class _OwnerFieldLabel extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        color: Colors.black,
+        color: AppColors.primaryText(context),
         fontSize: 16,
         fontWeight: FontWeight.w500,
         fontFamily: 'Montserrat',
@@ -407,7 +409,7 @@ class _OwnerInputField extends StatelessWidget {
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFABABAB), width: 1.5),
+        border: Border.all(color: AppColors.divider(context), width: 1.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: child,
