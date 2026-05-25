@@ -2,7 +2,7 @@ class AppImages {
   AppImages._();
 
   static const String appLogo = 'assets/icons/applogo.png';
-  static const String appicon = 'assets/icons/appicon.png';
+  static const String appicon = 'assets/icons/appicon.jpg';
   static const String onboarding7logo = 'assets/icons/onboard7.png';
   static const String onboarding8logo = 'assets/icons/onboard8.png';
   static const String rolebackground = 'assets/images/background.png';
