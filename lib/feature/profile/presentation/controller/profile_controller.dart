@@ -4,7 +4,10 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/constants/api_constants.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/controller/auth_flow_controller.dart';
+import '../../../auth/presentation/screens/logIn_screen.dart';
 import '../../data/model/user_profile_model.dart';
 import '../../data/repo/profile_repo_impl.dart';
 import '../../data/repo/stripe_connect_repository.dart';
@@ -29,6 +32,9 @@ ProfileController ensureProfileController() {
       fenix: true,
     );
   }
+  if (!Get.isRegistered<AuthStorageService>()) {
+    Get.lazyPut<AuthStorageService>(() => AuthStorageService(), fenix: true);
+  }
 
   if (!Get.isRegistered<ProfileController>()) {
     Get.lazyPut<ProfileController>(
@@ -36,6 +42,7 @@ ProfileController ensureProfileController() {
         Get.find<ProfileRepository>(),
         Get.find<ApiClient>(),
         Get.find<StripeConnectRepository>(),
+        Get.find<AuthStorageService>(),
       ),
       fenix: true,
     );
@@ -49,11 +56,13 @@ class ProfileController extends GetxController {
     this._profileRepository,
     this._apiClient,
     this._stripeConnectRepository,
+    this._authStorageService,
   );
 
   final ProfileRepository _profileRepository;
   final ApiClient _apiClient;
   final StripeConnectRepository _stripeConnectRepository;
+  final AuthStorageService _authStorageService;
   final ImagePicker _imagePicker = ImagePicker();
 
   final profile = Rxn<UserProfileModel>();
@@ -62,6 +71,7 @@ class ProfileController extends GetxController {
   final isProfileLoading = false.obs;
   final isSaving = false.obs;
   final isChangingPassword = false.obs;
+  final isDeletingAccount = false.obs;
   final stripeConnected = false.obs;
   final stripeAccountId = ''.obs;
   final isStripeStatusLoading = false.obs;
@@ -224,6 +234,104 @@ class ProfileController extends GetxController {
     isChangingPassword.value = false;
   }
 
+  Future<void> confirmDeleteAccount() async {
+    if (isDeletingAccount.value) return;
+
+    final bool? shouldDelete = await Get.dialog<bool>(
+      Builder(
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: AppColors.cardAdaptive,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: Text(
+              'Delete Account',
+              style: TextStyle(
+                color: AppColors.primaryText(context),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            content: Text(
+              'Are you sure you want to permanently delete your account? This action cannot be undone.',
+              style: TextStyle(
+                color: AppColors.secondaryText(context),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back<bool>(result: false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: AppColors.secondaryText(context),
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Get.back<bool>(result: true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(
+                    color: AppColors.red,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (shouldDelete == true) {
+      await deleteAccount();
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    if (isDeletingAccount.value) return;
+
+    isDeletingAccount.value = true;
+    final result = await _profileRepository.deleteAccount();
+
+    await result.fold<Future<void>>(
+      (failure) async {
+        isDeletingAccount.value = false;
+        _showError('Delete Account', _cleanErrorMessage(failure.message));
+      },
+      (success) async {
+        await _authStorageService.clearAuthData();
+        await ensureAuthFlowController().exitGuestMode();
+        profile.value = null;
+        totalWishlist.value = 0;
+        totalBookmarks.value = 0;
+        isDeletingAccount.value = false;
+
+        Get.offAll(() => const LoginRoleScreen());
+        Future<void>.delayed(const Duration(milliseconds: 120), () {
+          Get.snackbar(
+            'Account Deleted',
+            success.message.isNotEmpty
+                ? success.message
+                : 'Your account has been deleted successfully.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: AppColors.primaryGreen,
+            colorText: Colors.white,
+          );
+        });
+      },
+    );
+  }
+
   Future<void> fetchQuickAccessCounts() async {
     _fetchQuickAccessCount++;
     debugPrint(
@@ -337,6 +445,14 @@ class ProfileController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: AppColors.cardAdaptive,
     );
+  }
+
+  String _cleanErrorMessage(String message) {
+    final String trimmed = message.trim();
+    if (trimmed.isEmpty || trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      return 'Unable to delete account right now. Please try again.';
+    }
+    return trimmed;
   }
 
   Map<String, dynamic> _asMap(dynamic value) {

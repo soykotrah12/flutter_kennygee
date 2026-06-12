@@ -1,10 +1,14 @@
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
+import '../../../../core/common/widgets/bottomNavbar/controllers/bottom_nav_controller.dart';
 import '../../../../core/common/widgets/bottomNavbar/screens/dashboard_screen.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../../core/network/services/onboarding_store_service.dart';
+import '../../../Ai/presentation/controllers/ai_chat_controller.dart';
+import '../../../home/presentation/controller/home_wishlist_controller.dart';
+import '../../../profile/presentation/controller/profile_controller.dart';
 import '../../data/repo/auth_repo_impl.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../../data/model/auth_response_model.dart';
@@ -78,11 +82,20 @@ class AuthFlowController extends GetxController {
 
   final selectedRole = Rxn<AppUserRole>();
   final isSubmitting = false.obs;
+  final isGuestMode = false.obs;
 
   @override
   Future<void> onInit() async {
     super.onInit();
+    await loadStoredAuthState();
+  }
+
+  Future<void> loadStoredAuthState() async {
+    isGuestMode.value = await _authStorageService.isGuestMode();
     await loadStoredRole();
+    if (isGuestMode.value) {
+      selectedRole.value = AppUserRole.user;
+    }
   }
 
   Future<void> loadStoredRole() async {
@@ -170,12 +183,11 @@ class AuthFlowController extends GetxController {
 
     if (fullName.trim().isEmpty ||
         email.trim().isEmpty ||
-        phone.trim().isEmpty ||
         password.trim().isEmpty ||
         confirmPassword.trim().isEmpty) {
       Get.snackbar(
         'Missing Fields',
-        'Please fill in all fields.',
+        'Please fill in all required fields.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: TColors.white,
       );
@@ -197,7 +209,7 @@ class AuthFlowController extends GetxController {
       final request = RegisterRequestModel(
         name: fullName.trim(),
         email: email.trim(),
-        phoneNumber: phone.trim(),
+        phoneNumber: phone.trim().isEmpty ? null : phone.trim(),
         password: password.trim(),
         confirmPassword: confirmPassword.trim(),
         role: role.storageValue,
@@ -283,6 +295,8 @@ class AuthFlowController extends GetxController {
 
   Future<void> logout() async {
     await _authStorageService.clearAuthData();
+    await _authStorageService.storeGuestMode(false);
+    isGuestMode.value = false;
     Get.offAll(() => const LoginRoleScreen());
   }
 
@@ -295,19 +309,89 @@ class AuthFlowController extends GetxController {
       await result.fold<Future<void>>(
         (_) async {
           await _authStorageService.clearAuthData();
+          await _authStorageService.storeGuestMode(false);
+          isGuestMode.value = false;
           Get.offAll(() => const LoginRoleScreen());
         },
         (_) async {
           await _authStorageService.clearAuthData();
+          await _authStorageService.storeGuestMode(false);
+          isGuestMode.value = false;
           Get.offAll(() => const LoginRoleScreen());
         },
       );
     } catch (_) {
       await _authStorageService.clearAuthData();
+      await _authStorageService.storeGuestMode(false);
+      isGuestMode.value = false;
       Get.offAll(() => const LoginRoleScreen());
     } finally {
       isSubmitting.value = false;
     }
+  }
+
+  Future<void> continueAsGuest() async {
+    if (isSubmitting.value) return;
+
+    isSubmitting.value = true;
+    try {
+      _clearGuestSensitiveControllers();
+      await _authStorageService.clearAuthData();
+      const AppUserRole role = AppUserRole.user;
+      await _authStorageService.storeRole(role.storageValue);
+      await _authStorageService.storeGuestMode(true);
+      selectedRole.value = role;
+      isGuestMode.value = true;
+      Get.offAll(() => DashboardScreen(role: role));
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  void _clearGuestSensitiveControllers() {
+    if (Get.isRegistered<ProfileController>()) {
+      Get.delete<ProfileController>(force: true);
+    }
+    if (Get.isRegistered<HomeWishlistController>()) {
+      Get.delete<HomeWishlistController>(force: true);
+    }
+    if (Get.isRegistered<AiChatController>()) {
+      Get.delete<AiChatController>(force: true);
+    }
+    if (Get.isRegistered<BottomNavController>(tag: 'dashboard_user')) {
+      Get.delete<BottomNavController>(tag: 'dashboard_user', force: true);
+    }
+    if (Get.isRegistered<BottomNavController>(
+      tag: 'dashboard_restaurant_owner',
+    )) {
+      Get.delete<BottomNavController>(
+        tag: 'dashboard_restaurant_owner',
+        force: true,
+      );
+    }
+  }
+
+  Future<void> exitGuestMode() async {
+    await _authStorageService.storeGuestMode(false);
+    isGuestMode.value = false;
+  }
+
+  Future<void> restoreGuestMode() async {
+    _clearGuestSensitiveControllers();
+    await _authStorageService.storeGuestMode(true);
+    await _authStorageService.storeRole(AppUserRole.user.storageValue);
+    selectedRole.value = AppUserRole.user;
+    isGuestMode.value = true;
+  }
+
+  Future<bool> shouldRequireLoginForAction() async {
+    if (isGuestMode.value || await _authStorageService.isGuestMode()) {
+      isGuestMode.value = true;
+      return true;
+    }
+
+    final accessToken = await _authStorageService.getAccessToken();
+    return accessToken == null || accessToken.trim().isEmpty;
   }
 
   Future<AppUserRole> _persistAuthSessionAndResolveRole(
@@ -319,6 +403,8 @@ class AuthFlowController extends GetxController {
       fallbackRole: fallbackRole,
     );
     selectedRole.value = resolvedRole;
+    await _authStorageService.storeGuestMode(false);
+    isGuestMode.value = false;
 
     await _authStorageService.clearAuthData();
     if (response.accessToken.isNotEmpty) {

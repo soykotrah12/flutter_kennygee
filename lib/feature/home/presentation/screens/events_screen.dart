@@ -209,7 +209,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 return Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    'No events found',
+                    'No events available',
                     style: TextStyle(
                       color: AppColors.secondaryText(context),
                       fontSize: 14,

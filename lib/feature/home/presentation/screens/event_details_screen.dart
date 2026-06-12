@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/login_required_dialog.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../payment/presentation/controllers/payment_controller.dart';
 import '../../data/model/event_model.dart';
@@ -265,6 +266,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         isPaymentLoading
                     ? null
                     : () async {
+                        final bool canContinue = await requireLoginForFeature(
+                          featureName: 'event joining and payments',
+                        );
+                        if (!canContinue) return;
+
                         final bool wasGoing = going;
 
                         if (!going) {

@@ -25,12 +25,16 @@ class AuthStorageService {
       _secureStorage.write(key: KeyConstants.accessToken, value: accessToken),
       _secureStorage.write(key: KeyConstants.refreshToken, value: refreshToken),
       _secureStorage.write(key: KeyConstants.userId, value: userId),
+      _secureStorage.write(key: KeyConstants.isGuestMode, value: 'false'),
     ]);
   }
 
   // Store just access token
   Future<void> storeAccessToken(String token) async {
-    await _secureStorage.write(key: KeyConstants.accessToken, value: token);
+    await Future.wait([
+      _secureStorage.write(key: KeyConstants.accessToken, value: token),
+      _secureStorage.write(key: KeyConstants.isGuestMode, value: 'false'),
+    ]);
   }
 
   // Store just refresh token
@@ -76,6 +80,18 @@ class AuthStorageService {
     return await _secureStorage.read(key: KeyConstants.role);
   }
 
+  Future<void> storeGuestMode(bool isGuest) async {
+    await _secureStorage.write(
+      key: KeyConstants.isGuestMode,
+      value: isGuest ? 'true' : 'false',
+    );
+  }
+
+  Future<bool> isGuestMode() async {
+    final value = await _secureStorage.read(key: KeyConstants.isGuestMode);
+    return value?.trim().toLowerCase() == 'true';
+  }
+
   // Get all auth data at once
   Future<Map<String, String?>> getAllAuthData() async {
     return {
@@ -83,6 +99,7 @@ class AuthStorageService {
       'refreshToken': await getRefreshToken(),
       'userId': await getUserId(),
       'role': await getRole(),
+      'isGuestMode': (await isGuestMode()).toString(),
     };
   }
 
@@ -93,6 +110,7 @@ class AuthStorageService {
       _secureStorage.delete(key: KeyConstants.refreshToken),
       _secureStorage.delete(key: KeyConstants.userId),
       _secureStorage.delete(key: KeyConstants.role),
+      _secureStorage.write(key: KeyConstants.isGuestMode, value: 'false'),
     ]);
     _isAuthenticated = false;
   }

@@ -15,4 +15,6 @@ abstract class ProfileRepository {
     required String newPassword,
     required String confirmNewPassword,
   });
+
+  NetworkResult<void> deleteAccount();
 }

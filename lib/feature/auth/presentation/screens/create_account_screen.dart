@@ -104,7 +104,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
-            const _FormLabel('Phone Number'),
+            const _FormLabel('Phone Number (Optional)'),
             const SizedBox(height: 10),
             _AuthInput(
               controller: _phoneController,

@@ -133,6 +133,23 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 14),
+                      Obx(
+                        () => TextButton(
+                          onPressed: _flowController.isSubmitting.value
+                              ? null
+                              : _flowController.continueAsGuest,
+                          child: const Text(
+                            'Continue as Guest',
+                            style: TextStyle(
+                              color: AppColors.primaryGreen,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

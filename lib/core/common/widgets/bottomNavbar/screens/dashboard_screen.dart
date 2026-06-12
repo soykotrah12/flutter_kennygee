@@ -48,11 +48,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           () => IndexedStack(
             index: _controller.currentIndex.value,
             children: List.generate(_controller.tabs.length, (index) {
+              final tab = _controller.tabs[index];
               return Navigator(
                 key: _controller.navigatorKeys[index],
-                onGenerateRoute: (settings) => MaterialPageRoute(
-                  builder: (_) => _controller.tabs[index].screen,
-                ),
+                onGenerateRoute: (settings) =>
+                    MaterialPageRoute(builder: (_) => tab.screen),
               );
             }),
           ),

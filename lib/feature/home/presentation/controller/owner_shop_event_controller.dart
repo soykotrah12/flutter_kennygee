@@ -75,7 +75,12 @@ class OwnerShopEventController extends GetxController {
 
     result.fold(
       (failure) {
-        error.value = failure.message;
+        if (_isNoEventsFailure(failure.statusCode, failure.message)) {
+          events.clear();
+          error.value = '';
+        } else {
+          error.value = _cleanErrorMessage(failure.message);
+        }
       },
       (success) {
         events.assignAll(success.data);
@@ -83,5 +88,20 @@ class OwnerShopEventController extends GetxController {
     );
 
     isLoading.value = false;
+  }
+
+  bool _isNoEventsFailure(int statusCode, String message) {
+    final String normalized = message.toLowerCase();
+    return statusCode == 404 ||
+        normalized.contains('no event') ||
+        normalized.contains('not found');
+  }
+
+  String _cleanErrorMessage(String message) {
+    final String trimmed = message.trim();
+    if (trimmed.isEmpty || trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      return 'Unable to load events right now.';
+    }
+    return trimmed;
   }
 }

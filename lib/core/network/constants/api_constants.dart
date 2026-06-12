@@ -1,6 +1,7 @@
 class ApiConstants {
   // static const String baseDomain = 'http://10.10.5.81:5006';
-  static const String baseDomain = 'https://backendkennygee.onrender.com';
+  // static const String baseDomain = 'https://backendkennygee.onrender.com';
+  static const String baseDomain = 'https://api.renbite.com';
   static const String baseUrl = '$baseDomain/api/v1';
 
   static Map<String, String> get defaultHeaders => {
@@ -87,6 +88,7 @@ class UserEndpoints {
   final String getUserProfile = '$_base/profile';
   final String changePassword = '$_base/change-password';
   final String getMyActivities = '$_base/my-activities';
+  final String deleteAccount = '$_base/delete-account';
 
   // final String create = '$_base/create';
 }

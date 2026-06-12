@@ -73,19 +73,24 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return result;
     }
 
-    return result.fold(
-      (failure) async {
-        // Fallback for backends exposing this route under /auth.
-        if (failure.statusCode == 404 || failure.statusCode == 405) {
-          return _apiClient.put<void>(
-            ApiConstants.auth.changePass,
-            data: payload,
-            fromJsonT: (_) {},
-          );
-        }
-        return Left(failure);
-      },
-      (success) async => Right(success),
+    return result.fold((failure) async {
+      // Fallback for backends exposing this route under /auth.
+      if (failure.statusCode == 404 || failure.statusCode == 405) {
+        return _apiClient.put<void>(
+          ApiConstants.auth.changePass,
+          data: payload,
+          fromJsonT: (_) {},
+        );
+      }
+      return Left(failure);
+    }, (success) async => Right(success));
+  }
+
+  @override
+  NetworkResult<void> deleteAccount() {
+    return _apiClient.delete<void>(
+      ApiConstants.user.deleteAccount,
+      fromJsonT: (_) {},
     );
   }
 }
