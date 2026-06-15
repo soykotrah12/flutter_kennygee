@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../data/model/food_model.dart';
 import '../../data/repo/home_food_repo.dart';
 import '../../data/repo/home_mock_data.dart';
@@ -38,11 +39,12 @@ class HomeFoodController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (_isAccountDeleting) return;
     fetchNearbyFoods();
   }
 
   Future<void> fetchNearbyFoods() async {
-    if (isLoading.value) return;
+    if (isLoading.value || _isAccountDeleting || isClosed) return;
 
     isLoading.value = true;
     error.value = '';
@@ -52,14 +54,17 @@ class HomeFoodController extends GetxController {
       lng: 90.4125,
     );
 
+    if (_isAccountDeleting || isClosed) return;
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         error.value = failure.message;
         if (foods.isEmpty) {
           foods.assignAll(HomeMockData.foodList);
         }
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         if (success.data.isNotEmpty) {
           foods.assignAll(success.data);
         } else {
@@ -68,6 +73,11 @@ class HomeFoodController extends GetxController {
       },
     );
 
-    isLoading.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isLoading.value = false;
+    }
   }
+
+  bool get _isAccountDeleting =>
+      AuthStorageService.isClearingAfterAccountDelete;
 }

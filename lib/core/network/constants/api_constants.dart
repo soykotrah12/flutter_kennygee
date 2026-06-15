@@ -1,7 +1,7 @@
 class ApiConstants {
-  // static const String baseDomain = 'http://10.10.5.81:5006';
+  static const String baseDomain = 'http://10.10.26.124:5006';
   // static const String baseDomain = 'https://backendkennygee.onrender.com';
-  static const String baseDomain = 'https://api.renbite.com';
+  // static const String baseDomain = 'https://api.renbite.com';
   static const String baseUrl = '$baseDomain/api/v1';
 
   static Map<String, String> get defaultHeaders => {
@@ -52,8 +52,9 @@ class AuthEndpoints {
 
   final String register = '$_base/register';
   final String forgotPass = '$_base/forget';
+  final String resendOtp = '$_base/resend-otp';
   final String resrtPass = '$_base/reset-password';
-  final String verifyMailOtp = '$_base/verify';
+  final String verifyMailOtp = '$_base/verify-email';
 
   final String refreshToken = '$_base/refresh-token';
 

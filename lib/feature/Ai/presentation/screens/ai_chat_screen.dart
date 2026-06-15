@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/login_required_dialog.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/controller/auth_flow_controller.dart';
 import '../controllers/ai_chat_controller.dart';
@@ -35,6 +36,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     if (!_didSendLocationPrompt) {
       _didSendLocationPrompt = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (AuthStorageService.isClearingAfterAccountDelete || !mounted) return;
         controller.sendLocationPromptOnce();
       });
     }
@@ -60,6 +62,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
         backgroundColor: Colors.transparent,
         bodyPadding: const EdgeInsets.fromLTRB(4, 36, 4, 8),
         body: Obx(() {
+          if (AuthStorageService.isClearingAfterAccountDelete) {
+            return const SizedBox.shrink();
+          }
+
           if (_flowController.isGuestMode.value) {
             return const GuestLoginRequiredView(
               message: 'Please log in to use AI Chat features.',

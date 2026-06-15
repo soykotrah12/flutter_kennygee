@@ -18,6 +18,10 @@ class SplashScreenController extends GetxController {
   Future<void> _startAppFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
+    if (AuthStorageService.isClearingAfterAccountDelete) {
+      return;
+    }
+
     final authStorage = Get.find<AuthStorageService>();
     final onboardingStore = Get.find<OnboardingStoreService>();
 

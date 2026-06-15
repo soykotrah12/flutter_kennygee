@@ -14,6 +14,7 @@ import 'interceptor/custom_cache_interceptor.dart';
 import 'models/base_response.dart';
 import 'models/network_failure.dart';
 import 'services/connectivity_service.dart';
+import 'services/auth_storage_service.dart';
 import 'services/secure_store_services.dart';
 
 import '/core/network/models/network_success.dart';
@@ -218,6 +219,17 @@ class ApiClient {
         await completer.future;
       }
 
+      if (AuthStorageService.isClearingAfterAccountDelete &&
+          !_isDeleteAccountEndpoint(endpoint) &&
+          !_isAuthEndpoint(endpoint)) {
+        return const Left(
+          UnauthorizedFailure(
+            message: 'Session cleared after account deletion.',
+            statusCode: 401,
+          ),
+        );
+      }
+
       options = await _addAuthHeader(options);
 
       // Set headers for FormData if applicable
@@ -236,6 +248,14 @@ class ApiClient {
       }
 
       final requestData = fromData ?? data;
+      if (kDebugMode && _isDeleteAccountEndpoint(endpoint)) {
+        _logDeleteAccountRequest(
+          endpoint: endpoint,
+          method: method,
+          options: options,
+          body: requestData,
+        );
+      }
 
       final response = await _dio.request(
         endpoint,
@@ -248,13 +268,26 @@ class ApiClient {
       );
 
       if (kDebugMode) DPrint.log("☁️  BASE Response -> ${response.data}");
+      if (kDebugMode && _isDeleteAccountEndpoint(endpoint)) {
+        _logDeleteAccountResponse(response);
+      }
 
       final baseResponse = BaseResponse<T>.fromJson(response.data, fromJsonT);
       if (!baseResponse.success) {
+        final statusCode = response.statusCode ?? 400;
+        if (AuthStorageService.isClearingAfterAccountDelete &&
+            (statusCode == 401 || statusCode == 403)) {
+          return Left(
+            UnauthorizedFailure(
+              message: 'Session cleared after account deletion.',
+              statusCode: statusCode,
+            ),
+          );
+        }
         return Left(
           ServerFailure(
             message: baseResponse.combinedErrorMessage,
-            statusCode: response.statusCode ?? 400,
+            statusCode: statusCode,
           ),
         );
       }
@@ -287,6 +320,19 @@ class ApiClient {
         ),
       );
     } on DioException catch (error) {
+      if (kDebugMode && _isDeleteAccountEndpoint(endpoint)) {
+        _logDeleteAccountError(error);
+      }
+      final errorStatus = error.response?.statusCode;
+      if (AuthStorageService.isClearingAfterAccountDelete &&
+          (errorStatus == 401 || errorStatus == 403)) {
+        return Left(
+          UnauthorizedFailure(
+            message: 'Session cleared after account deletion.',
+            statusCode: errorStatus ?? 401,
+          ),
+        );
+      }
       if (error.response?.statusCode == 401 && !_isRefreshing) {
         _isRefreshing = true;
         try {
@@ -458,6 +504,77 @@ class ApiClient {
     }
     if (kDebugMode) DPrint.log("Authorization header : ${options.headers}");
     return options;
+  }
+
+  bool _isDeleteAccountEndpoint(String endpoint) {
+    return endpoint == ApiConstants.user.deleteAccount ||
+        endpoint.endsWith('/user/delete-account');
+  }
+
+  bool _isAuthEndpoint(String endpoint) {
+    final authBase = '${ApiConstants.baseUrl}/auth';
+    return endpoint.startsWith(authBase) || endpoint.contains('/auth/');
+  }
+
+  String _resolveRequestUrl(String endpoint) {
+    final uri = Uri.tryParse(endpoint);
+    if (uri != null && uri.hasScheme) {
+      return endpoint;
+    }
+
+    final baseUrl = _dio.options.baseUrl;
+    if (baseUrl.isEmpty) {
+      return endpoint;
+    }
+
+    final normalizedBase = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    final normalizedEndpoint = endpoint.startsWith('/')
+        ? endpoint
+        : '/$endpoint';
+    return '$normalizedBase$normalizedEndpoint';
+  }
+
+  Map<String, dynamic> _effectiveHeaders(Options options) {
+    final headers = <String, dynamic>{..._dio.options.headers};
+    if (options.headers != null) {
+      headers.addAll(options.headers!);
+    }
+    if (options.contentType != null) {
+      headers[Headers.contentTypeHeader] = options.contentType;
+    }
+    return headers;
+  }
+
+  void _logDeleteAccountRequest({
+    required String endpoint,
+    required String method,
+    required Options options,
+    required dynamic body,
+  }) {
+    final headers = _effectiveHeaders(options);
+    final authorization = headers['Authorization']?.toString() ?? '';
+    final token = authorization.startsWith('Bearer ')
+        ? authorization.substring('Bearer '.length)
+        : authorization;
+
+    DPrint.log('DELETE ACCOUNT URL => ${_resolveRequestUrl(endpoint)}');
+    DPrint.log('DELETE ACCOUNT METHOD => ${method.toUpperCase()}');
+    DPrint.log('DELETE ACCOUNT HEADERS => $headers');
+    DPrint.log('DELETE ACCOUNT BODY => $body');
+    DPrint.log('DELETE ACCOUNT TOKEN => ${token.isEmpty ? 'MISSING' : token}');
+  }
+
+  void _logDeleteAccountResponse(Response<dynamic> response) {
+    DPrint.log('DELETE ACCOUNT STATUS => ${response.statusCode}');
+    DPrint.log('DELETE ACCOUNT RESPONSE => ${response.data}');
+  }
+
+  void _logDeleteAccountError(DioException error) {
+    DPrint.log('DELETE ACCOUNT ERROR => ${error.message}');
+    DPrint.log('DELETE ACCOUNT ERROR STATUS => ${error.response?.statusCode}');
+    DPrint.log('DELETE ACCOUNT ERROR RESPONSE => ${error.response?.data}');
   }
 
   /// Updated error handling to return NetworkFailure instead of ApiResult

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../data/model/wishlist_item_model.dart';
 import '../../data/repo/home_wishlist_repo.dart';
 
@@ -46,20 +47,25 @@ class HomeWishlistController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (_isAccountDeleting) return;
     fetchWishlist(tab: WishlistTab.all);
   }
 
   Future<void> changeTab(WishlistTab tab) async {
+    if (_isAccountDeleting || isClosed) return;
     if (activeTab.value == tab) return;
     activeTab.value = tab;
     await fetchWishlist(tab: tab);
   }
 
   Future<void> refreshCurrentTab() async {
+    if (_isAccountDeleting || isClosed) return;
     await fetchWishlist(tab: activeTab.value);
   }
 
   Future<void> fetchWishlist({WishlistTab? tab}) async {
+    if (_isAccountDeleting || isClosed) return;
+
     final WishlistTab targetTab = tab ?? activeTab.value;
     final int requestId = ++_requestSequence;
 
@@ -73,16 +79,19 @@ class HomeWishlistController extends GetxController {
       radius: _defaultRadius,
     );
 
+    if (_isAccountDeleting || isClosed) return;
     if (requestId != _requestSequence) {
       return;
     }
 
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         error.value = failure.message;
         items.clear();
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         items.assignAll(success.data);
 
         final WishlistController wishlistController =
@@ -114,8 +123,13 @@ class HomeWishlistController extends GetxController {
       },
     );
 
-    isLoading.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isLoading.value = false;
+    }
   }
+
+  bool get _isAccountDeleting =>
+      AuthStorageService.isClearingAfterAccountDelete;
 
   String _typeQuery(WishlistTab tab) {
     switch (tab) {

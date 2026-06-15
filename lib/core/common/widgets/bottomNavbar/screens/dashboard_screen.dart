@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../feature/auth/presentation/controller/auth_flow_controller.dart';
+import '../../../../network/services/auth_storage_service.dart';
 import '../../../../theme/app_colors.dart';
 import '../controllers/bottom_nav_controller.dart';
 
@@ -27,7 +28,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   void dispose() {
-    Get.delete<BottomNavController>(tag: _tag);
+    if (AuthStorageService.isClearingAfterAccountDelete) {
+      super.dispose();
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<BottomNavController>(tag: _tag)) {
+        Get.delete<BottomNavController>(tag: _tag);
+      }
+    });
     super.dispose();
   }
 

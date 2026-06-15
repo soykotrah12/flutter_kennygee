@@ -11,6 +11,18 @@ class AuthStorageService {
   AuthStorageService({FlutterSecureStorage? storage})
     : _secureStorage = storage ?? const FlutterSecureStorage();
 
+  static bool isAccountDeleting = false;
+
+  static bool get isClearingAfterAccountDelete => isAccountDeleting;
+
+  static void beginAccountDeleteCleanup() {
+    isAccountDeleting = true;
+  }
+
+  static void endAccountDeleteCleanup() {
+    isAccountDeleting = false;
+  }
+
   bool _isAuthenticated = false;
   bool get isAuthenticated => _isAuthenticated;
 
@@ -110,9 +122,19 @@ class AuthStorageService {
       _secureStorage.delete(key: KeyConstants.refreshToken),
       _secureStorage.delete(key: KeyConstants.userId),
       _secureStorage.delete(key: KeyConstants.role),
+      _secureStorage.delete(key: KeyConstants.ownerShopData),
       _secureStorage.write(key: KeyConstants.isGuestMode, value: 'false'),
     ]);
     _isAuthenticated = false;
+  }
+
+  Future<void> clearSilently({String? reason}) async {
+    DPrint.info('Clearing auth session silently: ${reason ?? 'unspecified'}');
+    await clearAuthData();
+  }
+
+  Future<void> clearSessionSilently({String? reason}) {
+    return clearSilently(reason: reason);
   }
 
   // Check if user ID exists
