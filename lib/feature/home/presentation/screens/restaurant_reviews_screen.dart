@@ -7,10 +7,12 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/login_required_dialog.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/constants/api_constants.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/controller/auth_flow_controller.dart';
 import '../../../profile/presentation/controller/profile_controller.dart';
 import '../../data/model/restaurant_model.dart';
 import '../../data/model/review_model.dart';
@@ -39,7 +41,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
 
   late final String _targetId;
   late final HomeReviewController _reviewController;
-  late final ProfileController _profileController;
+  ProfileController? _profileController;
   late final ApiClient _apiClient;
   late final WishlistController _wishlistController;
   bool _isBookmarkLoading = false;
@@ -57,7 +59,6 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
       targetId: _targetId,
       isMenuReview: _isMenuReview,
     );
-    _profileController = ensureProfileController();
     _apiClient = ApiClient();
     _wishlistController = Get.find<WishlistController>();
     _wishlistController.seedWishlist(
@@ -66,8 +67,11 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
       isWishlisted: widget.restaurant.isLiked,
     );
 
-    if (_profileController.profile.value == null) {
-      _profileController.fetchProfile(showLoader: false);
+    if (!ensureAuthFlowController().isGuestMode.value) {
+      _profileController = ensureProfileController();
+      if (_profileController!.profile.value == null) {
+        _profileController!.fetchProfile(showLoader: false);
+      }
     }
   }
 
@@ -103,6 +107,10 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
 
   Future<void> _toggleShopBookmark() async {
     if (!_showShopBookmark || _isBookmarkLoading) return;
+    final bool canContinue = await requireLoginForFeature(
+      featureName: 'bookmarks',
+    );
+    if (!canContinue) return;
 
     final String shopId = (widget.shopId ?? widget.restaurant.id).trim();
     if (shopId.isEmpty) return;
@@ -142,7 +150,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
         });
         Get.snackbar(
           'Bookmark Failed',
-          failure.message,
+          _cleanErrorMessage(failure.message),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: AppColors.cardColor(context),
         );
@@ -164,6 +172,13 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
         setState(() {
           _isBookmarkLoading = false;
         });
+        Get.snackbar(
+          'Bookmark',
+          resolvedState ? 'Saved successfully.' : 'Removed from bookmarks.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.primaryGreen,
+          colorText: Colors.white,
+        );
       },
     );
   }
@@ -317,7 +332,16 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
                 width: double.infinity,
                 height: 58,
                 child: ElevatedButton.icon(
-                  onPressed: () => _showAddReviewDialog(context),
+                  onPressed: () async {
+                    final bool canContinue = await requireLoginForFeature(
+                      featureName: 'reviews',
+                    );
+                    if (!canContinue) return;
+
+                    if (context.mounted) {
+                      _showAddReviewDialog(context);
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGreen,
                     shape: RoundedRectangleBorder(
@@ -358,7 +382,7 @@ class _RestaurantReviewsScreenState extends State<RestaurantReviewsScreen>
               borderRadius: BorderRadius.circular(22),
             ),
             child: _AddReviewDialogBody(
-              profileController: _profileController,
+              profileController: _profileController!,
               reviewController: _reviewController,
               isMenuReview: _isMenuReview,
               shopId: (widget.shopId ?? widget.restaurant.id).trim(),
@@ -611,7 +635,14 @@ class _ReviewCard extends StatelessWidget {
               ignoring: isLikeLoading,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => reviewController.toggleReviewLike(liveItem.id),
+                onTap: () async {
+                  final bool canContinue = await requireLoginForFeature(
+                    featureName: 'reviews',
+                  );
+                  if (!canContinue) return;
+
+                  await reviewController.toggleReviewLike(liveItem.id);
+                },
                 child: Row(
                   children: [
                     Icon(
@@ -915,6 +946,14 @@ String _timeAgo(String rawDate) {
 
   final int years = (months / 12).floor();
   return '$years years ago';
+}
+
+String _cleanErrorMessage(String message) {
+  final String trimmed = message.trim();
+  if (trimmed.isEmpty || trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return 'Unable to complete this action right now.';
+  }
+  return trimmed;
 }
 
 Map<String, dynamic> _asMap(dynamic value) {

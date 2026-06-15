@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/constants/api_constants.dart';
 import '../../../../core/network/network_result.dart';
@@ -10,9 +12,12 @@ class StripeConnectRepository {
 
   final ApiClient _apiClient;
 
-  NetworkResult<StripeConnectStatusModel> fetchStatus() {
+  NetworkResult<StripeConnectStatusModel> fetchStatus({
+    CancelToken? cancelToken,
+  }) {
     return _apiClient.get<StripeConnectStatusModel>(
       ApiConstants.stripeConnect.fetchStatus,
+      cancelToken: cancelToken,
       fromJsonT: (json) => StripeConnectStatusModel.fromJson(_asMap(json)),
     );
   }

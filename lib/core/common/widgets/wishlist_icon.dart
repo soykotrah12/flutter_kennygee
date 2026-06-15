@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/wishlist_controller.dart';
+import 'login_required_dialog.dart';
 
 class WishlistIcon extends StatefulWidget {
   const WishlistIcon({
@@ -70,10 +71,17 @@ class _WishlistIconState extends State<WishlistIcon> {
         ignoring: isBusy,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => _controller.toggleWishlist(
-            type: normalizedType,
-            itemId: normalizedId,
-          ),
+          onTap: () async {
+            final bool canContinue = await requireLoginForFeature(
+              featureName: 'favorites',
+            );
+            if (!canContinue) return;
+
+            await _controller.toggleWishlist(
+              type: normalizedType,
+              itemId: normalizedId,
+            );
+          },
           child: Icon(
             isWishlisted ? Icons.favorite : Icons.favorite_border,
             color: widget.color,

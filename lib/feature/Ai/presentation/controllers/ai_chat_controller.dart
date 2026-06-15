@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../profile/data/repo/profile_repo_impl.dart';
 import '../../../profile/domain/repo/profile_repo.dart';
 import '../../data/models/ai_chat_response_model.dart';
@@ -57,28 +58,34 @@ class AiChatController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (_isAccountDeleting) return;
     fetchChats();
     fetchUserProfileOnce();
   }
 
   Future<void> fetchChats() async {
-    if (isLoadingChats.value) return;
+    if (isLoadingChats.value || _isAccountDeleting || isClosed) return;
 
     isLoadingChats.value = true;
     error.value = '';
 
     final result = await _repository.fetchChats();
+    if (_isAccountDeleting || isClosed) return;
 
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         error.value = _toUserFriendlyError(failure.message);
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         chats.assignAll(success.data);
       },
     );
 
-    isLoadingChats.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isLoadingChats.value = false;
+    }
   }
 
   Future<void> sendMessage({
@@ -87,6 +94,8 @@ class AiChatController extends GetxController {
     double? lng,
     bool addUserBubble = true,
   }) async {
+    if (_isAccountDeleting || isClosed) return;
+
     final String content = (message ?? messageController.text).trim();
     if (content.isEmpty || isSending.value) return;
     if (message == null) {
@@ -107,9 +116,11 @@ class AiChatController extends GetxController {
       lat: effectiveLat,
       lng: effectiveLng,
     );
+    if (_isAccountDeleting || isClosed) return;
 
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         if (!addUserBubble) {
           isSending.value = false;
           return;
@@ -123,16 +134,19 @@ class AiChatController extends GetxController {
         messages.refresh();
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         _appendApiResponse(success.data);
         fetchChats();
       },
     );
 
-    isSending.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isSending.value = false;
+    }
   }
 
   Future<void> sendLocationPromptOnce() async {
-    if (_hasSentLocationPrompt) return;
+    if (_hasSentLocationPrompt || _isAccountDeleting || isClosed) return;
     _hasSentLocationPrompt = true;
     debugPrint('AI auto location called');
 
@@ -145,7 +159,7 @@ class AiChatController extends GetxController {
   }
 
   Future<void> fetchUserProfileOnce() async {
-    if (_hasLoadedUserProfile) return;
+    if (_hasLoadedUserProfile || _isAccountDeleting || isClosed) return;
     _hasLoadedUserProfile = true;
 
     if (!Get.isRegistered<ApiClient>()) {
@@ -161,12 +175,16 @@ class AiChatController extends GetxController {
 
     final ProfileRepository repository = Get.find<ProfileRepository>();
     final result = await repository.getProfile();
+    if (_isAccountDeleting || isClosed) return;
     result.fold((_) {}, (success) {
+      if (_isAccountDeleting || isClosed) return;
       userAvatarUrl.value = success.data.profileImage.url.trim();
     });
   }
 
   void _appendApiResponse(AiChatResponseModel response) {
+    if (_isAccountDeleting || isClosed) return;
+
     final String responseType = response.type.trim();
     final String normalizedType = responseType.toLowerCase();
 
@@ -226,6 +244,9 @@ class AiChatController extends GetxController {
     messageController.dispose();
     super.onClose();
   }
+
+  bool get _isAccountDeleting =>
+      AuthStorageService.isClearingAfterAccountDelete;
 }
 
 class AiChatUiMessage {

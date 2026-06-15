@@ -10,6 +10,7 @@ import '../../data/model/register_request_model.dart';
 import '../../data/model/set_password_request_model.dart';
 import '../../data/model/verify_otp_request-model.dart';
 import '../../domain/repo/auth_repo.dart';
+import 'auth_flow_controller.dart';
 import '../screens/logIn_screen.dart';
 import '../screens/Otp_verify_screen.dart' as ForgotPasswordOtp;
 import '../screens/otp_verification_screen.dart';
@@ -280,7 +281,15 @@ class AuthController extends BaseController {
         );
 
         setLoading(false);
-        Get.to(() => OTPVerificationScreen(email: email));
+        Get.to(
+          () => OTPVerificationScreen(
+            email: email,
+            role: role == 'restaurant_owner' || role == 'berber'
+                ? AppUserRole.restaurantOwner
+                : AppUserRole.user,
+            purpose: OtpVerificationPurpose.signupEmailVerification,
+          ),
+        );
       },
     );
   }
@@ -338,7 +347,7 @@ class AuthController extends BaseController {
 
         setLoading(false);
       },
-      (success) {
+      (success) async {
         DPrint.log("✅ OTP sent successfully: ${success.message}");
 
         Get.snackbar(
@@ -427,7 +436,7 @@ class AuthController extends BaseController {
 
         setLoading(false);
       },
-      (success) {
+      (success) async {
         DPrint.log("✅ OTP verified successfully: ${success.message}");
 
         Get.snackbar(
@@ -442,6 +451,16 @@ class AuthController extends BaseController {
         );
 
         setLoading(false);
+        if (success.data != null && success.data!.accessToken.isNotEmpty) {
+          await _authStorageService.storeAccessToken(success.data!.accessToken);
+          await _authStorageService.storeRefreshToken(
+            success.data!.refreshToken,
+          );
+          await _authStorageService.storeUserId(success.data!.id);
+          if (success.data!.role.trim().isNotEmpty) {
+            await _authStorageService.storeRole(success.data!.role.trim());
+          }
+        }
         Get.offAll(() => const LoginRoleScreen());
       },
     );

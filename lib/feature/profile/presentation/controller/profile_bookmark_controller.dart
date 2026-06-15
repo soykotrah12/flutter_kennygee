@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../data/model/bookmark_shop_model.dart';
 import '../../data/repo/profile_bookmark_repo.dart';
 
@@ -40,22 +41,27 @@ class ProfileBookmarkController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (_isAccountDeleting) return;
     fetchBookmarks();
   }
 
   Future<void> fetchBookmarks({bool force = false}) async {
+    if (_isAccountDeleting || isClosed) return;
     if (isLoading.value && !force) return;
 
     isLoading.value = true;
     error.value = '';
 
     final result = await _repository.fetchMyBookmarks();
+    if (_isAccountDeleting || isClosed) return;
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         error.value = failure.message;
         bookmarks.clear();
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         bookmarks.assignAll(success.data);
 
         if (Get.isRegistered<WishlistController>()) {
@@ -72,6 +78,11 @@ class ProfileBookmarkController extends GetxController {
       },
     );
 
-    isLoading.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isLoading.value = false;
+    }
   }
+
+  bool get _isAccountDeleting =>
+      AuthStorageService.isClearingAfterAccountDelete;
 }

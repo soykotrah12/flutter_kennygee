@@ -3,10 +3,13 @@ import 'package:get/get.dart';
 import 'dart:async';
 
 import '../../../../core/common/constants/app_images.dart';
+import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
+import '../../../../core/common/widgets/login_required_dialog.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../map/presentation/screens/map_screen.dart';
 import '../../data/model/food_model.dart';
 import '../../data/model/restaurant_model.dart';
 import '../controller/home_food_details_controller.dart';
@@ -368,7 +371,9 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                             Text(
                                               food.restaurantName,
                                               style: TextStyle(
-                                                color: AppColors.primaryText(context),
+                                                color: AppColors.primaryText(
+                                                  context,
+                                                ),
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w600,
                                                 fontFamily: 'Montserrat',
@@ -468,7 +473,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                   child: _BottomActionButton(
                     icon: Icons.turn_right,
                     label: 'Directions',
-                    onTap: () {},
+                    onTap: _openDirections,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -476,7 +481,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                   child: _BottomActionButton(
                     icon: Icons.bookmark_border,
                     label: 'Save',
-                    onTap: () {},
+                    onTap: _saveFood,
                   ),
                 ),
               ],
@@ -484,6 +489,48 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _openDirections() async {
+    await Get.to(() => const MapScreen());
+  }
+
+  Future<void> _saveFood() async {
+    final bool canContinue = await requireLoginForFeature();
+    if (!canContinue) return;
+
+    final String menuId = _currentFood.id.trim();
+    if (menuId.isEmpty) {
+      _showSaveMessage('Unable to save this item right now.');
+      return;
+    }
+
+    try {
+      await Get.find<WishlistController>().toggleWishlist(
+        type: 'menu',
+        itemId: menuId,
+      );
+      if (!mounted) return;
+      Get.snackbar(
+        'Save',
+        'Saved successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.primaryGreen,
+        colorText: Colors.white,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      _showSaveMessage('Unable to save this item right now.');
+    }
+  }
+
+  void _showSaveMessage(String message) {
+    Get.snackbar(
+      'Save',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.cardColor(context),
     );
   }
 }

@@ -76,7 +76,7 @@ class User {
     required this.id,
     required this.name,
     required this.email,
-    required this.phone,
+    this.phone = "",
     required this.countryCode,
     required this.role,
     this.shopName,

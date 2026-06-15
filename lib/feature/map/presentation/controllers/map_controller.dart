@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../home/presentation/screens/restaurant_details_screen.dart';
 import '../../data/models/map_filter_model.dart';
@@ -121,6 +122,7 @@ class MapFeatureController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (_isAccountDeleting) return;
     _initCount++;
     debugPrint('[MapFeatureController] onInit count=$_initCount');
     _prepareMarkerIcons();
@@ -135,7 +137,7 @@ class MapFeatureController extends GetxController {
   }
 
   Future<void> loadMapData() async {
-    if (isLoading.value) return;
+    if (isLoading.value || _isAccountDeleting || isClosed) return;
     _loadMapDataCount++;
     debugPrint('[MapFeatureController] loadMapData #$_loadMapDataCount');
     isLoading.value = true;
@@ -147,8 +149,10 @@ class MapFeatureController extends GetxController {
           lng: current.longitude,
           radiusKm: activeFilter.value.distanceKm,
         );
+    if (_isAccountDeleting || isClosed) return;
     final Map<String, List<String>> keywords = await _repository
         .fetchShopSearchKeywords();
+    if (_isAccountDeleting || isClosed) return;
 
     final List<MapRestaurantModel> merged = restaurants
         .map(
@@ -162,14 +166,19 @@ class MapFeatureController extends GetxController {
 
     allRestaurants.assignAll(merged);
     _applySearchAndFilter();
-    isLoading.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isLoading.value = false;
+    }
 
-    unawaited(_syncUserLocationAndCamera());
+    if (!_isAccountDeleting && !isClosed) {
+      unawaited(_syncUserLocationAndCamera());
+    }
   }
 
   Future<void> _syncUserLocationAndCamera() async {
+    if (_isAccountDeleting || isClosed) return;
     final LatLng current = await _resolveUserLocation();
-    if (googleMapController == null) return;
+    if (googleMapController == null || _isAccountDeleting || isClosed) return;
     await googleMapController!.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: current, zoom: 14.5),
@@ -179,6 +188,7 @@ class MapFeatureController extends GetxController {
   }
 
   Future<LatLng> _resolveUserLocation() async {
+    if (_isAccountDeleting || isClosed) return fallbackCameraPosition.target;
     final Position? position = await getCurrentLocation();
     if (position == null) {
       return fallbackCameraPosition.target;
@@ -192,6 +202,8 @@ class MapFeatureController extends GetxController {
   }
 
   Future<Position?> getCurrentLocation() async {
+    if (_isAccountDeleting || isClosed) return null;
+
     final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       locationMessage.value = 'Location service is disabled.';
@@ -232,6 +244,7 @@ class MapFeatureController extends GetxController {
   }
 
   void onMapCreated(GoogleMapController mapController) {
+    if (_isAccountDeleting || isClosed) return;
     debugPrint('onMapCreated called');
     googleMapController = mapController;
     _rebuildMapLayers();
@@ -239,14 +252,17 @@ class MapFeatureController extends GetxController {
   }
 
   void onCameraMove(CameraPosition position) {
+    if (_isAccountDeleting || isClosed) return;
     currentCamera = position;
   }
 
   Future<void> onCameraIdle() async {
+    if (_isAccountDeleting || isClosed) return;
     _scheduleMarkerOverlayRefresh();
   }
 
   void onSearchChanged(String query) {
+    if (_isAccountDeleting || isClosed) return;
     searchQuery.value = query;
     isSearching.value = true;
     _searchDebounceTimer?.cancel();
@@ -257,6 +273,7 @@ class MapFeatureController extends GetxController {
   }
 
   void clearSearch() {
+    if (_isAccountDeleting || isClosed) return;
     _searchDebounceTimer?.cancel();
     isSearching.value = false;
     searchQuery.value = '';
@@ -731,4 +748,7 @@ class MapFeatureController extends GetxController {
     if (rawImage.trim().isEmpty) return AppImages.homeRestaurant1;
     return rawImage;
   }
+
+  bool get _isAccountDeleting =>
+      AuthStorageService.isClearingAfterAccountDelete;
 }

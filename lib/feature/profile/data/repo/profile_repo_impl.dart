@@ -14,9 +14,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
     : _apiClient = apiClient;
 
   @override
-  NetworkResult<UserProfileModel> getProfile() {
+  NetworkResult<UserProfileModel> getProfile({CancelToken? cancelToken}) {
     return _apiClient.get<UserProfileModel>(
       ApiConstants.user.getUserProfile,
+      cancelToken: cancelToken,
       fromJsonT: (json) => UserProfileModel.fromJson(_asMap(json)),
     );
   }
@@ -73,19 +74,31 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return result;
     }
 
-    return result.fold(
-      (failure) async {
-        // Fallback for backends exposing this route under /auth.
-        if (failure.statusCode == 404 || failure.statusCode == 405) {
-          return _apiClient.put<void>(
-            ApiConstants.auth.changePass,
-            data: payload,
-            fromJsonT: (_) {},
-          );
-        }
-        return Left(failure);
-      },
-      (success) async => Right(success),
+    return result.fold((failure) async {
+      // Fallback for backends exposing this route under /auth.
+      if (failure.statusCode == 404 || failure.statusCode == 405) {
+        return _apiClient.put<void>(
+          ApiConstants.auth.changePass,
+          data: payload,
+          fromJsonT: (_) {},
+        );
+      }
+      return Left(failure);
+    }, (success) async => Right(success));
+  }
+
+  @override
+  NetworkResult<void> deleteAccount({required String password}) {
+    final payload = {'password': password};
+
+    return _apiClient.delete<void>(
+      ApiConstants.user.deleteAccount,
+      data: payload,
+      options: Options(
+        contentType: Headers.jsonContentType,
+        headers: ApiConstants.defaultHeaders,
+      ),
+      fromJsonT: (_) {},
     );
   }
 }

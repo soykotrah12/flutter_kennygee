@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
+
 import '../../../../../core/network/network_result.dart';
 import '../../data/model/user_profile_model.dart';
 
 abstract class ProfileRepository {
-  NetworkResult<UserProfileModel> getProfile();
+  NetworkResult<UserProfileModel> getProfile({CancelToken? cancelToken});
 
   NetworkResult<UserProfileModel> updateProfile({
     required String name,
@@ -15,4 +17,6 @@ abstract class ProfileRepository {
     required String newPassword,
     required String confirmNewPassword,
   });
+
+  NetworkResult<void> deleteAccount({required String password});
 }

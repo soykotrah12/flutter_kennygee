@@ -6,5 +6,6 @@ class KeyConstants {
   static const String refreshToken = 'refresh_token';
   static const String role = 'role';
   static const String userId = 'user_id';
+  static const String isGuestMode = 'is_guest_mode';
   static const String ownerShopData = 'owner_shop_data';
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -5,13 +7,20 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/debug_print.dart';
 import '../controller/auth_flow_controller.dart';
-import 'logIn_screen.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
-  const OTPVerificationScreen({super.key, required this.email});
+  const OTPVerificationScreen({
+    super.key,
+    required this.email,
+    required this.purpose,
+    this.role,
+  });
 
   final String email;
+  final OtpVerificationPurpose purpose;
+  final AppUserRole? role;
 
   @override
   State<OTPVerificationScreen> createState() => _OTPVerificationScreenState();
@@ -23,9 +32,27 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     (index) => TextEditingController(),
   );
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
+  late final AuthFlowController _flowController;
+  Timer? _cooldownTimer;
+  int _resendCooldown = 0;
+  bool _isResending = false;
+  bool _hasAutoResentOtp = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _flowController = ensureAuthFlowController();
+    DPrint.log(
+      'OTP SCREEN OPENED => email: ${widget.email}, purpose: ${widget.purpose.logValue}',
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoResendOtpIfNeeded();
+    });
+  }
 
   @override
   void dispose() {
+    _cooldownTimer?.cancel();
     for (final controller in _controllers) {
       controller.dispose();
     }
@@ -37,16 +64,79 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
 
   void _verify() {
     final otp = _controllers.map((e) => e.text).join();
-    if (otp.length < 6) {
+    if (otp.length != 6) {
       Get.snackbar(
         'Invalid OTP',
-        'Please enter full OTP.',
+        'Please enter the complete 6 digit OTP.',
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
 
-    Get.offAll(() => const LoginRoleScreen());
+    _flowController.verifyEmailOtp(
+      email: widget.email,
+      otp: otp,
+      purpose: widget.purpose,
+      role: widget.role,
+    );
+  }
+
+  Future<void> _resendOtp() async {
+    if (_isResending || _resendCooldown > 0) return;
+
+    await _sendResendOtp();
+  }
+
+  Future<void> _autoResendOtpIfNeeded() async {
+    if (_hasAutoResentOtp || !_shouldAutoResendOtp) return;
+
+    _hasAutoResentOtp = true;
+    debugPrint('AUTO RESEND OTP TRIGGERED => ${widget.email}');
+    await _sendResendOtp();
+  }
+
+  bool get _shouldAutoResendOtp =>
+      widget.purpose == OtpVerificationPurpose.unverifiedLogin ||
+      widget.purpose == OtpVerificationPurpose.unverifiedSignupRetry;
+
+  Future<void> _sendResendOtp() async {
+    if (_isResending || _resendCooldown > 0) return;
+
+    setState(() {
+      _isResending = true;
+    });
+    final sent = await _flowController.resendEmailOtp(widget.email);
+    if (!mounted) return;
+    setState(() {
+      _isResending = false;
+    });
+
+    if (sent) {
+      _startCooldown();
+    }
+  }
+
+  void _startCooldown() {
+    _cooldownTimer?.cancel();
+    setState(() {
+      _resendCooldown = 30;
+    });
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_resendCooldown <= 1) {
+        timer.cancel();
+        setState(() {
+          _resendCooldown = 0;
+        });
+        return;
+      }
+      setState(() {
+        _resendCooldown--;
+      });
+    });
   }
 
   @override
@@ -123,24 +213,33 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          PrimaryButton(
-            onPressed: _verify,
-            child: const Text(
-              'Continue',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
+          Obx(
+            () => PrimaryButton(
+              onPressed: _verify,
+              isLoading: _flowController.isSubmitting.value,
+              child: const Text(
+                'Continue',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
           const SizedBox(height: 20),
           TextButton(
-            onPressed: () => ensureAuthFlowController().finishOnboarding(),
-            child: const Text(
-              'Resend OTP',
+            onPressed: _isResending || _resendCooldown > 0 ? null : _resendOtp,
+            child: Text(
+              _resendCooldown > 0
+                  ? 'Resend OTP in ${_resendCooldown}s'
+                  : _isResending
+                  ? 'Sending...'
+                  : 'Resend OTP',
               style: TextStyle(
-                color: AppColors.primaryGreen,
+                color: _resendCooldown > 0
+                    ? AppColors.textGrey
+                    : AppColors.primaryGreen,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
