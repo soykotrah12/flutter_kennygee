@@ -65,18 +65,24 @@ class BottomNavController extends GetxController {
             icon: Icons.auto_awesome_outlined,
             activeIcon: Icons.auto_awesome,
             isHighlighted: true,
+            requiresAuth: true,
+            protectedFeatureName: 'AI Chat',
             screen: AiChatScreen(),
           ),
           const DashboardTabItem(
             label: 'Wishlist',
             icon: Icons.favorite_outline,
             activeIcon: Icons.favorite,
+            requiresAuth: true,
+            protectedFeatureName: 'favorites',
             screen: FavoriteScreen(),
           ),
           const DashboardTabItem(
             label: 'Profile',
             icon: Icons.person_outline,
             activeIcon: Icons.person,
+            requiresAuth: true,
+            protectedFeatureName: 'your profile',
             screen: ProfileScreen(),
           ),
         ];
@@ -117,6 +123,8 @@ class DashboardTabItem {
     required this.activeIcon,
     required this.screen,
     this.isHighlighted = false,
+    this.requiresAuth = false,
+    this.protectedFeatureName = 'this feature',
   });
 
   final String label;
@@ -124,6 +132,8 @@ class DashboardTabItem {
   final IconData activeIcon;
   final Widget screen;
   final bool isHighlighted;
+  final bool requiresAuth;
+  final String protectedFeatureName;
 }
 
 class DashboardPlaceholderView extends StatelessWidget {

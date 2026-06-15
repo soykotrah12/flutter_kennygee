@@ -107,7 +107,7 @@ class _OwnerAllEventsScreenState extends State<OwnerAllEventsScreen> {
         if (events.isEmpty) {
           return Center(
             child: Text(
-              'No events found yet.',
+              'No events available',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.secondaryText(context),

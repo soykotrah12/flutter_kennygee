@@ -18,12 +18,17 @@ class SplashScreenController extends GetxController {
   Future<void> _startAppFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
+    if (AuthStorageService.isClearingAfterAccountDelete) {
+      return;
+    }
+
     final authStorage = Get.find<AuthStorageService>();
     final onboardingStore = Get.find<OnboardingStoreService>();
 
     final accessToken = await authStorage.getAccessToken();
     final refreshToken = await authStorage.getRefreshToken();
     final storedRole = await authStorage.getRole();
+    final isGuestMode = await authStorage.isGuestMode();
     final isOnboardingCompleted = await onboardingStore.isOnboardingCompleted();
 
     final hasSession =
@@ -31,8 +36,15 @@ class SplashScreenController extends GetxController {
         (refreshToken != null && refreshToken.isNotEmpty);
 
     if (hasSession) {
+      await authStorage.storeGuestMode(false);
       final role = roleFromStorage(storedRole);
       Get.offAll(() => DashboardScreen(role: role));
+      return;
+    }
+
+    if (isGuestMode) {
+      await ensureAuthFlowController().restoreGuestMode();
+      Get.offAll(() => DashboardScreen(role: AppUserRole.user));
       return;
     }
 

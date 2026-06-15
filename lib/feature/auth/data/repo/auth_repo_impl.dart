@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/network/constants/api_constants.dart';
 import '../../../../../core/network/network_result.dart';
@@ -45,11 +47,31 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  NetworkResult<void> verifyOtp(VerifyMailOtpRequest request) {
+  NetworkResult<void> resendOtp({required String email}) {
+    final payload = {'email': email};
+    debugPrint('RESEND OTP ENDPOINT => ${ApiConstants.auth.resendOtp}');
+    debugPrint('RESEND OTP BODY => {"email": "$email"}');
+
     return _apiClient.post(
+      ApiConstants.auth.resendOtp,
+      data: payload,
+      fromJsonT: (_) {},
+    );
+  }
+
+  @override
+  NetworkResult<AuthResponseModel?> verifyOtp(VerifyMailOtpRequest request) {
+    return _apiClient.post<AuthResponseModel?>(
       ApiConstants.auth.verifyMailOtp,
       data: request.toJson(),
-      fromJsonT: (_) {},
+      fromJsonT: (json) {
+        if (json is Map) {
+          return AuthResponseModel.fromJson(
+            json.map((key, value) => MapEntry(key.toString(), value)),
+          );
+        }
+        return null;
+      },
     );
   }
 

@@ -1,19 +1,46 @@
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
+import '../../../../core/common/widgets/bottomNavbar/controllers/bottom_nav_controller.dart';
 import '../../../../core/common/widgets/bottomNavbar/screens/dashboard_screen.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../../core/network/services/onboarding_store_service.dart';
+import '../../../../core/network/models/network_failure.dart';
+import '../../../../core/utils/debug_print.dart';
+import '../../../Ai/presentation/controllers/ai_chat_controller.dart';
+import '../../../home/presentation/controller/home_wishlist_controller.dart';
+import '../../../profile/presentation/controller/profile_controller.dart';
 import '../../data/repo/auth_repo_impl.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../../data/model/auth_response_model.dart';
 import '../../data/model/login_request_model.dart';
 import '../../data/model/register_request_model.dart';
+import '../../data/model/verify_otp_request-model.dart';
 import '../screens/logIn_screen.dart';
+import '../screens/otp_verification_screen.dart';
 import '../screens/role_selection_screen.dart';
 
 enum AppUserRole { user, restaurantOwner }
+
+enum OtpVerificationPurpose {
+  signupEmailVerification,
+  unverifiedLogin,
+  unverifiedSignupRetry,
+}
+
+extension OtpVerificationPurposeX on OtpVerificationPurpose {
+  String get logValue {
+    switch (this) {
+      case OtpVerificationPurpose.signupEmailVerification:
+        return 'signup_email_verification';
+      case OtpVerificationPurpose.unverifiedLogin:
+        return 'unverified_login';
+      case OtpVerificationPurpose.unverifiedSignupRetry:
+        return 'unverified_signup_retry';
+    }
+  }
+}
 
 extension AppUserRoleX on AppUserRole {
   bool get isUser => this == AppUserRole.user;
@@ -78,11 +105,20 @@ class AuthFlowController extends GetxController {
 
   final selectedRole = Rxn<AppUserRole>();
   final isSubmitting = false.obs;
+  final isGuestMode = false.obs;
 
   @override
   Future<void> onInit() async {
     super.onInit();
+    await loadStoredAuthState();
+  }
+
+  Future<void> loadStoredAuthState() async {
+    isGuestMode.value = await _authStorageService.isGuestMode();
     await loadStoredRole();
+    if (isGuestMode.value) {
+      selectedRole.value = AppUserRole.user;
+    }
   }
 
   Future<void> loadStoredRole() async {
@@ -144,7 +180,15 @@ class AuthFlowController extends GetxController {
 
       await result.fold<Future<void>>(
         (failure) async {
-          _showError('Login Failed', failure.message);
+          if (_isUnverifiedEmailFailure(failure)) {
+            await _handleUnverifiedEmail(
+              email: email.trim(),
+              role: selectedRole.value,
+              purpose: OtpVerificationPurpose.unverifiedLogin,
+            );
+            return;
+          }
+          _showError('Login Failed', _cleanAuthErrorMessage(failure.message));
         },
         (success) async {
           final role = await _persistAuthSessionAndResolveRole(success.data);
@@ -170,12 +214,11 @@ class AuthFlowController extends GetxController {
 
     if (fullName.trim().isEmpty ||
         email.trim().isEmpty ||
-        phone.trim().isEmpty ||
         password.trim().isEmpty ||
         confirmPassword.trim().isEmpty) {
       Get.snackbar(
         'Missing Fields',
-        'Please fill in all fields.',
+        'Please fill in all required fields.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: TColors.white,
       );
@@ -197,7 +240,7 @@ class AuthFlowController extends GetxController {
       final request = RegisterRequestModel(
         name: fullName.trim(),
         email: email.trim(),
-        phoneNumber: phone.trim(),
+        phoneNumber: phone.trim().isEmpty ? null : phone.trim(),
         password: password.trim(),
         confirmPassword: confirmPassword.trim(),
         role: role.storageValue,
@@ -206,14 +249,38 @@ class AuthFlowController extends GetxController {
 
       await result.fold<Future<void>>(
         (failure) async {
-          _showError('Sign Up Failed', failure.message);
+          if (_isUnverifiedEmailFailure(failure) ||
+              _isExistingEmailFailure(failure)) {
+            await _handleUnverifiedEmail(
+              email: email.trim(),
+              role: role,
+              purpose: OtpVerificationPurpose.unverifiedSignupRetry,
+            );
+            return;
+          }
+          _showError('Sign Up Failed', _cleanAuthErrorMessage(failure.message));
         },
         (success) async {
-          final resolvedRole = await _persistAuthSessionAndResolveRole(
-            success.data,
-            fallbackRole: role,
+          DPrint.log(
+            'SIGNUP SUCCESS => email: ${email.trim()}, role: ${role.storageValue}',
           );
-          Get.offAll(() => DashboardScreen(role: resolvedRole));
+          await _authStorageService.clearAuthData();
+          await _authStorageService.storeRole(role.storageValue);
+          selectedRole.value = role;
+          isGuestMode.value = false;
+
+          Get.snackbar(
+            'Success',
+            'Account created successfully. Please verify your email.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: TColors.white,
+          );
+
+          _openOtpScreen(
+            email: email.trim(),
+            role: role,
+            purpose: OtpVerificationPurpose.signupEmailVerification,
+          );
         },
       );
     } catch (_) {
@@ -281,8 +348,122 @@ class AuthFlowController extends GetxController {
     Get.offAll(() => const LoginRoleScreen());
   }
 
+  Future<void> verifyEmailOtp({
+    required String email,
+    required String otp,
+    required OtpVerificationPurpose purpose,
+    AppUserRole? role,
+  }) async {
+    if (isSubmitting.value) return;
+
+    final trimmedEmail = email.trim();
+    final trimmedOtp = otp.trim();
+    if (trimmedEmail.isEmpty) {
+      _showError('Verification Failed', 'Email is missing.');
+      return;
+    }
+    if (trimmedOtp.length != 6) {
+      _showError('Invalid OTP', 'Please enter the complete 6 digit OTP.');
+      return;
+    }
+
+    isSubmitting.value = true;
+    try {
+      final request = VerifyMailOtpRequest(
+        email: trimmedEmail,
+        otp: trimmedOtp,
+      );
+      final result = await _authRepository.verifyOtp(request);
+
+      await result.fold<Future<void>>(
+        (failure) async {
+          _showError(
+            'Verification Failed',
+            _cleanOtpErrorMessage(failure.message),
+          );
+        },
+        (success) async {
+          DPrint.log('OTP VERIFY SUCCESS => email: $trimmedEmail');
+          Get.snackbar(
+            'Success',
+            success.message.isNotEmpty
+                ? success.message
+                : 'Email verified successfully.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: TColors.white,
+          );
+
+          final authResponse = success.data;
+          if (authResponse != null && authResponse.accessToken.isNotEmpty) {
+            final resolvedRole = await _persistAuthSessionAndResolveRole(
+              authResponse,
+              fallbackRole: role,
+            );
+            Get.offAll(() => DashboardScreen(role: resolvedRole));
+            return;
+          }
+
+          if (role != null) {
+            selectedRole.value = role;
+            await _authStorageService.storeRole(role.storageValue);
+          }
+          Get.offAll(() => const LoginRoleScreen());
+        },
+      );
+    } catch (_) {
+      _showError(
+        'Verification Failed',
+        'Something went wrong. Please try again.',
+      );
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  Future<bool> resendEmailOtp(String email, {bool showMessage = true}) async {
+    final trimmedEmail = email.trim();
+    if (trimmedEmail.isEmpty) {
+      if (showMessage) {
+        _showError('Resend OTP', 'Email is missing.');
+      }
+      return false;
+    }
+
+    try {
+      final result = await _authRepository.resendOtp(email: trimmedEmail);
+
+      return result.fold(
+        (failure) {
+          if (showMessage) {
+            _showError('Resend OTP', _cleanOtpErrorMessage(failure.message));
+          }
+          return false;
+        },
+        (success) {
+          DPrint.log('RESEND OTP SENT => email: $trimmedEmail');
+          if (showMessage) {
+            Get.snackbar(
+              'OTP Sent',
+              'OTP sent to your email.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: TColors.white,
+            );
+          }
+          return true;
+        },
+      );
+    } catch (_) {
+      if (showMessage) {
+        _showError('Resend OTP', 'Unable to send OTP. Please try again.');
+      }
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     await _authStorageService.clearAuthData();
+    await _authStorageService.storeGuestMode(false);
+    isGuestMode.value = false;
     Get.offAll(() => const LoginRoleScreen());
   }
 
@@ -295,19 +476,89 @@ class AuthFlowController extends GetxController {
       await result.fold<Future<void>>(
         (_) async {
           await _authStorageService.clearAuthData();
+          await _authStorageService.storeGuestMode(false);
+          isGuestMode.value = false;
           Get.offAll(() => const LoginRoleScreen());
         },
         (_) async {
           await _authStorageService.clearAuthData();
+          await _authStorageService.storeGuestMode(false);
+          isGuestMode.value = false;
           Get.offAll(() => const LoginRoleScreen());
         },
       );
     } catch (_) {
       await _authStorageService.clearAuthData();
+      await _authStorageService.storeGuestMode(false);
+      isGuestMode.value = false;
       Get.offAll(() => const LoginRoleScreen());
     } finally {
       isSubmitting.value = false;
     }
+  }
+
+  Future<void> continueAsGuest() async {
+    if (isSubmitting.value) return;
+
+    isSubmitting.value = true;
+    try {
+      _clearGuestSensitiveControllers();
+      await _authStorageService.clearAuthData();
+      const AppUserRole role = AppUserRole.user;
+      await _authStorageService.storeRole(role.storageValue);
+      await _authStorageService.storeGuestMode(true);
+      selectedRole.value = role;
+      isGuestMode.value = true;
+      Get.offAll(() => DashboardScreen(role: role));
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  void _clearGuestSensitiveControllers() {
+    if (Get.isRegistered<ProfileController>()) {
+      Get.delete<ProfileController>(force: true);
+    }
+    if (Get.isRegistered<HomeWishlistController>()) {
+      Get.delete<HomeWishlistController>(force: true);
+    }
+    if (Get.isRegistered<AiChatController>()) {
+      Get.delete<AiChatController>(force: true);
+    }
+    if (Get.isRegistered<BottomNavController>(tag: 'dashboard_user')) {
+      Get.delete<BottomNavController>(tag: 'dashboard_user', force: true);
+    }
+    if (Get.isRegistered<BottomNavController>(
+      tag: 'dashboard_restaurant_owner',
+    )) {
+      Get.delete<BottomNavController>(
+        tag: 'dashboard_restaurant_owner',
+        force: true,
+      );
+    }
+  }
+
+  Future<void> exitGuestMode() async {
+    await _authStorageService.storeGuestMode(false);
+    isGuestMode.value = false;
+  }
+
+  Future<void> restoreGuestMode() async {
+    _clearGuestSensitiveControllers();
+    await _authStorageService.storeGuestMode(true);
+    await _authStorageService.storeRole(AppUserRole.user.storageValue);
+    selectedRole.value = AppUserRole.user;
+    isGuestMode.value = true;
+  }
+
+  Future<bool> shouldRequireLoginForAction() async {
+    if (isGuestMode.value || await _authStorageService.isGuestMode()) {
+      isGuestMode.value = true;
+      return true;
+    }
+
+    final accessToken = await _authStorageService.getAccessToken();
+    return accessToken == null || accessToken.trim().isEmpty;
   }
 
   Future<AppUserRole> _persistAuthSessionAndResolveRole(
@@ -319,6 +570,8 @@ class AuthFlowController extends GetxController {
       fallbackRole: fallbackRole,
     );
     selectedRole.value = resolvedRole;
+    await _authStorageService.storeGuestMode(false);
+    isGuestMode.value = false;
 
     await _authStorageService.clearAuthData();
     if (response.accessToken.isNotEmpty) {
@@ -341,6 +594,79 @@ class AuthFlowController extends GetxController {
       return fallbackRole;
     }
     return selectedRole.value ?? AppUserRole.user;
+  }
+
+  Future<void> _handleUnverifiedEmail({
+    required String email,
+    required AppUserRole? role,
+    required OtpVerificationPurpose purpose,
+  }) async {
+    DPrint.log('UNVERIFIED EMAIL DETECTED => email: $email');
+    await _authStorageService.clearAuthData();
+    if (role != null) {
+      selectedRole.value = role;
+      await _authStorageService.storeRole(role.storageValue);
+    }
+    Get.snackbar(
+      'Email Verification Required',
+      'Please verify your email to continue.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: TColors.white,
+    );
+    _openOtpScreen(email: email, role: role, purpose: purpose);
+  }
+
+  void _openOtpScreen({
+    required String email,
+    required AppUserRole? role,
+    required OtpVerificationPurpose purpose,
+  }) {
+    DPrint.log(
+      'OTP SCREEN OPENED => email: $email, purpose: ${purpose.logValue}',
+    );
+    Get.to(
+      () => OTPVerificationScreen(email: email, role: role, purpose: purpose),
+    );
+  }
+
+  bool _isUnverifiedEmailFailure(NetworkFailure failure) {
+    final message = failure.message.toLowerCase();
+    return message.contains('unverified') ||
+        message.contains('not verified') ||
+        message.contains('verify your email') ||
+        message.contains('email verification') ||
+        message.contains('email is not verify') ||
+        message.contains('please verify');
+  }
+
+  bool _isExistingEmailFailure(NetworkFailure failure) {
+    final message = failure.message.toLowerCase();
+    return message.contains('email') &&
+        (message.contains('already') || message.contains('exist'));
+  }
+
+  String _cleanAuthErrorMessage(String message) {
+    final trimmed = message.trim();
+    if (trimmed.isEmpty || trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      return 'Something went wrong. Please try again.';
+    }
+    return trimmed;
+  }
+
+  String _cleanOtpErrorMessage(String message) {
+    final lower = message.trim().toLowerCase();
+    if (lower.isEmpty || lower.startsWith('{') || lower.startsWith('[')) {
+      return 'Unable to verify OTP. Please try again.';
+    }
+    if (lower.contains('expired')) {
+      return 'This OTP has expired. Please resend OTP and try again.';
+    }
+    if (lower.contains('invalid') ||
+        lower.contains('incorrect') ||
+        lower.contains('wrong')) {
+      return 'The OTP you entered is incorrect.';
+    }
+    return message.trim();
   }
 
   void _showError(String title, String message) {

@@ -61,7 +61,7 @@ class OwnerEventCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              errorMessage.isNotEmpty ? errorMessage : 'No events found',
+              errorMessage.isNotEmpty ? errorMessage : 'No events available',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.secondaryText(context),

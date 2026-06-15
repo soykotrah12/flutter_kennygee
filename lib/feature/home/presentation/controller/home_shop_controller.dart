@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../data/model/food_model.dart';
 import '../../data/model/home_recommendation_item_model.dart';
 import '../../data/model/restaurant_model.dart';
@@ -51,12 +52,13 @@ class HomeShopController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (_isAccountDeleting) return;
     fetchNearbyShops();
     fetchRecommendedShops();
   }
 
   Future<void> fetchNearbyShops() async {
-    if (isLoading.value) return;
+    if (isLoading.value || _isAccountDeleting || isClosed) return;
 
     isLoading.value = true;
     error.value = '';
@@ -67,35 +69,43 @@ class HomeShopController extends GetxController {
       radius: 5000,
     );
 
+    if (_isAccountDeleting || isClosed) return;
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         error.value = failure.message;
         shops.clear();
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         shops.assignAll(success.data);
       },
     );
 
-    isLoading.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isLoading.value = false;
+    }
   }
 
   Future<void> fetchRecommendedShops() async {
-    if (isRecommendedLoading.value) return;
+    if (isRecommendedLoading.value || _isAccountDeleting || isClosed) return;
 
     isRecommendedLoading.value = true;
     recommendedError.value = '';
 
     final result = await _repository.fetchRecommendedShops();
+    if (_isAccountDeleting || isClosed) return;
 
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         recommendedError.value = failure.message;
         recommendedShops.clear();
         recommendedMenus.clear();
         recommendedItems.clear();
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         recommendedShops.assignAll(success.data.shops);
         recommendedMenus.assignAll(success.data.menus);
 
@@ -107,8 +117,13 @@ class HomeShopController extends GetxController {
       },
     );
 
-    isRecommendedLoading.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isRecommendedLoading.value = false;
+    }
   }
+
+  bool get _isAccountDeleting =>
+      AuthStorageService.isClearingAfterAccountDelete;
 
   List<HomeRecommendationItemModel> _buildShuffledMixedList({
     required List<RestaurantModel> shops,

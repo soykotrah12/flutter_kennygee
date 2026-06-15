@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/services/auth_storage_service.dart';
 import '../../data/model/owner_analytics_model.dart';
 import '../../data/repo/owner_analytics_repo.dart';
 
@@ -37,26 +38,35 @@ class OwnerAnalyticsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (_isAccountDeleting) return;
     fetchAnalytics();
   }
 
   Future<void> fetchAnalytics() async {
-    if (isLoading.value) return;
+    if (isLoading.value || _isAccountDeleting || isClosed) return;
 
     isLoading.value = true;
     error.value = '';
 
     final result = await _repository.fetchOwnerAnalytics();
+    if (_isAccountDeleting || isClosed) return;
 
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         error.value = failure.message;
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         analytics.value = success.data;
       },
     );
 
-    isLoading.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isLoading.value = false;
+    }
   }
+
+  bool get _isAccountDeleting =>
+      AuthStorageService.isClearingAfterAccountDelete;
 }

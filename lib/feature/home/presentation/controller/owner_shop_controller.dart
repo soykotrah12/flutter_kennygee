@@ -97,16 +97,19 @@ class OwnerShopController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if (_isAccountDeleting) return;
     initialize();
   }
 
   Future<void> initialize() async {
-    if (isLoading.value) return;
+    if (isLoading.value || _isAccountDeleting || isClosed) return;
 
     isLoading.value = true;
     await _loadUserId();
+    if (_isAccountDeleting || isClosed) return;
 
     final CreateShopResponseModel? cachedShop = await _localStore.getShop();
+    if (_isAccountDeleting || isClosed) return;
     ownerShop.value = cachedShop;
     _resetOperatingHoursFromMap(cachedShop?.operatingHours);
 
@@ -114,22 +117,29 @@ class OwnerShopController extends GetxController {
       await _refreshShopFromApi();
     }
 
-    isLoading.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isLoading.value = false;
+    }
   }
 
   Future<void> _refreshShopFromApi() async {
+    if (_isAccountDeleting || isClosed) return;
+
     final result = await _repository.fetchShopsByUserId(userId: _userId);
+    if (_isAccountDeleting || isClosed) return;
 
     CreateShopResponseModel? fetchedShop;
     bool apiSucceeded = false;
 
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         if (ownerShop.value == null) {
           _showError('Error', failure.message);
         }
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         apiSucceeded = true;
         fetchedShop = success.data.isNotEmpty ? success.data.first : null;
       },
@@ -157,6 +167,8 @@ class OwnerShopController extends GetxController {
   }
 
   Future<void> refreshShop() async {
+    if (_isAccountDeleting || isClosed) return;
+
     if (_userId.isEmpty) {
       await _loadUserId();
     }
@@ -281,7 +293,7 @@ class OwnerShopController extends GetxController {
     Map<String, ShopDayFormValue>? operatingHours,
     String? imagePath,
   }) async {
-    if (isSubmitting.value) return false;
+    if (isSubmitting.value || _isAccountDeleting || isClosed) return false;
 
     if (_userId.isEmpty) {
       await _loadUserId();
@@ -336,16 +348,19 @@ class OwnerShopController extends GetxController {
             request: request,
           );
 
+    if (_isAccountDeleting || isClosed) return false;
     var succeeded = false;
 
     result.fold(
       (failure) {
+        if (_isAccountDeleting || isClosed) return;
         _showError(
           isCreate ? 'Create Failed' : 'Update Failed',
           failure.message,
         );
       },
       (success) {
+        if (_isAccountDeleting || isClosed) return;
         ownerShop.value = success.data;
         _localStore.saveShop(success.data);
         succeeded = true;
@@ -365,11 +380,15 @@ class OwnerShopController extends GetxController {
       },
     );
 
-    isSubmitting.value = false;
+    if (!_isAccountDeleting && !isClosed) {
+      isSubmitting.value = false;
+    }
     return succeeded;
   }
 
   void _showError(String title, String message) {
+    if (_isAccountDeleting || isClosed) return;
+
     Get.snackbar(
       title,
       message,
@@ -414,4 +433,7 @@ class OwnerShopController extends GetxController {
     if (dayKeys.contains(normalized)) return normalized;
     return dayKeys.first;
   }
+
+  bool get _isAccountDeleting =>
+      AuthStorageService.isClearingAfterAccountDelete;
 }

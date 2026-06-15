@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/bottomNavbar/controllers/bottom_nav_controller.dart';
+import '../../../../core/common/widgets/login_required_dialog.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../auth/presentation/controller/auth_flow_controller.dart';
@@ -27,10 +28,21 @@ class ProfileScreen extends StatelessWidget {
     debugPrint('[ProfileScreen] build count=$_buildCount');
 
     final flowController = ensureAuthFlowController();
-    final profileController = ensureProfileController();
     final themeController = ensureThemeController();
 
     return Obx(() {
+      if (flowController.isGuestMode.value) {
+        return AppScaffold(
+          useSafeArea: true,
+          isScrollable: false,
+          backgroundColor: AppColors.background(context),
+          body: const GuestLoginRequiredView(
+            message: 'Please log in to use Profile features.',
+          ),
+        );
+      }
+
+      final profileController = ensureProfileController();
       final AppUserRole? selectedRole = flowController.selectedRole.value;
       final String profileRole = profileController.profile.value?.role ?? '';
       final bool isOwner =
@@ -170,7 +182,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
                     Text(
                       'Settings',
                       style: TextStyle(
@@ -181,7 +193,7 @@ class ProfileScreen extends StatelessWidget {
                         height: 0.95,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     _SectionCard(
                       children: [
                         _SettingsRow(
@@ -231,9 +243,16 @@ class ProfileScreen extends StatelessWidget {
                             onChanged: themeController.toggleDarkMode,
                           ),
                         ),
+                        Divider(color: AppColors.divider(context), height: 1),
+                        _SettingsRow(
+                          icon: AppImages.logout,
+                          title: 'Delete Account',
+                          subtitle: 'Permanently delete your account',
+                          onTap: profileController.confirmDeleteAccount,
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 70),
+                    const SizedBox(height: 30),
                     GestureDetector(
                       onTap: () => Get.to(() => const LogoutConfirmScreen()),
                       child: Container(
@@ -494,6 +513,13 @@ class _OwnerProfileView extends StatelessWidget {
                             value: themeController.isDarkMode.value,
                             onChanged: themeController.toggleDarkMode,
                           ),
+                        ),
+                        Divider(height: 1, color: AppColors.divider(context)),
+                        _OwnerSettingsRow(
+                          icon: AppImages.logout,
+                          title: 'Delete Account',
+                          subtitle: 'Permanently delete your account',
+                          onTap: profileController.confirmDeleteAccount,
                         ),
                       ],
                     ),
@@ -856,17 +882,19 @@ class _ThemeToggleRow extends StatelessWidget {
               ),
             ),
             Switch(
-  value: value,
-  activeThumbColor: Colors.white,
-  activeTrackColor: AppColors.primaryOrange,
-  inactiveThumbColor: Theme.of(context).brightness == Brightness.dark
-      ? Colors.white
-      : AppColors.primaryWhite,
-  inactiveTrackColor: Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFF4A4A4A)
-      : AppColors.divider(context),
-  onChanged: onChanged,
-),
+              value: value,
+              activeThumbColor: Colors.white,
+              activeTrackColor: AppColors.primaryOrange,
+              inactiveThumbColor:
+                  Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppColors.primaryWhite,
+              inactiveTrackColor:
+                  Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF4A4A4A)
+                  : AppColors.divider(context),
+              onChanged: onChanged,
+            ),
           ],
         ),
       ),

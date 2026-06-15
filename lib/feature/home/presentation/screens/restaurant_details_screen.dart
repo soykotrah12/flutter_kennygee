@@ -5,6 +5,7 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
+import '../../../../core/common/widgets/login_required_dialog.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/constants/api_constants.dart';
@@ -108,6 +109,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
 
   Future<void> _toggleShopBookmark() async {
     if (_isBookmarkLoading) return;
+    final bool canContinue = await requireLoginForFeature(
+      featureName: 'bookmarks',
+    );
+    if (!canContinue) return;
+
     final String shopId = _activeShopId.trim();
     if (shopId.isEmpty) return;
 
@@ -146,7 +152,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
         });
         Get.snackbar(
           'Bookmark Failed',
-          failure.message,
+          _cleanErrorMessage(failure.message),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: AppColors.cardColor(context),
         );
@@ -168,6 +174,13 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
         setState(() {
           _isBookmarkLoading = false;
         });
+        Get.snackbar(
+          'Bookmark',
+          resolvedState ? 'Saved successfully.' : 'Removed from bookmarks.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.primaryGreen,
+          colorText: Colors.white,
+        );
       },
     );
   }
@@ -953,4 +966,12 @@ Map<String, dynamic> _asMap(dynamic value) {
     return value.map((key, mapValue) => MapEntry(key.toString(), mapValue));
   }
   return <String, dynamic>{};
+}
+
+String _cleanErrorMessage(String message) {
+  final String trimmed = message.trim();
+  if (trimmed.isEmpty || trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return 'Unable to complete this action right now.';
+  }
+  return trimmed;
 }
