@@ -71,52 +71,88 @@ class RestaurantListScreen extends StatelessWidget {
                 final List<RestaurantModel> source = shopController.shops;
 
                 if (isLoading && source.isEmpty) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primaryGreen,
-                    ),
-                  );
-                }
-
-                if (source.isEmpty) {
-                  return Center(
-                    child: Text(
-                      error.isNotEmpty
-                          ? 'Could not load restaurants'
-                          : 'No restaurants available',
-                      style: TextStyle(
-                        color: AppColors.textGrey,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Montserrat',
+                  return RefreshIndicator(
+                    color: AppColors.primaryGreen,
+                    onRefresh: shopController.fetchNearbyShops,
+                    child: _RefreshableState(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryGreen,
                       ),
                     ),
                   );
                 }
 
-                return GridView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: source.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 14,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.62,
+                if (source.isEmpty) {
+                  return RefreshIndicator(
+                    color: AppColors.primaryGreen,
+                    onRefresh: shopController.fetchNearbyShops,
+                    child: _RefreshableState(
+                      child: Text(
+                        error.isNotEmpty
+                            ? 'Could not load restaurants'
+                            : 'No restaurants available',
+                        style: TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return RefreshIndicator(
+                  color: AppColors.primaryGreen,
+                  onRefresh: shopController.fetchNearbyShops,
+                  child: GridView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    itemCount: source.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 14,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.62,
+                        ),
+                    itemBuilder: (_, index) {
+                      final RestaurantModel restaurant = source[index];
+                      return _RestaurantGridCard(
+                        item: restaurant,
+                        onTap: () =>
+                            HomeNavigation.openRestaurantDetails(restaurant),
+                      );
+                    },
                   ),
-                  itemBuilder: (_, index) {
-                    final RestaurantModel restaurant = source[index];
-                    return _RestaurantGridCard(
-                      item: restaurant,
-                      onTap: () =>
-                          HomeNavigation.openRestaurantDetails(restaurant),
-                    );
-                  },
                 );
               }),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _RefreshableState extends StatelessWidget {
+  const _RefreshableState({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      children: [
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.62,
+          child: Center(child: child),
+        ),
+      ],
     );
   }
 }
@@ -200,21 +236,28 @@ class _RestaurantGridCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
-                    Icons.star,
-                    size: 16,
-                    color: AppColors.primaryOrange,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    item.rating.toStringAsFixed(1),
-                    style: TextStyle(
-                      color: AppColors.primaryGreen,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Montserrat',
+                  if (item.rating > 0) ...[
+                    Icon(Icons.star, size: 16, color: AppColors.primaryOrange),
+                    const SizedBox(width: 2),
+                    Text(
+                      item.rating.toStringAsFixed(1),
+                      style: TextStyle(
+                        color: AppColors.primaryGreen,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat',
+                      ),
                     ),
-                  ),
+                  ] else
+                    Text(
+                      'No ratings yet',
+                      style: TextStyle(
+                        color: AppColors.textGrey,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
                 ],
               ),
             ),

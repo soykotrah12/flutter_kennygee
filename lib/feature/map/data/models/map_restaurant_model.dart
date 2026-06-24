@@ -38,11 +38,11 @@ class MapRestaurantModel {
     if (open.isNotEmpty && close.isNotEmpty) return '$open - $close';
     if (open.isNotEmpty) return 'Open: $open';
     if (close.isNotEmpty) return 'Until $close';
-    return 'Time unavailable';
+    return 'Hours not available';
   }
 
   String get reviewsLabel {
-    if (reviewsCount <= 0) return '(0 reviews)';
+    if (reviewsCount <= 0) return '(No ratings yet)';
     if (reviewsCount >= 1000) {
       final double compact = reviewsCount / 1000;
       return '(${compact.toStringAsFixed(1)}k reviews)';

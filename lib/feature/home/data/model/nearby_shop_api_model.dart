@@ -25,7 +25,7 @@ class NearbyShopApiModel {
 
     return NearbyShopApiModel(
       shopId: (json['shopId'] ?? json['_id'] ?? json['id'] ?? '').toString(),
-      restaurantName: (json['restaurantName'] ?? 'Restaurant').toString(),
+      restaurantName: (json['restaurantName'] ?? '').toString(),
       imageUrl: (image['url'] ?? '').toString(),
       address: (json['address'] ?? location['address'] ?? '').toString(),
       rating: _toDouble(json['rating']),

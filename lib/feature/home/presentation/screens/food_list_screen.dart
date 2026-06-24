@@ -102,71 +102,125 @@ class _FoodListScreenState extends State<FoodListScreen>
                 final List<FoodModel> items = _foodController.foods;
 
                 if (_foodController.isLoading.value && items.isEmpty) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primaryGreen,
-                    ),
-                  );
-                }
-
-                if (_foodController.error.value.isNotEmpty && items.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _foodController.error.value,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: AppColors.textGrey,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Montserrat',
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextButton(
-                            onPressed: _foodController.fetchNearbyFoods,
-                            child: Text(
-                              'Try again',
-                              style: TextStyle(
-                                color: AppColors.primaryGreen,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Montserrat',
-                              ),
-                            ),
-                          ),
-                        ],
+                  return RefreshIndicator(
+                    color: AppColors.primaryGreen,
+                    onRefresh: _foodController.fetchNearbyFoods,
+                    child: _RefreshableState(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryGreen,
                       ),
                     ),
                   );
                 }
 
-                return GridView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 14,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.62,
+                if (_foodController.error.value.isNotEmpty && items.isEmpty) {
+                  return RefreshIndicator(
+                    color: AppColors.primaryGreen,
+                    onRefresh: _foodController.fetchNearbyFoods,
+                    child: _RefreshableState(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _foodController.error.value,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColors.textGrey,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            TextButton(
+                              onPressed: _foodController.fetchNearbyFoods,
+                              child: Text(
+                                'Try again',
+                                style: TextStyle(
+                                  color: AppColors.primaryGreen,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Montserrat',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                if (items.isEmpty) {
+                  return RefreshIndicator(
+                    color: AppColors.primaryGreen,
+                    onRefresh: _foodController.fetchNearbyFoods,
+                    child: _RefreshableState(
+                      child: Text(
+                        'No food available',
+                        style: TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return RefreshIndicator(
+                  color: AppColors.primaryGreen,
+                  onRefresh: _foodController.fetchNearbyFoods,
+                  child: GridView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    itemCount: items.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 14,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.62,
+                        ),
+                    itemBuilder: (_, index) {
+                      final FoodModel food = items[index];
+                      return _FoodGridCard(
+                        item: food,
+                        onTap: () => HomeNavigation.openFoodDetails(food),
+                      );
+                    },
                   ),
-                  itemBuilder: (_, index) {
-                    final FoodModel food = items[index];
-                    return _FoodGridCard(
-                      item: food,
-                      onTap: () => HomeNavigation.openFoodDetails(food),
-                    );
-                  },
                 );
               }),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _RefreshableState extends StatelessWidget {
+  const _RefreshableState({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      children: [
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.62,
+          child: Center(child: child),
+        ),
+      ],
     );
   }
 }
@@ -249,11 +303,7 @@ class _FoodGridCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
-                    Icons.star,
-                    size: 16,
-                    color: AppColors.primaryOrange,
-                  ),
+                  Icon(Icons.star, size: 16, color: AppColors.primaryOrange),
                   const SizedBox(width: 2),
                   Text(
                     item.rating.toStringAsFixed(1),

@@ -141,7 +141,7 @@ class ShopEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/shop';
 
   final String fetchNearbyShops = '$_base/';
-  final String fetchRecommendedShops = '$_base/recommended';
+  final String fetchRecommendedShops = '$_base/recommended/';
   final String createShop = '$_base/create';
 
   String fetchShopByUser(String userId) => '$_base/user/$userId';

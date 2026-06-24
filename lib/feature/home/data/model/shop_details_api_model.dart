@@ -112,7 +112,7 @@ class ShopDetailsApiModel {
 
     return ShopDetailsApiModel(
       shopId: (json['shopId'] ?? json['_id'] ?? '').toString(),
-      restaurantName: (json['restaurantName'] ?? 'Restaurant').toString(),
+      restaurantName: (json['restaurantName'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       imageUrl: (image['url'] ?? '').toString(),
       address: (json['address'] ?? location['address'] ?? '').toString(),

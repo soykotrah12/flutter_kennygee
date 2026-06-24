@@ -92,40 +92,22 @@ class MapRepository {
     final List<double> coordinates = _toCoordinates(location['coordinates']);
     final String shopId = (json['shopId'] ?? json['_id'] ?? json['id'] ?? '')
         .toString();
-    final _FallbackCoordinate fallback = _fallbackCoordinate(shopId);
 
     return MapRestaurantModel(
       shopId: shopId,
-      restaurantName: (json['restaurantName'] ?? 'Restaurant').toString(),
+      restaurantName: (json['restaurantName'] ?? '').toString(),
       imageUrl: (image['url'] ?? '').toString(),
       address: (location['address'] ?? json['address'] ?? '').toString(),
       rating: _toDouble(json['rating']),
       reviewsCount: _toInt(json['reviewCount'] ?? json['reviewsCount']),
       distanceLabel: _resolveDistanceLabel(json['distance']),
-      latitude: coordinates.length > 1 ? coordinates[1] : fallback.latitude,
-      longitude: coordinates.isNotEmpty ? coordinates[0] : fallback.longitude,
+      latitude: coordinates.length > 1 ? coordinates[1] : 0,
+      longitude: coordinates.isNotEmpty ? coordinates[0] : 0,
       isClosedToday: slot.closed,
       openTime: slot.open,
       closeTime: slot.close,
     );
   }
-}
-
-class _FallbackCoordinate {
-  const _FallbackCoordinate({required this.latitude, required this.longitude});
-
-  final double latitude;
-  final double longitude;
-}
-
-_FallbackCoordinate _fallbackCoordinate(String seed) {
-  final int hash = seed.hashCode.abs();
-  final double latShift = ((hash % 700) / 100000);
-  final double lngShift = (((hash ~/ 17) % 700) / 100000);
-  return _FallbackCoordinate(
-    latitude: 23.8103 + latShift,
-    longitude: 90.4125 + lngShift,
-  );
 }
 
 class _OperatingSlot {
@@ -201,7 +183,7 @@ List<double> _toCoordinates(dynamic value) {
 
 String _resolveDistanceLabel(dynamic value) {
   final String raw = (value ?? '').toString();
-  if (raw.trim().isEmpty || raw.toLowerCase() == 'null') return 'N/A';
+  if (raw.trim().isEmpty || raw.toLowerCase() == 'null') return '';
   return raw;
 }
 

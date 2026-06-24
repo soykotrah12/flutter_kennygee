@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/controllers/wishlist_controller.dart';
 import '../../../../core/common/widgets/adaptive_image.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
@@ -35,7 +34,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
   static int _buildCount = 0;
 
   late final HomeShopDetailsController _detailsController;
-  late final RestaurantModel _fallbackRestaurant;
   late final String _activeShopId;
   late final ApiClient _apiClient;
   late final WishlistController _wishlistController;
@@ -49,18 +47,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _activeShopId = (widget.shopId ?? widget.restaurant?.id ?? '').trim();
-    _fallbackRestaurant =
-        widget.restaurant ??
-        RestaurantModel(
-          id: _activeShopId,
-          name: 'Restaurant',
-          image: AppImages.homeRestaurant1,
-          rating: 0,
-          reviewsCount: 0,
-          distance: 'N/A',
-          address: '',
-          openingHours: 'Time unavailable',
-        );
 
     _detailsController = HomeShopDetailsController.ensureInitialized(
       _activeShopId,
@@ -104,8 +90,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
     }
   }
 
-  RestaurantModel get _currentRestaurant =>
-      _detailsController.restaurant.value ?? _fallbackRestaurant;
+  RestaurantModel? get _currentRestaurant =>
+      _detailsController.restaurant.value ?? widget.restaurant;
 
   Future<void> _toggleShopBookmark() async {
     if (_isBookmarkLoading) return;
@@ -197,11 +183,43 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
     ];
 
     return Obx(() {
-      final RestaurantModel restaurant = _currentRestaurant;
+      final RestaurantModel? restaurant = _currentRestaurant;
       final bool isShopBookmarked = _wishlistController.isWishlisted(
         _bookmarkType,
         _activeShopId,
       );
+      if (restaurant == null) {
+        final bool isLoading = _detailsController.isLoading.value;
+        final String error = _detailsController.error.value;
+
+        return Container(
+          color: AppColors.background(context),
+          child: AppScaffold(
+            useSafeArea: true,
+            isScrollable: false,
+            backgroundColor: Colors.transparent,
+            bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            customAppBar: _detailsAppBar(context),
+            body: Center(
+              child: isLoading
+                  ? CircularProgressIndicator(color: AppColors.primaryGreen)
+                  : Text(
+                      error.isNotEmpty
+                          ? 'Could not load restaurant'
+                          : 'No restaurants available',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.secondaryText(context),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+            ),
+          ),
+        );
+      }
+
       final List<RestaurantMenuCategoryModel> menuCategories = restaurant
           .menuCategories
           .where((category) => category.items.isNotEmpty)
@@ -226,35 +244,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
           isScrollable: false,
           backgroundColor: Colors.transparent,
           bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          customAppBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            toolbarHeight: 72,
-            titleSpacing: 0,
-            automaticallyImplyLeading: true,
-            title: Text.rich(
-              TextSpan(
-                text: 'Details ',
-                style: TextStyle(
-                  color: AppColors.primaryText(context),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Montserrat',
-                ),
-                children: [
-                  TextSpan(
-                    text: '(within 10km Restaurant)',
-                    style: TextStyle(
-                      color: AppColors.secondaryText(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          customAppBar: _detailsAppBar(context),
           body: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(
@@ -398,6 +388,38 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
   }
 }
 
+AppBar _detailsAppBar(BuildContext context) {
+  return AppBar(
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    toolbarHeight: 72,
+    titleSpacing: 0,
+    automaticallyImplyLeading: true,
+    title: Text.rich(
+      TextSpan(
+        text: 'Details ',
+        style: TextStyle(
+          color: AppColors.primaryText(context),
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Montserrat',
+        ),
+        children: [
+          TextSpan(
+            text: '(within 10km Restaurant)',
+            style: TextStyle(
+              color: AppColors.secondaryText(context),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class _HeroCard extends StatelessWidget {
   const _HeroCard({required this.restaurant});
 
@@ -441,9 +463,7 @@ class _HeroCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        restaurant.name.isNotEmpty
-                            ? restaurant.name
-                            : 'Restaurant',
+                        restaurant.name,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -454,19 +474,18 @@ class _HeroCard extends StatelessWidget {
                         overflow: TextOverflow.visible,
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        restaurant.subtitle.isNotEmpty
-                            ? restaurant.subtitle
-                            : 'Restaurant',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Montserrat',
+                      if (restaurant.subtitle.isNotEmpty)
+                        Text(
+                          restaurant.subtitle,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Montserrat',
+                          ),
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ],
                   ),
                 ),
@@ -521,22 +540,24 @@ class _RatingPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.star, color: AppColors.primaryOrange, size: 16),
-          const SizedBox(width: 8),
-          Text(
-            rating.toStringAsFixed(1),
-            style: TextStyle(
-              color: AppColors.primaryGreen,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Montserrat',
+          if (rating > 0) ...[
+            Icon(Icons.star, color: AppColors.primaryOrange, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              rating.toStringAsFixed(1),
+              style: TextStyle(
+                color: AppColors.primaryGreen,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Montserrat',
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
+            const SizedBox(width: 8),
+          ],
           InkWell(
             onTap: onReviewsTap,
             child: Text(
-              '($reviewsCount Reviews)',
+              rating > 0 ? '($reviewsCount Reviews)' : 'No ratings yet',
               style: TextStyle(
                 color: AppColors.primaryText(context),
                 fontSize: 16,
@@ -618,17 +639,24 @@ class _OpeningHoursSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasAnyHours =
+        operatingHours.isNotEmpty ||
+        openTime.trim().isNotEmpty ||
+        closeTime.trim().isNotEmpty ||
+        isClosedToday;
     final List<RestaurantOperatingHoursEntryModel> entries =
         operatingHours.isNotEmpty
         ? operatingHours
-        : <RestaurantOperatingHoursEntryModel>[
+        : hasAnyHours
+        ? <RestaurantOperatingHoursEntryModel>[
             RestaurantOperatingHoursEntryModel(
               day: 'Today',
               open: openTime,
               close: closeTime,
               isClosed: isClosedToday,
             ),
-          ];
+          ]
+        : const <RestaurantOperatingHoursEntryModel>[];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -666,24 +694,41 @@ class _OpeningHoursSection extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            children: List<Widget>.generate(entries.length, (int index) {
-              final RestaurantOperatingHoursEntryModel entry = entries[index];
-              return Column(
-                children: [
-                  _OpeningHoursDayRow(entry: entry),
-                  if (index != entries.length - 1)
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: AppColors.softCardColor(context),
-                      indent: 14,
-                      endIndent: 14,
+          child: entries.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 14,
+                  ),
+                  child: Text(
+                    'Hours not available',
+                    style: TextStyle(
+                      color: AppColors.primaryText(context),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
                     ),
-                ],
-              );
-            }),
-          ),
+                  ),
+                )
+              : Column(
+                  children: List<Widget>.generate(entries.length, (int index) {
+                    final RestaurantOperatingHoursEntryModel entry =
+                        entries[index];
+                    return Column(
+                      children: [
+                        _OpeningHoursDayRow(entry: entry),
+                        if (index != entries.length - 1)
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: AppColors.softCardColor(context),
+                            indent: 14,
+                            endIndent: 14,
+                          ),
+                      ],
+                    );
+                  }),
+                ),
         ),
       ],
     );
@@ -708,7 +753,7 @@ class _OpeningHoursDayRow extends StatelessWidget {
             ? _formatTime(entry.open)
             : hasClose
             ? _formatTime(entry.close)
-            : 'N/A';
+            : 'Hours not available';
         final String openLabel = _formatTime(entry.open);
         final String closeLabel = _formatTime(entry.close);
 
@@ -865,10 +910,6 @@ class _MenuItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String imagePath = item.image.trim().isNotEmpty
-        ? item.image
-        : AppImages.homeRestaurant1;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(0),
@@ -882,7 +923,7 @@ class _MenuItemTile extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: AdaptiveImage(
-              path: imagePath,
+              path: item.image,
               width: 78,
               height: 78,
               fit: BoxFit.cover,

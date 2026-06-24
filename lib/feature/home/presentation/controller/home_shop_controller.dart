@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:get/get.dart';
 
-import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
 import '../../data/model/food_model.dart';
@@ -93,7 +92,11 @@ class HomeShopController extends GetxController {
     isRecommendedLoading.value = true;
     recommendedError.value = '';
 
-    final result = await _repository.fetchRecommendedShops();
+    final result = await _repository.fetchRecommendedShops(
+      lat: 23.8000,
+      lng: 90.4000,
+      radius: 5000,
+    );
     if (_isAccountDeleting || isClosed) return;
 
     result.fold(
@@ -166,9 +169,7 @@ class HomeShopController extends GetxController {
       id: shop.id,
       type: 'shop',
       title: shop.name,
-      image: shop.image.trim().isNotEmpty
-          ? shop.image
-          : AppImages.homeRestaurant1,
+      image: shop.image,
       rating: shop.rating,
       distance: shop.distance,
       openingHours: shop.openingHours,
@@ -181,9 +182,7 @@ class HomeShopController extends GetxController {
       id: menu.id,
       type: 'menu',
       title: menu.name,
-      image: menu.image.trim().isNotEmpty
-          ? menu.image
-          : AppImages.homeRestaurant1,
+      image: menu.image,
       rating: menu.rating,
       distance: menu.distance,
       openingHours: menu.openingHours,

@@ -105,7 +105,7 @@ class WishlistItemModel {
   static String _resolveDistance(dynamic distanceValue) {
     final String distance = _readString(distanceValue);
     if (distance.isNotEmpty) return distance;
-    return 'N/A';
+    return '';
   }
 
   static String _resolveOperatingHours(dynamic operatingTodayValue) {
@@ -126,7 +126,7 @@ class WishlistItemModel {
       return 'Until $close';
     }
 
-    return 'Time unavailable';
+    return 'Hours not available';
   }
 
   static double _toDouble(dynamic value) {

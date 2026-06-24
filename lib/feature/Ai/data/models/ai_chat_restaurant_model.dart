@@ -36,7 +36,7 @@ class AiChatRestaurantModel {
           : _asString(json['id']),
       name: _asString(json['restaurantName']).isNotEmpty
           ? _asString(json['restaurantName'])
-          : 'Restaurant',
+          : '',
       description: description,
       imageUrl: _asString(image['url']),
       address: _asString(location['address']),

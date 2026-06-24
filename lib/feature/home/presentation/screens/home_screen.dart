@@ -55,11 +55,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (_isRefreshingHomeData) return;
 
     _isRefreshingHomeData = true;
-    await Future.wait<void>([
-      _shopController.fetchNearbyShops(),
-      _shopController.fetchRecommendedShops(),
-    ]);
-    _isRefreshingHomeData = false;
+    try {
+      await Future.wait<void>([
+        _shopController.fetchNearbyShops(),
+        _shopController.fetchRecommendedShops(),
+      ]);
+    } finally {
+      _isRefreshingHomeData = false;
+    }
   }
 
   @override
@@ -96,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       return item.title.toLowerCase().contains(query) ||
           item.distance.toLowerCase().contains(query) ||
           item.openingHours.toLowerCase().contains(query) ||
-          item.rating.toStringAsFixed(1).contains(query) ||
+          (item.rating > 0 && item.rating.toStringAsFixed(1).contains(query)) ||
           (item.restaurant?.name.toLowerCase().contains(query) ?? false) ||
           (item.food?.name.toLowerCase().contains(query) ?? false) ||
           (item.food?.description.toLowerCase().contains(query) ?? false) ||
@@ -119,336 +122,355 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
       child: AppScaffold(
         useSafeArea: true,
-        isScrollable: true,
+        isScrollable: false,
         backgroundColor: Colors.transparent,
         bodyPadding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        body: RefreshIndicator(
+          color: AppColors.primaryGreen,
+          onRefresh: _refreshHomeData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image.asset(
-                //   AppImages.appLogo,
-                //   width: 32,
-                //   height: 51,
-                //   fit: BoxFit.contain,
-                // ),
-                // Image.asset(
-                //   AppImages.appLogo,
-                //   width: 60,
-                //   height: 60,
-                //   fit: BoxFit.contain,
-                // ),
-                Image.asset(
-                  AppImages.appicon,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.contain,
-                ),
-                
-                const Spacer(),
-                InkWell(
-                  onTap: _openEvents,
-                  borderRadius: BorderRadius.circular(10),
-                  child: Container(
-                    height: 44,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryGreen,
+                Row(
+                  children: [
+                    // Image.asset(
+                    //   AppImages.appLogo,
+                    //   width: 32,
+                    //   height: 51,
+                    //   fit: BoxFit.contain,
+                    // ),
+                    // Image.asset(
+                    //   AppImages.appLogo,
+                    //   width: 60,
+                    //   height: 60,
+                    //   fit: BoxFit.contain,
+                    // ),
+                    Image.asset(
+                      AppImages.appicon,
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.contain,
+                    ),
+
+                    const Spacer(),
+                    InkWell(
+                      onTap: _openEvents,
                       borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          AppImages.event,
-                          width: 20,
-                          height: 20,
-                          fit: BoxFit.contain,
+                      child: Container(
+                        height: 44,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGreen,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Events',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Montserrat',
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              AppImages.event,
+                              width: 20,
+                              height: 20,
+                              fit: BoxFit.contain,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Events',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Hungry? Discover What\'s nearby.',
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    height: 1.1,
+                    fontFamily: 'Montserrat',
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Hungry? Discover What\'s nearby.',
-              style: TextStyle(
-                color: AppColors.primaryText(context),
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                height: 1.1,
-                fontFamily: 'Montserrat',
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 44,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.primaryGreen, width: 1.2),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          inputDecorationTheme: const InputDecorationTheme(
-                            border: InputBorder.none,
-                          ),
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
-                          style: TextStyle(
-                            color: AppColors.primaryText(context),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Montserrat',
-                          ),
-                          decoration: InputDecoration(
-                            isCollapsed: true,
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            disabledBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            focusedErrorBorder: InputBorder.none,
-                            hintText: 'Search Restaurant, dishes...',
-                            hintStyle: TextStyle(
-                              color: AppColors.secondaryText(context),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w300,
-                              fontFamily: 'Montserrat',
+                const SizedBox(height: 16),
+                Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppColors.primaryGreen,
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              inputDecorationTheme: const InputDecorationTheme(
+                                border: InputBorder.none,
+                              ),
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                            ),
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value;
+                                });
+                              },
+                              style: TextStyle(
+                                color: AppColors.primaryText(context),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'Montserrat',
+                              ),
+                              decoration: InputDecoration(
+                                isCollapsed: true,
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                focusedErrorBorder: InputBorder.none,
+                                hintText: 'Search Restaurant, dishes...',
+                                hintStyle: TextStyle(
+                                  color: AppColors.secondaryText(context),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                  fontFamily: 'Montserrat',
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  Container(
-                    width: 52,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryGreen,
-                      borderRadius: BorderRadius.horizontal(
-                        right: Radius.circular(9),
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _searchController.clear();
-                          _searchQuery = '';
-                        });
-                        FocusScope.of(context).unfocus();
-                      },
-                      child: Center(
-                        child: Image.asset(
-                          AppImages.search,
-                          width: 24,
-                          height: 24,
-                          fit: BoxFit.contain,
+                      Container(
+                        width: 52,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGreen,
+                          borderRadius: BorderRadius.horizontal(
+                            right: Radius.circular(9),
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _searchController.clear();
+                              _searchQuery = '';
+                            });
+                            FocusScope.of(context).unfocus();
+                          },
+                          child: Center(
+                            child: Image.asset(
+                              AppImages.search,
+                              width: 24,
+                              height: 24,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _FilterChip(label: 'All', active: true, icon: AppImages.all),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'Restaurant List',
-                    icon: AppImages.restaurantlist,
-                    onTap: _openRestaurantList,
+                ),
+                const SizedBox(height: 16),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _FilterChip(
+                        label: 'All',
+                        active: true,
+                        icon: AppImages.all,
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterChip(
+                        label: 'Restaurant List',
+                        icon: AppImages.restaurantlist,
+                        onTap: _openRestaurantList,
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterChip(
+                        label: 'Food List',
+                        icon: AppImages.foodlist,
+                        onTap: _openFoodList,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'Food List',
-                    icon: AppImages.foodlist,
-                    onTap: _openFoodList,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
-            _SectionHeader(
-              title: 'Nearby Restaurants',
-              subtitle: '(within 10km)',
-              onSeeAll: _openRestaurantList,
-            ),
-            const SizedBox(height: 10),
-            Obx(() {
-              final bool isLoading = _shopController.isLoading.value;
-              final String error = _shopController.error.value;
-              final List<RestaurantModel> source = _shopController.shops
-                  .take(3)
-                  .toList();
-              final List<RestaurantModel> filteredRestaurants =
-                  _filterRestaurants(source);
+                ),
+                const SizedBox(height: 18),
+                _SectionHeader(
+                  title: 'Nearby Restaurants',
+                  subtitle: '(within 10km)',
+                  onSeeAll: _openRestaurantList,
+                ),
+                const SizedBox(height: 10),
+                Obx(() {
+                  final bool isLoading = _shopController.isLoading.value;
+                  final String error = _shopController.error.value;
+                  final List<RestaurantModel> source = _shopController.shops
+                      .take(3)
+                      .toList();
+                  final List<RestaurantModel> filteredRestaurants =
+                      _filterRestaurants(source);
 
-              return SizedBox(
-                height: 224,
-                child: isLoading && source.isEmpty
-                    ? Center(
+                  return SizedBox(
+                    height: 224,
+                    child: isLoading && source.isEmpty
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.primaryGreen,
+                            ),
+                          )
+                        : source.isEmpty
+                        ? Center(
+                            child: Text(
+                              error.isNotEmpty
+                                  ? 'Could not load restaurants'
+                                  : 'No restaurants available',
+                              style: TextStyle(
+                                color: AppColors.secondaryText(context),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          )
+                        : filteredRestaurants.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No matching restaurants found',
+                              style: TextStyle(
+                                color: AppColors.secondaryText(context),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: filteredRestaurants.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (_, index) {
+                              final RestaurantModel restaurant =
+                                  filteredRestaurants[index];
+                              return _NearbyCard(
+                                restaurant: restaurant,
+                                onTap: () => _openRestaurantDetails(restaurant),
+                              );
+                            },
+                          ),
+                  );
+                }),
+                const SizedBox(height: 18),
+                _OnlyTitleHeader(
+                  title: 'Recommended for you',
+                  onSeeAll: _openRecommendedList,
+                ),
+                const SizedBox(height: 10),
+                Obx(() {
+                  final bool isRecommendedLoading =
+                      _shopController.isRecommendedLoading.value;
+                  final String recommendedError =
+                      _shopController.recommendedError.value;
+                  final List<HomeRecommendationItemModel> recommendedItems =
+                      _shopController.recommendedItems;
+
+                  final List<HomeRecommendationItemModel> filteredRecommended =
+                      _filterRecommended(recommendedItems);
+
+                  final bool hasSearch = _searchQuery.trim().isNotEmpty;
+                  final List<HomeRecommendationItemModel> displayRecommended =
+                      hasSearch
+                      ? filteredRecommended
+                      : filteredRecommended.take(5).toList();
+
+                  if (isRecommendedLoading && recommendedItems.isEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primaryGreen,
                         ),
-                      )
-                    : source.isEmpty
-                    ? Center(
-                        child: Text(
-                          error.isNotEmpty
-                              ? 'Could not load restaurants'
-                              : 'No restaurants available',
-                          style: TextStyle(
-                            color: AppColors.secondaryText(context),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Montserrat',
-                          ),
-                        ),
-                      )
-                    : filteredRestaurants.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No matching restaurants found',
-                          style: TextStyle(
-                            color: AppColors.secondaryText(context),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Montserrat',
-                          ),
-                        ),
-                      )
-                    : ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: filteredRestaurants.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (_, index) {
-                          final RestaurantModel restaurant =
-                              filteredRestaurants[index];
-                          return _NearbyCard(
-                            restaurant: restaurant,
-                            onTap: () => _openRestaurantDetails(restaurant),
-                          );
-                        },
                       ),
-              );
-            }),
-            const SizedBox(height: 18),
-            _OnlyTitleHeader(
-              title: 'Recommended for you',
-              onSeeAll: _openRecommendedList,
-            ),
-            const SizedBox(height: 10),
-            Obx(() {
-              final bool isRecommendedLoading =
-                  _shopController.isRecommendedLoading.value;
-              final String recommendedError =
-                  _shopController.recommendedError.value;
-              final List<HomeRecommendationItemModel> recommendedItems =
-                  _shopController.recommendedItems;
+                    );
+                  }
 
-              final List<HomeRecommendationItemModel> filteredRecommended =
-                  _filterRecommended(recommendedItems);
+                  if (recommendedItems.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        recommendedError.isNotEmpty
+                            ? 'Could not load recommendations'
+                            : 'No recommendations available',
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    );
+                  }
 
-              final bool hasSearch = _searchQuery.trim().isNotEmpty;
-              final List<HomeRecommendationItemModel> displayRecommended =
-                  hasSearch
-                  ? filteredRecommended
-                  : filteredRecommended.take(5).toList();
+                  if (_searchQuery.trim().isNotEmpty &&
+                      filteredRecommended.isEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        'No matching recommendations found',
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    );
+                  }
 
-              if (isRecommendedLoading && recommendedItems.isEmpty) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primaryGreen,
-                    ),
-                  ),
-                );
-              }
+                  return Column(
+                    children: List<Widget>.generate(displayRecommended.length, (
+                      index,
+                    ) {
+                      final HomeRecommendationItemModel item =
+                          displayRecommended[index];
 
-              if (recommendedItems.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    recommendedError.isNotEmpty
-                        ? 'Could not load recommendations'
-                        : 'No recommendations available',
-                    style: TextStyle(
-                      color: AppColors.secondaryText(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                );
-              }
-
-              if (_searchQuery.trim().isNotEmpty &&
-                  filteredRecommended.isEmpty) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    'No matching recommendations found',
-                    style: TextStyle(
-                      color: AppColors.secondaryText(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                );
-              }
-
-              return Column(
-                children: List<Widget>.generate(displayRecommended.length, (
-                  index,
-                ) {
-                  final HomeRecommendationItemModel item =
-                      displayRecommended[index];
-
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == displayRecommended.length - 1 ? 0 : 10,
-                    ),
-                    child: _RecommendedItem(
-                      item: item,
-                      onTap: () => _openRecommendedItem(item),
-                    ),
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == displayRecommended.length - 1
+                              ? 0
+                              : 10,
+                        ),
+                        child: _RecommendedItem(
+                          item: item,
+                          onTap: () => _openRecommendedItem(item),
+                        ),
+                      );
+                    }),
                   );
                 }),
-              );
-            }),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -522,7 +544,9 @@ class _FilterChip extends StatelessWidget {
         height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
-          color: active ? AppColors.primaryGreen : AppColors.background(context),
+          color: active
+              ? AppColors.primaryGreen
+              : AppColors.background(context),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.primaryGreen),
         ),
@@ -751,23 +775,36 @@ class _NearbyCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Icon(
-                      Icons.star,
-                      size: 12,
-                      color: AppColors.primaryOrange,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      restaurant.rating.toStringAsFixed(1),
-                      maxLines: 1,
-                      softWrap: false,
-                      style: TextStyle(
-                        color: AppColors.primaryGreen,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Montserrat',
+                    if (restaurant.rating > 0) ...[
+                      Icon(
+                        Icons.star,
+                        size: 12,
+                        color: AppColors.primaryOrange,
                       ),
-                    ),
+                      const SizedBox(width: 4),
+                      Text(
+                        restaurant.rating.toStringAsFixed(1),
+                        maxLines: 1,
+                        softWrap: false,
+                        style: TextStyle(
+                          color: AppColors.primaryGreen,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ] else
+                      Text(
+                        'No ratings yet',
+                        maxLines: 1,
+                        softWrap: false,
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -841,10 +878,6 @@ class _RecommendedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String imagePath = item.image.trim().isNotEmpty
-        ? item.image
-        : AppImages.homeRestaurant1;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
@@ -853,7 +886,7 @@ class _RecommendedItem extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: AdaptiveImage(
-              path: imagePath,
+              path: item.image,
               width: 90,
               height: 90,
               fit: BoxFit.cover,
@@ -905,21 +938,32 @@ class _RecommendedItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(
-                      Icons.star,
-                      size: 16,
-                      color: AppColors.primaryOrange,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      item.rating.toStringAsFixed(1),
-                      style: TextStyle(
-                        color: AppColors.primaryGreen,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Montserrat',
+                    if (item.rating > 0) ...[
+                      Icon(
+                        Icons.star,
+                        size: 16,
+                        color: AppColors.primaryOrange,
                       ),
-                    ),
+                      const SizedBox(width: 4),
+                      Text(
+                        item.rating.toStringAsFixed(1),
+                        style: TextStyle(
+                          color: AppColors.primaryGreen,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ] else
+                      Text(
+                        'No ratings yet',
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 6),

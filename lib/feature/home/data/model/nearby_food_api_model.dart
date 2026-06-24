@@ -85,8 +85,7 @@ class NearbyFoodApiModel {
     return <String>[fallback];
   }
 
-  String get restaurantName =>
-      (shop['restaurantName'] ?? 'Restaurant').toString();
+  String get restaurantName => (shop['restaurantName'] ?? '').toString();
 
   String get shopId => (shop['shopId'] ?? shop['_id'] ?? '').toString();
 
@@ -122,7 +121,7 @@ class NearbyFoodApiModel {
     }
     if (open.isNotEmpty) return 'Open: $open';
     if (close.isNotEmpty) return 'Until $close';
-    return 'Time unavailable';
+    return 'Hours not available';
   }
 }
 

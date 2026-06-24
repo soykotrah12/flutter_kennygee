@@ -34,9 +34,18 @@ class HomeShopRepository {
     );
   }
 
-  NetworkResult<RecommendedShopMenuResponseModel> fetchRecommendedShops() {
+  NetworkResult<RecommendedShopMenuResponseModel> fetchRecommendedShops({
+    required double lat,
+    required double lng,
+    required int radius,
+  }) {
     return _apiClient.get<RecommendedShopMenuResponseModel>(
       ApiConstants.shop.fetchRecommendedShops,
+      queryParameters: <String, dynamic>{
+        'lat': lat,
+        'lng': lng,
+        'radius': radius,
+      },
       fromJsonT: (json) {
         final Map<String, dynamic> root = _asMap(json);
 
@@ -47,8 +56,9 @@ class HomeShopRepository {
             : json is List
             ? json
             : <dynamic>[];
-        final List<dynamic> rawMenus = root['menus'] is List
-            ? root['menus'] as List<dynamic>
+        final dynamic menusPayload = root['menus'] ?? root['menues'];
+        final List<dynamic> rawMenus = menusPayload is List
+            ? menusPayload
             : <dynamic>[];
 
         final List<RestaurantModel> shops = rawShops
@@ -87,15 +97,15 @@ class HomeShopRepository {
     return RestaurantModel(
       id: shop.shopId,
       name: shop.restaurantName,
-      subtitle: 'Restaurant',
+      subtitle: '',
       image: shop.imageUrl,
       rating: shop.rating,
       reviewsCount: shop.reviewCount,
-      distance: shop.distance.isNotEmpty ? shop.distance : 'N/A',
+      distance: shop.distance,
       address: shop.address,
       openingHours: opening,
       isLiked: false,
-      popularDishes: const <String>['Pasta', 'Burger', 'Cheesecake'],
+      popularDishes: const <String>[],
       openTime: shop.openTime,
       closeTime: shop.closeTime,
       isClosedToday: shop.isClosedToday,
@@ -106,8 +116,15 @@ class HomeShopRepository {
     Map<String, dynamic> json,
     Map<String, RestaurantModel> shopMap,
   ) {
-    final String shopId = (json['shopId'] ?? '').toString();
-    final RestaurantModel? shop = shopMap[shopId];
+    final Map<String, dynamic> rawShop = _asMap(json['shop']);
+    final String shopId =
+        (json['shopId'] ?? rawShop['shopId'] ?? rawShop['_id'] ?? '')
+            .toString();
+    final RestaurantModel? shop =
+        shopMap[shopId] ??
+        (rawShop.isNotEmpty
+            ? _toRestaurantModel(NearbyShopApiModel.fromJson(rawShop))
+            : null);
 
     final List<dynamic> rawImages = json['images'] is List
         ? json['images'] as List<dynamic>
@@ -117,34 +134,45 @@ class HomeShopRepository {
         .map((img) => (img['url'] ?? '').toString())
         .where((url) => url.trim().isNotEmpty)
         .toList();
+    final String singleImageUrl = (_asMap(json['image'])['url'] ?? '')
+        .toString();
+    final List<String> resolvedImageUrls = imageUrls.isNotEmpty
+        ? imageUrls
+        : singleImageUrl.trim().isNotEmpty
+        ? <String>[singleImageUrl]
+        : const <String>[];
 
     final String fallbackShopImage = shop?.image.trim().isNotEmpty == true
         ? shop!.image
         : '';
 
-    final String image = imageUrls.isNotEmpty
-        ? imageUrls.first
+    final String image = resolvedImageUrls.isNotEmpty
+        ? resolvedImageUrls.first
         : fallbackShopImage;
 
     final String openingHours = shop?.openingHours.trim().isNotEmpty == true
         ? shop!.openingHours
-        : 'Time unavailable';
+        : 'Hours not available';
 
     return FoodModel(
       id: (json['menuId'] ?? json['_id'] ?? '').toString(),
       shopId: shopId,
-      name: (json['dishName'] ?? 'Food').toString(),
+      name: (json['dishName'] ?? json['name'] ?? '').toString(),
       image: image,
-      price: _toDouble(json['price']),
-      rating: _toDouble(json['averageRating']),
-      reviewsCount: _toInt(json['totalReviews'] ?? json['reviewCount']),
-      description: (json['category'] ?? 'Food item').toString(),
-      restaurantName: shop?.name ?? 'Restaurant',
-      distance: shop?.distance.isNotEmpty == true ? shop!.distance : 'N/A',
+      price: _toDouble(json['price'] ?? json['basePrice']),
+      rating: _toDouble(json['averageRating'] ?? json['rating']),
+      reviewsCount: _toInt(
+        json['totalReviews'] ??
+            json['reviewCount'] ??
+            (json['reviews'] is List ? (json['reviews'] as List).length : 0),
+      ),
+      description: (json['description'] ?? json['category'] ?? '').toString(),
+      restaurantName: shop?.name ?? '',
+      distance: shop?.distance ?? '',
       address: shop?.address ?? '',
       openingHours: openingHours,
-      images: imageUrls.isNotEmpty
-          ? imageUrls
+      images: resolvedImageUrls.isNotEmpty
+          ? resolvedImageUrls
           : image.trim().isNotEmpty
           ? <String>[image]
           : const <String>[],
@@ -207,11 +235,11 @@ class HomeShopRepository {
     return RestaurantModel(
       id: shop.shopId,
       name: shop.restaurantName,
-      subtitle: 'Restaurant',
+      subtitle: '',
       image: shop.imageUrl,
       rating: shop.rating,
       reviewsCount: shop.reviewsCount,
-      distance: shop.distance.isNotEmpty ? shop.distance : 'N/A',
+      distance: shop.distance,
       address: shop.address,
       openingHours: opening,
       isLiked: false,
@@ -260,7 +288,7 @@ class HomeShopRepository {
 
     if (hasOpen) return 'Open: $openTime';
     if (hasClose) return 'Until $closeTime';
-    return 'Time unavailable';
+    return 'Hours not available';
   }
 }
 

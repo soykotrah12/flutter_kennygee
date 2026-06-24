@@ -7,11 +7,11 @@ class AppImages {
   static const String onboarding8logo = 'assets/icons/onboard8.png';
   static const String rolebackground = 'assets/images/background.png';
   static const String defaultProfileImage = 'assets/images/defaultprofile.png';
+  static const String restaurantPlaceholder = defaultProfileImage;
 
   // Onboarding footer artworks
   static const String onboardingFooterUser1 = onboarding7logo;
   static const String onboardingFooterUser2 = onboarding8logo;
-  
 
   static const String onboarding7image = 'assets/images/onboard1.png';
   static const String onboarding8image = 'assets/images/onboard2.png';
@@ -30,7 +30,7 @@ class AppImages {
   static const String ownerOnboarding2 = onboarding9image;
   static const String ownerOnboarding3 = onboarding7image;
 
-  // Home mock images
+  // Legacy home image aliases
   static const String homeRestaurant1 = onboarding7image;
   static const String homeRestaurant2 = onboarding8image;
   static const String homeRestaurant3 = onboarding9image;
@@ -39,13 +39,13 @@ class AppImages {
   static const String all = 'assets/icons/all.png';
   static const String restaurantlist = 'assets/icons/restaurantlist.png';
   static const String foodlist = 'assets/icons/foodlist.png';
-  static const String restaurantlistclored = 'assets/icons/restaurantlistclored.png';
+  static const String restaurantlistclored =
+      'assets/icons/restaurantlistclored.png';
   static const String allcolored = 'assets/icons/allcolored.png';
 
   // cart and checkout icons
   static const String location = 'assets/icons/location.png';
   static const String clock = 'assets/icons/clock.png';
-
 
   // user home icons
   static const String ai = 'assets/icons/ai.png';
@@ -60,8 +60,6 @@ class AppImages {
   static const String date = 'assets/icons/date.png';
   static const String time = 'assets/icons/time.png';
   static const String entryfee = 'assets/icons/entryfee.png';
-
-
 
   // profile iconsicons
   static const String wishlist = 'assets/icons/wishlist.png';

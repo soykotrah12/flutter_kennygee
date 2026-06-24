@@ -54,9 +54,7 @@ class RestaurantRecommendationCard extends StatelessWidget {
                     Text(
                       restaurant.cuisine?.isNotEmpty == true
                           ? restaurant.cuisine!
-                          : (restaurant.description.isNotEmpty
-                                ? restaurant.description
-                                : 'Restaurant'),
+                          : restaurant.description,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -91,7 +89,7 @@ class RestaurantRecommendationCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '\u2605 ${_ratingLabel(restaurant.rating)}',
+                  _ratingLabel(restaurant.rating),
                   style: TextStyle(
                     color: Color(0xFF2F2F2F),
                     fontSize: 11,
@@ -105,25 +103,22 @@ class RestaurantRecommendationCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              _InfoChip(
-                icon: Icons.location_on,
-                text: restaurant.distance?.isNotEmpty == true
-                    ? restaurant.distance!
-                    : '0.8 km',
-              ),
-              const SizedBox(width: 7),
-              _InfoChip(
-                icon: Icons.attach_money,
-                text: restaurant.priceLabel?.isNotEmpty == true
-                    ? restaurant.priceLabel!
-                    : '\$\$',
-              ),
-              const SizedBox(width: 7),
+              if (restaurant.distance?.isNotEmpty == true) ...[
+                _InfoChip(icon: Icons.location_on, text: restaurant.distance!),
+                const SizedBox(width: 7),
+              ],
+              if (restaurant.priceLabel?.isNotEmpty == true) ...[
+                _InfoChip(
+                  icon: Icons.attach_money,
+                  text: restaurant.priceLabel!,
+                ),
+                const SizedBox(width: 7),
+              ],
               _InfoChip(
                 icon: Icons.access_time,
                 text: restaurant.openingHours?.isNotEmpty == true
                     ? restaurant.openingHours!
-                    : 'N/A',
+                    : 'Hours not available',
               ),
             ],
           ),
@@ -133,8 +128,8 @@ class RestaurantRecommendationCard extends StatelessWidget {
   }
 
   String _ratingLabel(double? rating) {
-    if (rating == null) return '5.0';
-    return rating.toStringAsFixed(1);
+    if (rating == null || rating <= 0) return 'No ratings yet';
+    return '\u2605 ${rating.toStringAsFixed(1)}';
   }
 }
 

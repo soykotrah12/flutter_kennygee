@@ -4,7 +4,6 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
 import '../../data/model/food_model.dart';
 import '../../data/repo/home_food_repo.dart';
-import '../../data/repo/home_mock_data.dart';
 
 class HomeFoodController extends GetxController {
   HomeFoodController(this._repository);
@@ -59,17 +58,11 @@ class HomeFoodController extends GetxController {
       (failure) {
         if (_isAccountDeleting || isClosed) return;
         error.value = failure.message;
-        if (foods.isEmpty) {
-          foods.assignAll(HomeMockData.foodList);
-        }
+        foods.clear();
       },
       (success) {
         if (_isAccountDeleting || isClosed) return;
-        if (success.data.isNotEmpty) {
-          foods.assignAll(success.data);
-        } else {
-          foods.assignAll(HomeMockData.foodList);
-        }
+        foods.assignAll(success.data);
       },
     );
 

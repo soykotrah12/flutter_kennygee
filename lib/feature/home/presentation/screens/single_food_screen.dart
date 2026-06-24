@@ -49,16 +49,16 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
         widget.food ??
         FoodModel(
           id: _activeMenuId,
-          name: 'Food Item',
-          image: AppImages.homeRestaurant1,
+          name: '',
+          image: '',
           price: 0,
           rating: 0,
           reviewsCount: 0,
           description: '',
-          restaurantName: 'Restaurant',
-          distance: 'N/A',
+          restaurantName: '',
+          distance: '',
           address: '',
-          openingHours: 'Time unavailable',
+          openingHours: 'Hours not available',
         );
 
     _detailsController = HomeFoodDetailsController.ensureInitialized(
@@ -117,7 +117,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
       return <String>[food.image, food.image, food.image, food.image];
     }
 
-    return <String>[AppImages.homeRestaurant1];
+    return <String>[''];
   }
 
   RestaurantModel get _restaurantFromFood {
@@ -126,7 +126,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
     return RestaurantModel(
       id: food.shopId.trim().isNotEmpty ? food.shopId : 'food_rest_${food.id}',
       name: food.restaurantName,
-      subtitle: 'Restaurant',
+      subtitle: '',
       image: food.image,
       rating: food.rating,
       reviewsCount: food.reviewsCount,

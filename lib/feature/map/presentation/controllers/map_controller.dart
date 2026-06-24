@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -745,7 +744,6 @@ class MapFeatureController extends GetxController {
   }
 
   String resolveImage(String rawImage) {
-    if (rawImage.trim().isEmpty) return AppImages.homeRestaurant1;
     return rawImage;
   }
 

@@ -60,198 +60,213 @@ class _EventsScreenState extends State<EventsScreen> {
       ),
       child: AppScaffold(
         useSafeArea: true,
-        isScrollable: true,
+        isScrollable: false,
         backgroundColor: Colors.transparent,
         bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         appBarTitle: 'Events for you',
         centerTitle: false,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hungry? Discover\nWhat\'s nearby',
-              style: TextStyle(
-                color: AppColors.primaryText(context),
-                fontSize: 22,
-                height: 1.25,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Montserrat',
-              ),
+        body: RefreshIndicator(
+          color: AppColors.primaryGreen,
+          onRefresh: _eventController.fetchEvents,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
             ),
-            const SizedBox(height: 18),
-            Container(
-              height: 44,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primaryGreen, width: 1.4),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) {
-                          setState(() {
-                            _searchQuery = value;
-                          });
-                        },
-                        style: TextStyle(
-                          color: AppColors.primaryText(context),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Montserrat',
-                        ),
-                        decoration: InputDecoration(
-                          isCollapsed: true,
-                          fillColor: Colors.transparent,
-                          filled: true,
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          focusedErrorBorder: InputBorder.none,
-                          hintText: 'Search event name, price...',
-                          hintStyle: TextStyle(
-                            color: AppColors.secondaryText(context),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w300,
-                            fontFamily: 'Montserrat',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hungry? Discover\nWhat\'s nearby',
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
+                    fontSize: 22,
+                    height: 1.25,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.primaryGreen,
+                      width: 1.4,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (value) {
+                              setState(() {
+                                _searchQuery = value;
+                              });
+                            },
+                            style: TextStyle(
+                              color: AppColors.primaryText(context),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              fontFamily: 'Montserrat',
+                            ),
+                            decoration: InputDecoration(
+                              isCollapsed: true,
+                              fillColor: Colors.transparent,
+                              filled: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              hintText: 'Search event name, price...',
+                              hintStyle: TextStyle(
+                                color: AppColors.secondaryText(context),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w300,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  Container(
-                    width: 64,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryGreen,
-                      borderRadius: const BorderRadius.horizontal(
-                        right: Radius.circular(10),
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _searchController.clear();
-                          _searchQuery = '';
-                        });
-                        FocusScope.of(context).unfocus();
-                      },
-                      child: Center(
-                        child: Image.asset(
-                          AppImages.search,
-                          width: 26,
-                          height: 26,
-                          fit: BoxFit.contain,
+                      Container(
+                        width: 64,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGreen,
+                          borderRadius: const BorderRadius.horizontal(
+                            right: Radius.circular(10),
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _searchController.clear();
+                              _searchQuery = '';
+                            });
+                            FocusScope.of(context).unfocus();
+                          },
+                          child: Center(
+                            child: Image.asset(
+                              AppImages.search,
+                              width: 26,
+                              height: 26,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'Limited Experiences',
-              style: TextStyle(
-                color: AppColors.primaryGreen,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Montserrat',
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Upcoming Events Nearby',
-              style: TextStyle(
-                color: AppColors.primaryText(context),
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Montserrat',
-              ),
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              final List<EventModel> events = _eventController.events;
-              final List<EventModel> filteredEvents = _filterEvents(events);
-
-              if (_eventController.isLoading.value && events.isEmpty) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primaryGreen,
-                    ),
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  'Limited Experiences',
+                  style: TextStyle(
+                    color: AppColors.primaryGreen,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Montserrat',
                   ),
-                );
-              }
-
-              if (_eventController.error.value.isNotEmpty && events.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    _eventController.error.value,
-                    style: TextStyle(
-                      color: AppColors.secondaryText(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
-                    ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Upcoming Events Nearby',
+                  style: TextStyle(
+                    color: AppColors.primaryText(context),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Montserrat',
                   ),
-                );
-              }
+                ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  final List<EventModel> events = _eventController.events;
+                  final List<EventModel> filteredEvents = _filterEvents(events);
 
-              if (events.isEmpty) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    'No events available',
-                    style: TextStyle(
-                      color: AppColors.secondaryText(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                );
-              }
+                  if (_eventController.isLoading.value && events.isEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                    );
+                  }
 
-              if (filteredEvents.isEmpty) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    'No matching events found',
-                    style: TextStyle(
-                      color: AppColors.secondaryText(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                );
-              }
+                  if (_eventController.error.value.isNotEmpty &&
+                      events.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        _eventController.error.value,
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    );
+                  }
 
-              return Column(
-                children: List<Widget>.generate(filteredEvents.length, (index) {
-                  final EventModel event = filteredEvents[index];
+                  if (events.isEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        'No events available',
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    );
+                  }
 
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == filteredEvents.length - 1 ? 0 : 16,
-                    ),
-                    child: _EventCard(
-                      event: event,
-                      onTap: () => HomeNavigation.openEventDetails(event),
-                    ),
+                  if (filteredEvents.isEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        'No matching events found',
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    children: List<Widget>.generate(filteredEvents.length, (
+                      index,
+                    ) {
+                      final EventModel event = filteredEvents[index];
+
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == filteredEvents.length - 1 ? 0 : 16,
+                        ),
+                        child: _EventCard(
+                          event: event,
+                          onTap: () => HomeNavigation.openEventDetails(event),
+                        ),
+                      );
+                    }),
                   );
                 }),
-              );
-            }),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

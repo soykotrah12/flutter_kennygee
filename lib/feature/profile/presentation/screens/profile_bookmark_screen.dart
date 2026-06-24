@@ -138,7 +138,6 @@ class _BookmarkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: () => HomeNavigation.openRestaurantDetailsById(item.id),
       borderRadius: BorderRadius.circular(16),
@@ -198,21 +197,32 @@ class _BookmarkCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      Icon(
-                        Icons.star,
-                        color: AppColors.primaryOrange,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        item.rating.toStringAsFixed(1),
-                        style: TextStyle(
-                          color: AppColors.primaryGreen,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Montserrat',
+                      if (item.rating > 0) ...[
+                        Icon(
+                          Icons.star,
+                          color: AppColors.primaryOrange,
+                          size: 16,
                         ),
-                      ),
+                        const SizedBox(width: 4),
+                        Text(
+                          item.rating.toStringAsFixed(1),
+                          style: TextStyle(
+                            color: AppColors.primaryGreen,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                      ] else
+                        Text(
+                          'No ratings yet',
+                          style: TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
                       const SizedBox(width: 6),
                       Text(
                         '(${item.reviewsCount})',

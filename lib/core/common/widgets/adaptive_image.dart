@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_images.dart';
+
 class AdaptiveImage extends StatelessWidget {
   const AdaptiveImage({
     required this.path,
@@ -20,6 +22,10 @@ class AdaptiveImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (path.trim().isEmpty) {
+      return _placeholder();
+    }
+
     final double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     final int? cacheWidth = _resolveCacheSize(width, devicePixelRatio);
     final int? cacheHeight = _resolveCacheSize(height, devicePixelRatio);
@@ -65,10 +71,16 @@ class AdaptiveImage extends StatelessWidget {
   }
 
   Widget _placeholder() {
-    return Container(
+    return Image.asset(
+      AppImages.restaurantPlaceholder,
       width: width,
       height: height,
-      color: const Color(0xFFE8E8E8),
+      fit: fit,
+      errorBuilder: (_, __, ___) => Container(
+        width: width,
+        height: height,
+        color: const Color(0xFFE8E8E8),
+      ),
     );
   }
 }

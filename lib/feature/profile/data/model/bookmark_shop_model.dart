@@ -37,7 +37,6 @@ class BookmarkShopModel {
       name: _firstNonEmpty(<String>[
         (json['restaurantName'] ?? '').toString(),
         (json['name'] ?? '').toString(),
-        'Restaurant',
       ]),
       image: _firstNonEmpty(<String>[
         (image['url'] ?? '').toString(),
@@ -54,14 +53,10 @@ class BookmarkShopModel {
         (json['address'] ?? '').toString(),
         (_asMap(json['location'])['address'] ?? '').toString(),
       ]),
-      distance: _firstNonEmpty(<String>[
-        (json['distance'] ?? '').toString(),
-        'N/A',
-      ]),
+      distance: _firstNonEmpty(<String>[(json['distance'] ?? '').toString()]),
       subtitle: _firstNonEmpty(<String>[
         (json['subtitle'] ?? '').toString(),
         (json['description'] ?? '').toString(),
-        'Restaurant',
       ]),
     );
   }

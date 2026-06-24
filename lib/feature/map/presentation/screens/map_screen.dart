@@ -116,11 +116,44 @@ class _MapScreenState extends State<MapScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkCardSoft : const Color(0xF2FFFFFF),
+                color: isDark
+                    ? AppColors.darkCardSoft
+                    : const Color(0xF2FFFFFF),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 'No restaurant found',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.secondaryText(context),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ),
+          );
+        }),
+        Obx(() {
+          if (_controller.isLoading.value ||
+              _controller.allRestaurants.isNotEmpty ||
+              _controller.hasNoSearchResult) {
+            return const SizedBox.shrink();
+          }
+          return Positioned(
+            top: MediaQuery.of(context).padding.top + 84,
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.darkCardSoft
+                    : const Color(0xF2FFFFFF),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'No restaurants available',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.secondaryText(context),
@@ -141,9 +174,7 @@ class _MapScreenState extends State<MapScreen> {
               child: LinearProgressIndicator(
                 color: AppColors.primaryGreen,
                 minHeight: 2,
-                backgroundColor: isDark
-                    ? AppColors.darkCardSoft
-                    : Colors.white,
+                backgroundColor: isDark ? AppColors.darkCardSoft : Colors.white,
               ),
             );
           }
@@ -161,7 +192,9 @@ class _MapScreenState extends State<MapScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkCardSoft : const Color(0xEEFFFFFF),
+                color: isDark
+                    ? AppColors.darkCardSoft
+                    : const Color(0xEEFFFFFF),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(

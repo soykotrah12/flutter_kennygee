@@ -66,27 +66,28 @@ class MapRestaurantPreviewCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      '${restaurant.distanceLabel} AWAY',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primaryGreen,
-                        fontFamily: 'Montserrat',
+                    if (restaurant.distanceLabel.trim().isNotEmpty)
+                      Text(
+                        '${restaurant.distanceLabel} AWAY',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryGreen,
+                          fontFamily: 'Montserrat',
+                        ),
                       ),
-                    ),
                     const SizedBox(height: 7),
                     Row(
                       children: [
-                        Icon(
-                          Icons.star,
-                          color: Color(0xFFF7C100),
-                          size: 28,
-                        ),
-                        const SizedBox(width: 8),
+                        if (restaurant.rating > 0) ...[
+                          Icon(Icons.star, color: Color(0xFFF7C100), size: 28),
+                          const SizedBox(width: 8),
+                        ],
                         Expanded(
                           child: Text(
-                            '${restaurant.rating.toStringAsFixed(1)} ${restaurant.reviewsLabel}',
+                            restaurant.rating > 0
+                                ? '${restaurant.rating.toStringAsFixed(1)} ${restaurant.reviewsLabel}'
+                                : 'No ratings yet',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(

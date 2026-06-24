@@ -46,7 +46,7 @@ class RestaurantModel {
     required this.address,
     required this.openingHours,
     this.isLiked = false,
-    this.subtitle = 'Italian Restaurant',
+    this.subtitle = '',
     this.type = 'restaurant',
     this.popularDishes = const <String>[],
     this.menuItems = const <RestaurantMenuItemModel>[],

@@ -38,7 +38,7 @@ class FoodModel {
   final String category;
 
   /// Convert FoodModel to UpdateMenuResponseModel for the update screen
-  /// This creates a mock response based on available data
+  /// This creates the response shape from available backend data
   dynamic toUpdateMenuResponseModel() {
     final List<dynamic> imagesList = images.asMap().entries.map((entry) {
       return {'publicId': '', 'url': entry.value, 'id': ''};

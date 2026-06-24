@@ -52,35 +52,52 @@ class RecommendedListScreen extends StatelessWidget {
               shopController.recommendedItems;
 
           if (isLoading && items.isEmpty) {
-            return Center(
-              child: CircularProgressIndicator(color: AppColors.primaryGreen),
+            return RefreshIndicator(
+              color: AppColors.primaryGreen,
+              onRefresh: shopController.fetchRecommendedShops,
+              child: _RefreshableState(
+                child: CircularProgressIndicator(color: AppColors.primaryGreen),
+              ),
             );
           }
 
           if (items.isEmpty) {
-            return Center(
-              child: Text(
-                error.isNotEmpty
-                    ? 'Could not load recommendations'
-                    : 'No recommendations available',
-                style: TextStyle(
-                  color: AppColors.textGrey,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Montserrat',
+            return RefreshIndicator(
+              color: AppColors.primaryGreen,
+              onRefresh: shopController.fetchRecommendedShops,
+              child: _RefreshableState(
+                child: Text(
+                  error.isNotEmpty
+                      ? 'Could not load recommendations'
+                      : 'No recommendations available',
+                  style: TextStyle(
+                    color: AppColors.textGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Montserrat',
+                  ),
                 ),
               ),
             );
           }
 
-          return ListView.separated(
-            physics: const BouncingScrollPhysics(),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (_, index) {
-              final HomeRecommendationItemModel item = items[index];
-              return _RecommendedItem(item: item, onTap: () => _openItem(item));
-            },
+          return RefreshIndicator(
+            color: AppColors.primaryGreen,
+            onRefresh: shopController.fetchRecommendedShops,
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, index) {
+                final HomeRecommendationItemModel item = items[index];
+                return _RecommendedItem(
+                  item: item,
+                  onTap: () => _openItem(item),
+                );
+              },
+            ),
           );
         }),
       ),
@@ -99,6 +116,27 @@ class RecommendedListScreen extends StatelessWidget {
   }
 }
 
+class _RefreshableState extends StatelessWidget {
+  const _RefreshableState({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      children: [
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.62,
+          child: Center(child: child),
+        ),
+      ],
+    );
+  }
+}
+
 class _RecommendedItem extends StatelessWidget {
   const _RecommendedItem({required this.item, this.onTap});
 
@@ -107,10 +145,6 @@ class _RecommendedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String imagePath = item.image.trim().isNotEmpty
-        ? item.image
-        : AppImages.homeRestaurant1;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
@@ -119,7 +153,7 @@ class _RecommendedItem extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: AdaptiveImage(
-              path: imagePath,
+              path: item.image,
               width: 90,
               height: 90,
               fit: BoxFit.cover,
@@ -171,21 +205,32 @@ class _RecommendedItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(
-                      Icons.star,
-                      size: 16,
-                      color: AppColors.primaryOrange,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      item.rating.toStringAsFixed(1),
-                      style: TextStyle(
-                        color: AppColors.primaryGreen,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Montserrat',
+                    if (item.rating > 0) ...[
+                      Icon(
+                        Icons.star,
+                        size: 16,
+                        color: AppColors.primaryOrange,
                       ),
-                    ),
+                      const SizedBox(width: 4),
+                      Text(
+                        item.rating.toStringAsFixed(1),
+                        style: TextStyle(
+                          color: AppColors.primaryGreen,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
+                    ] else
+                      Text(
+                        'No ratings yet',
+                        style: TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat',
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 6),

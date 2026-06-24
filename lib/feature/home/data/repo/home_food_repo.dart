@@ -225,7 +225,7 @@ class HomeFoodRepository {
       reviewsCount: food.reviewsCount,
       description: food.description,
       restaurantName: food.restaurantName,
-      distance: food.distance.isNotEmpty ? food.distance : 'N/A',
+      distance: food.distance,
       address: food.address,
       openingHours: food.openingHours,
       images: food.imageUrls,

@@ -470,9 +470,7 @@ class _FavoriteGridCard extends StatelessWidget {
               child: Stack(
                 children: [
                   AdaptiveImage(
-                    path: item.image.isNotEmpty
-                        ? item.image
-                        : AppImages.homeRestaurant1,
+                    path: item.image,
                     width: double.infinity,
                     height: 145,
                     fit: BoxFit.cover,
@@ -518,17 +516,28 @@ class _FavoriteGridCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(Icons.star, size: 12, color: AppColors.primaryOrange),
-                  const SizedBox(width: 2),
-                  Text(
-                    item.rating.toStringAsFixed(1),
-                    style: TextStyle(
-                      color: AppColors.primaryGreen,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Montserrat',
+                  if (item.rating > 0) ...[
+                    Icon(Icons.star, size: 12, color: AppColors.primaryOrange),
+                    const SizedBox(width: 2),
+                    Text(
+                      item.rating.toStringAsFixed(1),
+                      style: TextStyle(
+                        color: AppColors.primaryGreen,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat',
+                      ),
                     ),
-                  ),
+                  ] else
+                    Text(
+                      'No ratings yet',
+                      style: TextStyle(
+                        color: AppColors.secondaryText(context),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
                 ],
               ),
             ),
