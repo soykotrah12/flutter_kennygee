@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_colors.dart';
+
 class AppScaffold extends StatelessWidget {
   final Widget body;
 
@@ -80,63 +82,62 @@ class AppScaffold extends StatelessWidget {
     );
   }
 
-  AppBar _defaultAppBar(BuildContext context, String title) {
-    final textTheme = Theme.of(context).textTheme;
+AppBar _defaultAppBar(BuildContext context, String title) {
+  return AppBar(
+    automaticallyImplyLeading: true,
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    toolbarHeight: toolbarHeight,
+    titleSpacing: titlespacing ?? 0,
+    centerTitle: centerTitle,
 
-    return AppBar(
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      backgroundColor: Colors.transparent,
-      toolbarHeight: toolbarHeight,
-      titleSpacing: titlespacing ?? 00,
-      centerTitle: centerTitle ?? true,
+    iconTheme: IconThemeData(
+      color: AppColors.primaryText(context),
+    ),
 
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ///  Title (Theme + override)
-          Text(
-            title,
-            style: textTheme.headlineMedium?.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.w600, 
-              height: 1.0,
-              
-            ),
-            textAlign: TextAlign.center,
-            softWrap: true,
-            overflow: TextOverflow.visible,
-            // maxLines: 2,
+    title: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: AppColors.primaryText(context),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Montserrat',
+            height: 1.0,
           ),
+        ),
 
-          ///  Subtitle (auto expand, no ellipsis)
-          if (appBarSubtitleWidget != null) ...[
-            const SizedBox(height: 4),
-            DefaultTextStyle(
-              style: textTheme.bodyMedium!.copyWith(
-                color: Colors.white54,
-                fontWeight: FontWeight.w500,
-              ),
-              // overflow: TextOverflow.visible,
-              child: appBarSubtitleWidget!,
+        if (appBarSubtitleWidget != null) ...[
+          const SizedBox(height: 4),
+          DefaultTextStyle(
+            style: TextStyle(
+              color: AppColors.secondaryText(context),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Montserrat',
             ),
-          ] else if (appBarSubtitle != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              appBarSubtitle!,
-              style: textTheme.bodyMedium?.copyWith(
-                color: Colors.white54,
-                fontWeight: FontWeight.w500,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
+            child: appBarSubtitleWidget!,
+          ),
+        ] else if (appBarSubtitle != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            appBarSubtitle!,
+            style: TextStyle(
+              color: AppColors.secondaryText(context),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Montserrat',
             ),
-          ],
+          ),
         ],
-      ),
+      ],
+    ),
 
-      actions: showActions ? actions : null,
-    );
-  }
+    actions: showActions ? actions : null,
+  );
+}
 }

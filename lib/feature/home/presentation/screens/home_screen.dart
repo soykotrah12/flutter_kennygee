@@ -631,7 +631,7 @@ class _SectionHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             softWrap: false,
             style: TextStyle(
-              color: AppColors.primaryGreen,
+              color: AppColors.primaryText1(context),
               fontSize: 18,
               fontWeight: FontWeight.w700,
               fontFamily: 'Montserrat',
@@ -677,7 +677,7 @@ class _OnlyTitleHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             softWrap: false,
             style: TextStyle(
-              color: AppColors.primaryGreen,
+              color: AppColors.primaryText1(context),
               fontSize: 18,
               fontWeight: FontWeight.w600,
               fontFamily: 'Montserrat',
@@ -787,7 +787,7 @@ class _NearbyCard extends StatelessWidget {
                         maxLines: 1,
                         softWrap: false,
                         style: TextStyle(
-                          color: AppColors.primaryGreen,
+                          color: AppColors.primaryText1(context),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Montserrat',
@@ -948,7 +948,7 @@ class _RecommendedItem extends StatelessWidget {
                       Text(
                         item.rating.toStringAsFixed(1),
                         style: TextStyle(
-                          color: AppColors.primaryGreen,
+                          color: AppColors.primaryText1(context),
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Montserrat',

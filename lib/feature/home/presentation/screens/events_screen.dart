@@ -61,7 +61,7 @@ class _EventsScreenState extends State<EventsScreen> {
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
-        backgroundColor: Colors.transparent,
+        // backgroundColor: Colors.transparent,
         bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         appBarTitle: 'Events for you',
         centerTitle: false,
@@ -78,7 +78,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 Text(
                   'Hungry? Discover\nWhat\'s nearby',
                   style: TextStyle(
-                    color: AppColors.primaryText(context),
+                    color: AppColors.primaryText1(context),
                     fontSize: 22,
                     height: 1.25,
                     fontWeight: FontWeight.w600,
@@ -108,7 +108,7 @@ class _EventsScreenState extends State<EventsScreen> {
                               });
                             },
                             style: TextStyle(
-                              color: AppColors.primaryText(context),
+                              color: AppColors.primaryText1(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               fontFamily: 'Montserrat',
@@ -168,7 +168,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 Text(
                   'Limited Experiences',
                   style: TextStyle(
-                    color: AppColors.primaryGreen,
+                    color: AppColors.primaryText1(context),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
@@ -178,7 +178,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 Text(
                   'Upcoming Events Nearby',
                   style: TextStyle(
-                    color: AppColors.primaryText(context),
+                    color: AppColors.primaryText1(context),
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Montserrat',
@@ -326,7 +326,7 @@ class _EventCard extends StatelessWidget {
                       child: Text(
                         event.fee,
                         style: TextStyle(
-                          color: AppColors.primaryGreen,
+                          color: AppColors.primaryText1(context),
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           fontFamily: 'Montserrat',
@@ -386,7 +386,7 @@ class _EventCard extends StatelessWidget {
                   Text(
                     event.title,
                     style: TextStyle(
-                      color: AppColors.primaryText(context),
+                      color: AppColors.primaryText1(context),
                       fontSize: 20 * 1.75 / 2,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',

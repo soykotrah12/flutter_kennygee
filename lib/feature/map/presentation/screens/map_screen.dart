@@ -271,7 +271,7 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   child: Icon(
                     Icons.my_location,
-                    color: AppColors.primaryGreen,
+                    color: AppColors.primaryText(context),
                     size: 24,
                   ),
                 ),

@@ -91,7 +91,7 @@ class HomeEventRepository {
       location: resolvedLocation,
       detailsTitle: resolvedTitle,
       detailsDescription: resolvedDescription,
-      actionLabel: 'I am Going',
+      actionLabel: 'Pay now',
       isGoing: event.isGoing,
       goingUsers: event.goingUsers,
     );

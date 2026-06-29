@@ -86,7 +86,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               child: Text(
                 'Pay Now',
                 style: TextStyle(
-                  color: AppColors.primaryGreen,
+                  color: AppColors.primaryText(context),
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Montserrat',
                 ),
@@ -137,7 +137,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: true,
-        backgroundColor: Colors.transparent,
+        // backgroundColor: Colors.transparent,
         bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         appBarTitle: 'Events for you',
         body: Obx(() {

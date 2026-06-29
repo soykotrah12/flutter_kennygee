@@ -546,7 +546,7 @@ class _RatingPill extends StatelessWidget {
             Text(
               rating.toStringAsFixed(1),
               style: TextStyle(
-                color: AppColors.primaryGreen,
+                color: AppColors.primaryText(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Montserrat',

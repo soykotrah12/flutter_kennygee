@@ -87,6 +87,25 @@ class AppColors {
       ? darkTextPrimary
       : textBlack;
 
+// white and green 
+  static Color primaryText1(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkTextPrimary
+      : primaryGreen;
+
+// white and green 
+  static Color primaryappbar(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? black
+      : white;
+
+// white and black      
+
+  static Color primaryText2(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? black
+      : primaryGreen;  
+
   static Color secondaryText(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
       ? darkTextSecondary

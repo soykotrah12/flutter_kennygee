@@ -9,7 +9,7 @@ class EventModel {
     required this.location,
     required this.detailsTitle,
     required this.detailsDescription,
-    this.actionLabel = 'I am Going',
+    this.actionLabel = 'Pay now',
     this.isGoing = false,
     this.goingUsers = const <String>[],
   });

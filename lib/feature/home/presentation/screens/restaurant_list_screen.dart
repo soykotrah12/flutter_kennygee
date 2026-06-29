@@ -28,7 +28,7 @@ class RestaurantListScreen extends StatelessWidget {
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
-        backgroundColor: Colors.transparent,
+        // backgroundColor: Colors.transparent,
         bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         customAppBar: AppBar(
           backgroundColor: Colors.transparent,
