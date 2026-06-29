@@ -160,6 +160,11 @@ class MapFeatureController extends GetxController {
           ),
         )
         .toList();
+    final MapRestaurantModel? selected = selectedRestaurant.value;
+    if (selected != null &&
+        !merged.any((item) => item.shopId == selected.shopId)) {
+      merged.add(selected);
+    }
 
     debugPrint('restaurants loaded: ${merged.length}');
 
@@ -325,6 +330,41 @@ class MapFeatureController extends GetxController {
     Get.to(() => RestaurantDetailsScreen(shopId: restaurant.shopId));
   }
 
+  Future<void> openDirectionsForShop({
+    required String shopId,
+    String fallbackRestaurantName = '',
+  }) async {
+    final String trimmedShopId = shopId.trim();
+    if (trimmedShopId.isEmpty) {
+      Get.snackbar(
+        'Directions',
+        'Restaurant location is unavailable.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.cardAdaptive,
+      );
+      return;
+    }
+
+    MapRestaurantModel? restaurant = _findRestaurant(trimmedShopId);
+    restaurant ??= await _repository.fetchRestaurantByShopId(trimmedShopId);
+
+    if (restaurant == null) {
+      Get.snackbar(
+        'Directions',
+        fallbackRestaurantName.trim().isEmpty
+            ? 'Restaurant location is unavailable.'
+            : 'Location is unavailable for $fallbackRestaurantName.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.cardAdaptive,
+      );
+      return;
+    }
+
+    _upsertRestaurant(restaurant);
+    selectRestaurant(restaurant);
+    await buildRouteToSelectedRestaurant();
+  }
+
   Future<void> buildRouteToSelectedRestaurant() async {
     final MapRestaurantModel? restaurant = selectedRestaurant.value;
     if (restaurant == null) return;
@@ -434,6 +474,38 @@ class MapFeatureController extends GetxController {
 
     debugPrint('markers count: ${markers.length}');
     return markers;
+  }
+
+  MapRestaurantModel? _findRestaurant(String shopId) {
+    for (final restaurant in allRestaurants) {
+      if (restaurant.shopId == shopId) return restaurant;
+    }
+    for (final restaurant in visibleRestaurants) {
+      if (restaurant.shopId == shopId) return restaurant;
+    }
+    final selected = selectedRestaurant.value;
+    if (selected?.shopId == shopId) return selected;
+    return null;
+  }
+
+  void _upsertRestaurant(MapRestaurantModel restaurant) {
+    final int allIndex = allRestaurants.indexWhere(
+      (item) => item.shopId == restaurant.shopId,
+    );
+    if (allIndex == -1) {
+      allRestaurants.add(restaurant);
+    } else {
+      allRestaurants[allIndex] = restaurant;
+    }
+
+    final int visibleIndex = visibleRestaurants.indexWhere(
+      (item) => item.shopId == restaurant.shopId,
+    );
+    if (visibleIndex == -1) {
+      visibleRestaurants.add(restaurant);
+    } else {
+      visibleRestaurants[visibleIndex] = restaurant;
+    }
   }
 
   Set<Polyline> _buildPolylines() {

@@ -14,6 +14,7 @@ import 'auth_flow_controller.dart';
 import '../screens/logIn_screen.dart';
 import '../screens/Otp_verify_screen.dart' as ForgotPasswordOtp;
 import '../screens/otp_verification_screen.dart';
+import '../screens/role_selection_screen.dart';
 
 class AuthController extends BaseController {
   final AuthRepository _authRepository;
@@ -589,6 +590,6 @@ class AuthController extends BaseController {
 
   Future<void> logout() async {
     await _authStorageService.clearAuthData();
-    Get.offAll(() => const LoginRoleScreen());
+    Get.offAll(() => const RoleSelectionScreen());
   }
 }

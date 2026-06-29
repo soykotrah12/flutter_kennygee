@@ -493,7 +493,14 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
   }
 
   Future<void> _openDirections() async {
-    await Get.to(() => const MapScreen());
+    final FoodModel food = _currentFood;
+    await Get.to(
+      () => MapScreen(
+        initialShopId: food.shopId,
+        initialRestaurantName: food.restaurantName,
+        autoOpenDirections: true,
+      ),
+    );
   }
 
   Future<void> _saveFood() async {

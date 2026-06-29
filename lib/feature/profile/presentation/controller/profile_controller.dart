@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:restart_app/restart_app.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/constants/api_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
+import '../../../auth/presentation/screens/role_selection_screen.dart';
 import '../../data/model/user_profile_model.dart';
 import '../../data/repo/profile_repo_impl.dart';
 import '../../data/repo/stripe_connect_repository.dart';
@@ -463,22 +463,25 @@ class ProfileController extends GetxController {
         );
       },
       (success) async {
-        AuthStorageService.isAccountDeleting = true;
+        AuthStorageService.beginAccountDeleteCleanup();
+        _cancelAccountDeletionSensitiveRequests();
         FocusManager.instance.primaryFocus?.unfocus();
 
         if (Get.isDialogOpen == true) {
           Get.back<void>();
         }
 
+        final authStorage = Get.isRegistered<AuthStorageService>()
+            ? Get.find<AuthStorageService>()
+            : AuthStorageService();
+        await authStorage.clearSessionSilently(reason: 'account_deleted');
+
+        if (!isClosed) {
+          isDeletingAccount.value = false;
+        }
+        AuthStorageService.endAccountDeleteCleanup();
+        Get.offAll(() => const RoleSelectionScreen());
         _showSuccess('Account deleted successfully');
-
-        await AuthStorageService().clearSessionSilently(
-          reason: 'account_deleted',
-        );
-
-        await Future<void>.delayed(const Duration(milliseconds: 300));
-
-        await Restart.restartApp();
       },
     );
   }

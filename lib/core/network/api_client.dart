@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutx_core/flutx_core.dart';
+import 'package:get/get.dart' hide FormData, Response;
 
 import 'constants/api_constants.dart';
 import 'constants/key_constants.dart';
@@ -16,6 +17,7 @@ import 'models/network_failure.dart';
 import 'services/connectivity_service.dart';
 import 'services/auth_storage_service.dart';
 import 'services/secure_store_services.dart';
+import '../../feature/auth/presentation/screens/role_selection_screen.dart';
 
 import '/core/network/models/network_success.dart';
 
@@ -124,7 +126,7 @@ class ApiClient {
       }
 
       final response = await _dio.post(
-        '${ApiConstants.baseUrl}${ApiConstants.auth.refreshToken}',
+        ApiConstants.auth.refreshToken,
         data: {'refreshToken': refreshToken},
       );
 
@@ -284,6 +286,31 @@ class ApiClient {
             ),
           );
         }
+        if (statusCode == 401 && !_isAuthEndpoint(endpoint)) {
+          final bool restored = await _refreshAndWakePendingRequests();
+          if (restored) {
+            return _request<T>(
+              method: method,
+              endpoint: endpoint,
+              fromJsonT: fromJsonT,
+              data: data,
+              fromData: fromData,
+              queryParameters: queryParameters,
+              options: options,
+              cancelToken: cancelToken,
+              onSendProgress: onSendProgress,
+              onReceiveProgress: onReceiveProgress,
+              isFormData: isFormData,
+            );
+          }
+          await _handleExpiredSession();
+          return Left(
+            UnauthorizedFailure(
+              message: baseResponse.combinedErrorMessage,
+              statusCode: statusCode,
+            ),
+          );
+        }
         return Left(
           ServerFailure(
             message: baseResponse.combinedErrorMessage,
@@ -333,30 +360,23 @@ class ApiClient {
           ),
         );
       }
-      if (error.response?.statusCode == 401 && !_isRefreshing) {
-        _isRefreshing = true;
-        try {
-          if (await _refreshToken()) {
-            return _request<T>(
-              method: method,
-              endpoint: endpoint,
-              fromJsonT: fromJsonT,
-              data: data,
-              queryParameters: queryParameters,
-              options: options,
-              cancelToken: cancelToken,
-              onSendProgress: onSendProgress,
-              onReceiveProgress: onReceiveProgress,
-              isFormData: isFormData,
-            );
-          }
-        } finally {
-          _isRefreshing = false;
-          for (var completer in _pendingRequests) {
-            completer.complete();
-          }
-          _pendingRequests.clear();
+      if (error.response?.statusCode == 401 && !_isAuthEndpoint(endpoint)) {
+        if (await _refreshAndWakePendingRequests()) {
+          return _request<T>(
+            method: method,
+            endpoint: endpoint,
+            fromJsonT: fromJsonT,
+            data: data,
+            fromData: fromData,
+            queryParameters: queryParameters,
+            options: options,
+            cancelToken: cancelToken,
+            onSendProgress: onSendProgress,
+            onReceiveProgress: onReceiveProgress,
+            isFormData: isFormData,
+          );
         }
+        await _handleExpiredSession();
       }
       return Left(_handleDioError(error));
     } catch (e) {
@@ -514,6 +534,41 @@ class ApiClient {
   bool _isAuthEndpoint(String endpoint) {
     final authBase = '${ApiConstants.baseUrl}/auth';
     return endpoint.startsWith(authBase) || endpoint.contains('/auth/');
+  }
+
+  Future<bool> _refreshAndWakePendingRequests() async {
+    if (_isRefreshing) {
+      final completer = Completer<void>();
+      _pendingRequests.add(completer);
+      await completer.future;
+      final token = await _secureStoreServices.retrieveData(
+        KeyConstants.accessToken,
+      );
+      return token != null && token.trim().isNotEmpty;
+    }
+
+    _isRefreshing = true;
+    try {
+      return await _refreshToken();
+    } finally {
+      _isRefreshing = false;
+      for (final completer in _pendingRequests) {
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      }
+      _pendingRequests.clear();
+    }
+  }
+
+  Future<void> _handleExpiredSession() async {
+    if (AuthStorageService.isClearingAfterAccountDelete) return;
+
+    await AuthStorageService().clearSessionSilently(reason: 'session_expired');
+
+    if (Get.currentRoute != '/RoleSelectionScreen') {
+      Get.offAll(() => const RoleSelectionScreen());
+    }
   }
 
   String _resolveRequestUrl(String endpoint) {

@@ -79,6 +79,21 @@ class MapRepository {
     );
   }
 
+  Future<MapRestaurantModel?> fetchRestaurantByShopId(String shopId) async {
+    final String trimmedShopId = shopId.trim();
+    if (trimmedShopId.isEmpty) return null;
+
+    final result = await _apiClient.get<MapRestaurantModel>(
+      ApiConstants.shop.fetchShopDetails(trimmedShopId),
+      fromJsonT: (json) => _toRestaurant(_asMap(json)),
+    );
+
+    return result.fold(
+      (_) => null,
+      (success) => success.data.hasValidCoordinates ? success.data : null,
+    );
+  }
+
   MapRestaurantModel _toRestaurant(Map<String, dynamic> json) {
     final Map<String, dynamic> image = _asMap(json['image']);
     final Map<String, dynamic> location = _asMap(json['location']);

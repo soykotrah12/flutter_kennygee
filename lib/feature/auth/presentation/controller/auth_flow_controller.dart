@@ -15,8 +15,10 @@ import '../../data/repo/auth_repo_impl.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../../data/model/auth_response_model.dart';
 import '../../data/model/login_request_model.dart';
+import '../../data/model/refresh_token_request_model.dart';
 import '../../data/model/register_request_model.dart';
 import '../../data/model/verify_otp_request-model.dart';
+import '../screens/OnboardingScreen1.dart';
 import '../screens/logIn_screen.dart';
 import '../screens/otp_verification_screen.dart';
 import '../screens/role_selection_screen.dart';
@@ -154,6 +156,50 @@ class AuthFlowController extends GetxController {
     try {
       await _onboardingStoreService.storeOnboardingData(isCompleted: 'true');
     } catch (_) {}
+    Get.offAll(() => const RoleSelectionScreen());
+  }
+
+  Future<void> startAppFromSplash() async {
+    if (AuthStorageService.isClearingAfterAccountDelete) return;
+
+    final accessToken = (await _authStorageService.getAccessToken())?.trim();
+    final refreshToken = (await _authStorageService.getRefreshToken())?.trim();
+    final storedRole = await _authStorageService.getRole();
+    final bool isGuest = await _authStorageService.isGuestMode();
+    final bool onboardingCompleted = await _onboardingStoreService
+        .isOnboardingCompleted();
+
+    if (accessToken != null && accessToken.isNotEmpty) {
+      await _openAuthenticatedDashboard(roleFromStorage(storedRole));
+      return;
+    }
+
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      final AppUserRole? refreshedRole = await _tryRestoreSession(
+        refreshToken: refreshToken,
+        fallbackRole: roleFromStorage(storedRole),
+      );
+      if (refreshedRole != null) {
+        await _openAuthenticatedDashboard(refreshedRole);
+        return;
+      }
+    }
+
+    if (isGuest) {
+      await restoreGuestMode();
+      Get.offAll(() => DashboardScreen(role: AppUserRole.user));
+      return;
+    }
+
+    await _authStorageService.clearAuthData();
+    selectedRole.value = null;
+    isGuestMode.value = false;
+
+    if (!onboardingCompleted) {
+      Get.offAll(() => const OnboardingScreen1());
+      return;
+    }
+
     Get.offAll(() => const RoleSelectionScreen());
   }
 
@@ -462,9 +508,9 @@ class AuthFlowController extends GetxController {
 
   Future<void> logout() async {
     await _authStorageService.clearAuthData();
-    await _authStorageService.storeGuestMode(false);
     isGuestMode.value = false;
-    Get.offAll(() => const LoginRoleScreen());
+    selectedRole.value = null;
+    Get.offAll(() => const RoleSelectionScreen());
   }
 
   Future<void> logoutFromApi() async {
@@ -475,23 +521,14 @@ class AuthFlowController extends GetxController {
       final result = await _authRepository.logout();
       await result.fold<Future<void>>(
         (_) async {
-          await _authStorageService.clearAuthData();
-          await _authStorageService.storeGuestMode(false);
-          isGuestMode.value = false;
-          Get.offAll(() => const LoginRoleScreen());
+          await _clearSessionAndOpenRoleSelection();
         },
         (_) async {
-          await _authStorageService.clearAuthData();
-          await _authStorageService.storeGuestMode(false);
-          isGuestMode.value = false;
-          Get.offAll(() => const LoginRoleScreen());
+          await _clearSessionAndOpenRoleSelection();
         },
       );
     } catch (_) {
-      await _authStorageService.clearAuthData();
-      await _authStorageService.storeGuestMode(false);
-      isGuestMode.value = false;
-      Get.offAll(() => const LoginRoleScreen());
+      await _clearSessionAndOpenRoleSelection();
     } finally {
       isSubmitting.value = false;
     }
@@ -584,6 +621,58 @@ class AuthFlowController extends GetxController {
     await _authStorageService.storeRole(resolvedRole.storageValue);
 
     return resolvedRole;
+  }
+
+  Future<AppUserRole?> _tryRestoreSession({
+    required String refreshToken,
+    required AppUserRole fallbackRole,
+  }) async {
+    final result = await _authRepository.refreshToken(
+      RefreshTokenRequestModel(refreshToken: refreshToken),
+    );
+
+    return result.fold<Future<AppUserRole?>>(
+      (_) async {
+        await _authStorageService.clearAuthData();
+        selectedRole.value = null;
+        isGuestMode.value = false;
+        return null;
+      },
+      (success) async {
+        final String newAccessToken = success.data.accessToken.trim();
+        final String newRefreshToken = success.data.refreshToken.trim();
+        if (newAccessToken.isEmpty) {
+          await _authStorageService.clearAuthData();
+          selectedRole.value = null;
+          isGuestMode.value = false;
+          return null;
+        }
+
+        await _authStorageService.clearAuthData();
+        await _authStorageService.storeAccessToken(newAccessToken);
+        if (newRefreshToken.isNotEmpty) {
+          await _authStorageService.storeRefreshToken(newRefreshToken);
+        }
+        await _authStorageService.storeRole(fallbackRole.storageValue);
+        selectedRole.value = fallbackRole;
+        isGuestMode.value = false;
+        return fallbackRole;
+      },
+    );
+  }
+
+  Future<void> _openAuthenticatedDashboard(AppUserRole role) async {
+    await _authStorageService.storeGuestMode(false);
+    selectedRole.value = role;
+    isGuestMode.value = false;
+    Get.offAll(() => DashboardScreen(role: role));
+  }
+
+  Future<void> _clearSessionAndOpenRoleSelection() async {
+    await _authStorageService.clearAuthData();
+    isGuestMode.value = false;
+    selectedRole.value = null;
+    Get.offAll(() => const RoleSelectionScreen());
   }
 
   AppUserRole _resolveRole(String rawRole, {AppUserRole? fallbackRole}) {

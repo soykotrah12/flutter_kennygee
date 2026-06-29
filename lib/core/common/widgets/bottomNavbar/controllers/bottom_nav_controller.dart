@@ -93,11 +93,22 @@ class BottomNavController extends GetxController {
   );
 
   void changeIndex(int index) {
+    if (index < 0 || index >= tabs.length) return;
     if (index == currentIndex.value) {
       navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
       return;
     }
     currentIndex.value = index;
+  }
+
+  void openFavoritesTab() {
+    final int index = tabs.indexWhere(
+      (tab) =>
+          tab.protectedFeatureName == 'favorites' ||
+          tab.label.toLowerCase() == 'wishlist',
+    );
+    if (index == -1) return;
+    changeIndex(index);
   }
 
   Future<bool> onWillPop() async {

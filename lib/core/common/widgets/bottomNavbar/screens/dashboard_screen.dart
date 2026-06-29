@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../../../feature/auth/presentation/controller/auth_flow_controller.dart';
@@ -18,12 +19,17 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   late final String _tag;
   late final BottomNavController _controller;
+  DateTime? _lastBackPressedAt;
 
   @override
   void initState() {
     super.initState();
     _tag = 'dashboard_${widget.role.storageValue}';
-    _controller = Get.put(BottomNavController(role: widget.role), tag: _tag);
+    if (Get.isRegistered<BottomNavController>(tag: _tag)) {
+      _controller = Get.find<BottomNavController>(tag: _tag);
+    } else {
+      _controller = Get.put(BottomNavController(role: widget.role), tag: _tag);
+    }
   }
 
   @override
@@ -33,7 +39,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Get.isRegistered<BottomNavController>(tag: _tag)) {
+      if (Get.isRegistered<BottomNavController>(tag: _tag) &&
+          identical(Get.find<BottomNavController>(tag: _tag), _controller)) {
         Get.delete<BottomNavController>(tag: _tag);
       }
     });
@@ -47,8 +54,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final shouldPop = await _controller.onWillPop();
-        if (shouldPop && context.mounted) {
-          Navigator.of(context).maybePop();
+        if (shouldPop) {
+          _handleRootBackPressed();
         }
       },
       child: Scaffold(
@@ -178,5 +185,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+  }
+
+  void _handleRootBackPressed() {
+    if (!mounted) return;
+    final DateTime now = DateTime.now();
+    final bool shouldExit =
+        _lastBackPressedAt != null &&
+        now.difference(_lastBackPressedAt!) <= const Duration(seconds: 2);
+
+    if (shouldExit) {
+      SystemNavigator.pop();
+      return;
+    }
+
+    _lastBackPressedAt = now;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Press back again to exit'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
   }
 }

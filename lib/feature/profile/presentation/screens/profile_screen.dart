@@ -165,7 +165,7 @@ class ProfileScreen extends StatelessWidget {
                             )) {
                               Get.find<BottomNavController>(
                                 tag: dashboardTag,
-                              ).changeIndex(2);
+                              ).openFavoritesTab();
                             }
                           },
                         ),
