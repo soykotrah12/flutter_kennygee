@@ -61,7 +61,7 @@ class _FoodListScreenState extends State<FoodListScreen>
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
-        backgroundColor: Colors.transparent,
+        // backgroundColor: Colors.transparent,
         bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         customAppBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -238,7 +238,7 @@ class _FoodGridCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -308,7 +308,7 @@ class _FoodGridCard extends StatelessWidget {
                   Text(
                     item.rating.toStringAsFixed(1),
                     style: TextStyle(
-                      color: AppColors.primaryGreen,
+                      color: AppColors.primaryText(context),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',

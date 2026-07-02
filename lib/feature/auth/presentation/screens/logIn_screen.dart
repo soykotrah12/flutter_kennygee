@@ -103,10 +103,10 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
                           onTap: () => Get.to(() => const EmailVerifyScreen()),
-                          child: const Text(
+                          child: Text(
                             'Forgot password?',
                             style: TextStyle(
-                              color: AppColors.primaryGreen,
+                              color: AppColors.primaryText(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                             ),
@@ -139,10 +139,10 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
                           onPressed: _flowController.isSubmitting.value
                               ? null
                               : _flowController.continueAsGuest,
-                          child: const Text(
+                          child: Text(
                             'Continue as Guest',
                             style: TextStyle(
-                              color: AppColors.primaryGreen,
+                              color: AppColors.primaryText(context),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Montserrat',
@@ -173,10 +173,10 @@ class _LoginRoleScreenState extends State<LoginRoleScreen> {
                                 () => CreateAccountScreen(selectedRole: role),
                               );
                             },
-                            child: const Text(
+                            child: Text(
                               'Sign Up Here',
                               style: TextStyle(
-                                color: AppColors.primaryGreen,
+                                color: AppColors.primaryText(context),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -242,6 +242,7 @@ class _AuthInput extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
+      cursorColor: AppColors.primaryText1(context),
       style: TextStyle(
         color: AppColors.primaryText(context),
         fontSize: 14,

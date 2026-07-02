@@ -258,7 +258,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                 Text(
                                   '\$${food.price.toStringAsFixed(2)}',
                                   style: TextStyle(
-                                    color: AppColors.primaryGreen,
+                                    color: AppColors.primaryText(context),
                                     fontSize: 24,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Montserrat',
@@ -328,7 +328,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                             Text(
                               food.description,
                               style: TextStyle(
-                                color: Color(0xFF6E6E6E),
+                                color: AppColors.primaryText(context),
                                 fontSize: 14,
                                 height: 1.35,
                                 fontWeight: FontWeight.w500,
@@ -383,7 +383,7 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                             Text(
                                               food.distance,
                                               style: TextStyle(
-                                                color: AppColors.primaryGreen,
+                                                color: AppColors.primaryText1(context),
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
                                                 fontFamily: 'Montserrat',
@@ -396,11 +396,12 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                         width: 44,
                                         height: 44,
                                         decoration: BoxDecoration(
-                                          color: AppColors.background(context),
+                                          color: AppColors.cardColor(context),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
                                           child: Image.asset(
+                                            color: AppColors.primaryText(context),
                                             AppImages.map,
                                             width: 24,
                                             height: 24,
@@ -415,14 +416,14 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                       Icon(
                                         Icons.location_on_outlined,
                                         size: 16,
-                                        color: Color(0xFF777777),
+                                        color: AppColors.primaryText(context),
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
                                           food.address,
                                           style: TextStyle(
-                                            color: Color(0xFF6E6E6E),
+                                            color: AppColors.primaryText(context),
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             fontFamily: 'Montserrat',
@@ -437,14 +438,14 @@ class _SingleFoodScreenState extends State<SingleFoodScreen>
                                       Icon(
                                         Icons.access_time,
                                         size: 16,
-                                        color: Color(0xFF777777),
+                                        color: AppColors.primaryText(context),
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
                                           'Open - ${food.openingHours}',
                                           style: TextStyle(
-                                            color: Color(0xFF6E6E6E),
+                                            color: AppColors.primaryText(context),
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             fontFamily: 'Montserrat',

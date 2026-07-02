@@ -27,7 +27,7 @@ class RecommendedListScreen extends StatelessWidget {
       child: AppScaffold(
         useSafeArea: true,
         isScrollable: false,
-        backgroundColor: Colors.transparent,
+        // backgroundColor: Colors.transparent,
         bodyPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         customAppBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -215,7 +215,7 @@ class _RecommendedItem extends StatelessWidget {
                       Text(
                         item.rating.toStringAsFixed(1),
                         style: TextStyle(
-                          color: AppColors.primaryGreen,
+                          color: AppColors.primaryText(context),
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Montserrat',

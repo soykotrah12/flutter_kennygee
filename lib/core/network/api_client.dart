@@ -173,6 +173,8 @@ class ApiClient {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
     bool isFormData = false,
+    bool includeAuth = true,
+    bool redirectOnUnauthorized = true,
   }) async {
     await _ensureInitialized();
 
@@ -232,7 +234,11 @@ class ApiClient {
         );
       }
 
-      options = await _addAuthHeader(options);
+      if (includeAuth) {
+        options = await _addAuthHeader(options);
+      } else {
+        options ??= Options();
+      }
 
       // Set headers for FormData if applicable
       if (isFormData) {
@@ -286,7 +292,9 @@ class ApiClient {
             ),
           );
         }
-        if (statusCode == 401 && !_isAuthEndpoint(endpoint)) {
+        if (statusCode == 401 &&
+            !_isAuthEndpoint(endpoint) &&
+            redirectOnUnauthorized) {
           final bool restored = await _refreshAndWakePendingRequests();
           if (restored) {
             return _request<T>(
@@ -301,6 +309,8 @@ class ApiClient {
               onSendProgress: onSendProgress,
               onReceiveProgress: onReceiveProgress,
               isFormData: isFormData,
+              includeAuth: includeAuth,
+              redirectOnUnauthorized: redirectOnUnauthorized,
             );
           }
           await _handleExpiredSession();
@@ -360,7 +370,9 @@ class ApiClient {
           ),
         );
       }
-      if (error.response?.statusCode == 401 && !_isAuthEndpoint(endpoint)) {
+      if (error.response?.statusCode == 401 &&
+          !_isAuthEndpoint(endpoint) &&
+          redirectOnUnauthorized) {
         if (await _refreshAndWakePendingRequests()) {
           return _request<T>(
             method: method,
@@ -374,6 +386,8 @@ class ApiClient {
             onSendProgress: onSendProgress,
             onReceiveProgress: onReceiveProgress,
             isFormData: isFormData,
+            includeAuth: includeAuth,
+            redirectOnUnauthorized: redirectOnUnauthorized,
           );
         }
         await _handleExpiredSession();
@@ -401,6 +415,8 @@ class ApiClient {
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
     bool isFormData = false,
+    bool includeAuth = true,
+    bool redirectOnUnauthorized = true,
   }) => _request(
     method: 'GET',
     endpoint: endpoint,
@@ -410,6 +426,8 @@ class ApiClient {
     cancelToken: cancelToken,
     onReceiveProgress: onReceiveProgress,
     isFormData: isFormData,
+    includeAuth: includeAuth,
+    redirectOnUnauthorized: redirectOnUnauthorized,
   );
 
   Future<Either<NetworkFailure, NetworkSuccess<T>>> post<T>(

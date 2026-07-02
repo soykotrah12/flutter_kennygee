@@ -13,6 +13,7 @@ class MapRestaurantModel {
     required this.openTime,
     required this.closeTime,
     this.searchKeywords = const <String>[],
+    this.isExternalGooglePlace = false,
   });
 
   final String shopId;
@@ -28,6 +29,7 @@ class MapRestaurantModel {
   final String openTime;
   final String closeTime;
   final List<String> searchKeywords;
+  final bool isExternalGooglePlace;
 
   bool get hasValidCoordinates => latitude != 0 || longitude != 0;
 
@@ -65,6 +67,7 @@ class MapRestaurantModel {
       openTime: openTime,
       closeTime: closeTime,
       searchKeywords: searchKeywords ?? this.searchKeywords,
+      isExternalGooglePlace: isExternalGooglePlace,
     );
   }
 }

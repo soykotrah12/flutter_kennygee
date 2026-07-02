@@ -280,7 +280,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.primaryGreen,
+                            color: AppColors.primaryText(context),
                             width: 2,
                           ),
                         ),
@@ -289,14 +289,14 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen>
                                 padding: EdgeInsets.all(10),
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: AppColors.primaryGreen,
+                                  color: AppColors.primaryText(context),
                                 ),
                               )
                             : Icon(
                                 isShopBookmarked
                                     ? Icons.bookmark
                                     : Icons.bookmark_border,
-                                color: AppColors.primaryGreen,
+                                color: AppColors.primaryText(context),
                                 size: 20,
                               ),
                       ),
@@ -665,7 +665,7 @@ class _OpeningHoursSection extends StatelessWidget {
           children: [
             Icon(
               Icons.access_time_rounded,
-              color: AppColors.primaryGreen,
+              color: AppColors.primaryText(context),
               size: 24,
             ),
             SizedBox(width: 8),

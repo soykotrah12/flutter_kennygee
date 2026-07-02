@@ -22,11 +22,13 @@ class MapScreen extends StatefulWidget {
     this.initialShopId,
     this.initialRestaurantName = '',
     this.autoOpenDirections = false,
+    this.initialRestaurant,
   });
 
   final String? initialShopId;
   final String initialRestaurantName;
   final bool autoOpenDirections;
+  final MapRestaurantModel? initialRestaurant;
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -43,8 +45,11 @@ class _MapScreenState extends State<MapScreen> {
     debugPrint('MAP SCREEN OPENED');
     _controller = MapFeatureController.ensureInitialized();
     _searchController = TextEditingController();
+    final MapRestaurantModel? initialRestaurant = widget.initialRestaurant;
     final String shopId = widget.initialShopId?.trim() ?? '';
-    if (widget.autoOpenDirections && shopId.isNotEmpty) {
+    if (widget.autoOpenDirections && initialRestaurant != null) {
+      unawaited(_controller.openDirectionsForRestaurant(initialRestaurant));
+    } else if (widget.autoOpenDirections && shopId.isNotEmpty) {
       unawaited(
         _controller.openDirectionsForShop(
           shopId: shopId,

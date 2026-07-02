@@ -1,7 +1,7 @@
 class ApiConstants {
-  // static const String baseDomain = 'http://10.10.26.124:5006';
+  static const String baseDomain = 'http://10.10.26.124:5006';
   // static const String baseDomain = 'https://backendkennygee.onrender.com';
-  static const String baseDomain = 'https://api.renbite.com';
+  // static const String baseDomain = 'https://api.renbite.com';
   static const String baseUrl = '$baseDomain/api/v1';
 
   static Map<String, String> get defaultHeaders => {
@@ -142,6 +142,7 @@ class ShopEndpoints {
 
   final String fetchNearbyShops = '$_base/';
   final String fetchRecommendedShops = '$_base/recommended/';
+  final String fetchGoogleNearbyRestaurants = '$_base/mapbyrestaurants';
   final String createShop = '$_base/create';
 
   String fetchShopByUser(String userId) => '$_base/user/$userId';

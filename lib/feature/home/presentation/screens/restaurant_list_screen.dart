@@ -170,7 +170,7 @@ class _RestaurantGridCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardColor(context),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(

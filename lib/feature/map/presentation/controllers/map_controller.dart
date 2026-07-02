@@ -327,7 +327,34 @@ class MapFeatureController extends GetxController {
   void openRestaurantDetails() {
     final MapRestaurantModel? restaurant = selectedRestaurant.value;
     if (restaurant == null) return;
+    if (restaurant.isExternalGooglePlace) {
+      Get.snackbar(
+        'Google Restaurant',
+        'Details are available on the previous screen.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.cardAdaptive,
+      );
+      return;
+    }
     Get.to(() => RestaurantDetailsScreen(shopId: restaurant.shopId));
+  }
+
+  Future<void> openDirectionsForRestaurant(
+    MapRestaurantModel restaurant,
+  ) async {
+    if (!restaurant.hasValidCoordinates) {
+      Get.snackbar(
+        'Directions',
+        'Restaurant location is unavailable.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.cardAdaptive,
+      );
+      return;
+    }
+
+    _upsertRestaurant(restaurant);
+    selectRestaurant(restaurant);
+    await buildRouteToSelectedRestaurant();
   }
 
   Future<void> openDirectionsForShop({

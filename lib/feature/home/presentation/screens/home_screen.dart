@@ -8,15 +8,20 @@ import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/common/widgets/wishlist_icon.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/model/google_nearby_restaurant_model.dart';
 import '../../data/model/home_recommendation_item_model.dart';
 import '../../data/model/restaurant_model.dart';
+import '../controller/google_nearby_restaurant_controller.dart';
 import '../controller/home_shop_controller.dart';
 import 'events_screen.dart';
 import 'food_list_screen.dart';
+import 'google_nearby_restaurants_screen.dart';
+import 'google_restaurant_details_screen.dart';
 import 'recommended_list_screen.dart';
 import 'restaurant_details_screen.dart';
 import 'restaurant_list_screen.dart';
 import 'single_food_screen.dart';
+import '../widgets/google_nearby_restaurant_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,6 +33,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late final TextEditingController _searchController;
   late final HomeShopController _shopController;
+  late final GoogleNearbyRestaurantController _googleNearbyController;
   StreamSubscription<ApiMutationEvent>? _mutationSubscription;
   String _searchQuery = '';
   bool _isRefreshingHomeData = false;
@@ -38,6 +44,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _searchController = TextEditingController();
     _shopController = HomeShopController.ensureInitialized();
+    _googleNearbyController =
+        GoogleNearbyRestaurantController.ensureInitialized();
     _mutationSubscription = ApiClient.mutationStream.listen((_) {
       if (!mounted) return;
       _refreshHomeData();
@@ -51,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _refreshHomeData() async {
+  Future<void> _refreshHomeData({bool forceGoogleRefresh = false}) async {
     if (_isRefreshingHomeData) return;
 
     _isRefreshingHomeData = true;
@@ -59,6 +67,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       await Future.wait<void>([
         _shopController.fetchNearbyShops(),
         _shopController.fetchRecommendedShops(),
+        forceGoogleRefresh
+            ? _googleNearbyController.refreshRestaurants()
+            : _googleNearbyController.fetchRestaurants(),
       ]);
     } finally {
       _isRefreshingHomeData = false;
@@ -107,6 +118,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }).toList();
   }
 
+  List<GoogleNearbyRestaurantModel> _filterGoogleRestaurants(
+    List<GoogleNearbyRestaurantModel> items,
+  ) {
+    final String query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return items;
+
+    return items.where((restaurant) {
+      return restaurant.title.toLowerCase().contains(query) ||
+          restaurant.address.toLowerCase().contains(query) ||
+          restaurant.distanceLabel.toLowerCase().contains(query) ||
+          restaurant.openStatusLabel.toLowerCase().contains(query);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -127,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         bodyPadding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
         body: RefreshIndicator(
           color: AppColors.primaryGreen,
-          onRefresh: _refreshHomeData,
+          onRefresh: () => _refreshHomeData(forceGoogleRefresh: true),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
@@ -227,6 +252,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               highlightColor: Colors.transparent,
                             ),
                             child: TextField(
+                              cursorColor: AppColors.primaryText1(context),
                               controller: _searchController,
                               onChanged: (value) {
                                 setState(() {
@@ -246,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 focusedBorder: InputBorder.none,
                                 disabledBorder: InputBorder.none,
                                 errorBorder: InputBorder.none,
-                                focusedErrorBorder: InputBorder.none,
+                                focusedErrorBorder: InputBorder.none,                                
                                 hintText: 'Search Restaurant, dishes...',
                                 hintStyle: TextStyle(
                                   color: AppColors.secondaryText(context),
@@ -381,6 +407,84 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   );
                 }),
                 const SizedBox(height: 18),
+                Obx(() {
+                  final bool isLoading =
+                      _googleNearbyController.isLoading.value;
+                  final String error = _googleNearbyController.error.value;
+                  final List<GoogleNearbyRestaurantModel> source =
+                      _googleNearbyController.homeRestaurants();
+                  final List<GoogleNearbyRestaurantModel> filteredRestaurants =
+                      _filterGoogleRestaurants(source);
+                  final int totalCount =
+                      _googleNearbyController.effectiveTotalCount;
+                  final String subtitle = isLoading && totalCount == 0
+                      ? '(within 10km)'
+                      : '(within 10km • $totalCount found)';
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SectionHeader(
+                        title: 'Google Nearby Restaurants',
+                        subtitle: subtitle,
+                        onSeeAll: _openGoogleNearbyRestaurants,
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        height: 224,
+                        child: isLoading && source.isEmpty
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primaryGreen,
+                                ),
+                              )
+                            : source.isEmpty
+                            ? Center(
+                                child: Text(
+                                  error.isNotEmpty
+                                      ? 'Could not load Google restaurants'
+                                      : 'No nearby Google restaurants available',
+                                  style: TextStyle(
+                                    color: AppColors.secondaryText(context),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                              )
+                            : filteredRestaurants.isEmpty
+                            ? Center(
+                                child: Text(
+                                  'No matching Google restaurants found',
+                                  style: TextStyle(
+                                    color: AppColors.secondaryText(context),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Montserrat',
+                                  ),
+                                ),
+                              )
+                            : ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: filteredRestaurants.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(width: 12),
+                                itemBuilder: (_, index) {
+                                  final GoogleNearbyRestaurantModel restaurant =
+                                      filteredRestaurants[index];
+                                  return GoogleNearbyRestaurantCard(
+                                    restaurant: restaurant,
+                                    onTap: () => _openGoogleRestaurantDetails(
+                                      restaurant,
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
+                  );
+                }),
+                const SizedBox(height: 18),
                 _OnlyTitleHeader(
                   title: 'Recommended for you',
                   onSeeAll: _openRecommendedList,
@@ -494,6 +598,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _refreshHomeData();
   }
 
+  Future<void> _openGoogleNearbyRestaurants() async {
+    await Get.to(() => const GoogleNearbyRestaurantsScreen());
+    if (!mounted) return;
+    _refreshHomeData();
+  }
+
   Future<void> _openEvents() async {
     await Get.to(() => const EventsScreen());
     if (!mounted) return;
@@ -502,6 +612,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _openRestaurantDetails(RestaurantModel restaurant) async {
     await Get.to(() => RestaurantDetailsScreen(restaurant: restaurant));
+    if (!mounted) return;
+    _refreshHomeData();
+  }
+
+  Future<void> _openGoogleRestaurantDetails(
+    GoogleNearbyRestaurantModel restaurant,
+  ) async {
+    await Get.to(() => GoogleRestaurantDetailsScreen(restaurant: restaurant));
     if (!mounted) return;
     _refreshHomeData();
   }
@@ -596,9 +714,9 @@ class _SectionHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                softWrap: false,
+                softWrap: true,
                 style: TextStyle(
                   color: AppColors.primaryText(context),
                   fontSize: 22,
