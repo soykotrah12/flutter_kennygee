@@ -2,7 +2,7 @@ name: flutter_kennegee
 description: "A new Flutter project."
 publish_to: 'none' 
 
-version: 1.0.4.0 #android current: versionCode , ios current: build 1.0.4.0
+version: 1.0.4.2 #android current: versionCode , ios current: build 1.0.4.0
 
 environment:
   sdk: ^3.11.4
