@@ -48,3 +48,5 @@ temp_interactive_push.bat
 
 android/key.properties
 android/app/upload-keystore.jks
+config.bat
+node_modules
